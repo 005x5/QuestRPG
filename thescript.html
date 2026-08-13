@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>⚔️ Code Quest RPG</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+
+            background:
+                radial-gradient(circle at top, #263b63, #080b13 70%);
+
+            display: flex;
+            justify-content: center;
+            padding: 25px;
+        }
+
+        #game {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            color: #ffd95a;
+            font-size: 42px;
+            margin: 10px 0;
+            text-shadow: 0 0 20px #ffd95a55;
+        }
+
+        header p {
+            color: #9daac2;
+        }
+
+        #stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            background: #172033;
+            border: 1px solid #34425f;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .bar {
+            height: 15px;
+            background: #080c14;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        #healthBar {
+            height: 100%;
+            width: 100%;
+            background: #e84b4b;
+            transition: 0.3s;
+        }
+
+        #xpBar {
+            height: 100%;
+            width: 0%;
+            background: #e7b83c;
+            transition: 0.3s;
+        }
+
+        .bar-text {
+            text-align: center;
+            font-size: 13px;
+            color: #c6cede;
+        }
+
+        #screen {
+            min-height: 500px;
+            background: rgba(12, 17, 28, 0.98);
+            border: 2px solid #34425f;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 0 35px #00000080;
+        }
+
+        h2 {
+            color: #ffd95a;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: #dce5f7;
+        }
+
+        button {
+            width: 100%;
+            border: 0;
+            border-radius: 10px;
+            padding: 14px;
+            margin: 6px 0;
+
+            background: #263957;
+            color: white;
+
+            font-size: 16px;
+            cursor: pointer;
+
+            transition: 0.15s;
+        }
+
+        button:hover {
+            background: #3c5780;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .gold-button {
+            background: #715b1e;
+        }
+
+        .danger-button {
+            background: #702d36;
+        }
+
+        .success-button {
+            background: #285b42;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 15px 0;
+        }
+
+        .card {
+            background: #192338;
+            border: 1px solid #34425f;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .shop-item {
+            background: #192338;
+            border: 1px solid #34425f;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .shop-item h3 {
+            color: #ffd95a;
+            margin-top: 0;
+        }
+
+        .monster {
+            text-align: center;
+            background: #251a27;
+            border: 1px solid #603c56;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .monster-emoji {
+            font-size: 80px;
+        }
+
+        .monster-health {
+            color: #ff6d6d;
+            font-weight: bold;
+        }
+
+        .message {
+            text-align: center;
+            color: #ffd95a;
+            min-height: 25px;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        .small {
+            color: #9daac2;
+            font-size: 14px;
+        }
+
+        .big {
+            font-size: 60px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        .separator {
+            border-top: 1px solid #34425f;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 700px) {
+            #stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 30px;
+            }
+
+            #screen {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game">
+
+        <header>
+            <h1>⚔️ CODE QUEST ⚔️</h1>
+            <p>Dein eigenes Browser-RPG</p>
+        </header>
+
+        <section id="stats">
+
+            <div class="stat">
+                👤
+                <strong id="name">Held</strong>
+            </div>
+
+            <div class="stat">
+                ⭐ Level
+                <strong id="level">1</strong>
+            </div>
+
+            <div class="stat">
+                💰 Gold
+                <strong id="gold">50</strong>
+            </div>
+
+            <div class="stat">
+                ❤️ Leben
+                <strong>
+                    <span id="health">100</span>/<span id="maxHealth">100</span>
+                </strong>
+            </div>
+
+        </section>
+
+        <div class="bar">
+            <div id="healthBar"></div>
+        </div>
+
+        <div class="bar-text">
+            ❤️ Leben
+        </div>
+
+        <div class="bar">
+            <div id="xpBar"></div>
+        </div>
+
+        <div class="bar-text">
+            ⭐ XP:
+            <span id="xp">0</span> /
+            <span id="xpNeeded">100</span>
+        </div>
+
+        <main id="screen"></main>
+
+        <div id="message" class="message"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
