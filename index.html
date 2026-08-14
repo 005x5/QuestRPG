@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QuestRPG</title>
+    <title>⚔️ QuestRPG</title>
 
     <style>
         * {
@@ -14,27 +14,28 @@
         body {
             margin: 0;
             min-height: 100vh;
-
-            font-family: Arial, sans-serif;
-
+            font-family: Arial, Helvetica, sans-serif;
             color: white;
-
             background:
-                radial-gradient(
-                    circle at top,
-                    #263b63,
-                    #080b13 70%
-                );
-
-            display: flex;
-            justify-content: center;
-
+                radial-gradient(circle at top, #263b63 0%, #111a2d 35%, #070a12 80%);
             padding: 25px;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
         }
 
         #game {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
+            margin: auto;
         }
 
         header {
@@ -44,119 +45,72 @@
 
         header h1 {
             margin: 5px 0;
-
             color: #ffd95a;
-
-            font-size: 44px;
-
-            text-shadow:
-                0 0 20px rgba(255, 217, 90, 0.35);
+            font-size: clamp(32px, 5vw, 52px);
+            text-shadow: 0 0 25px rgba(255, 217, 90, .25);
         }
 
         header p {
-            color: #aab6ce;
-            margin-top: 6px;
+            color: #9daac2;
+            margin: 5px;
         }
 
         #stats {
             display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-
             margin-bottom: 14px;
         }
 
         .stat {
-            background: #172033;
-
-            border:
-                1px solid #34425f;
-
-            padding: 13px;
-
-            border-radius: 12px;
-
+            background: #172238;
+            border: 1px solid #344563;
+            border-radius: 13px;
+            padding: 14px 10px;
             text-align: center;
+            min-height: 54px;
         }
 
         .stat strong {
-            margin-left: 5px;
+            margin-left: 4px;
         }
 
         .bar {
-            height: 15px;
-
-            background: #080c14;
-
-            border-radius: 20px;
-
+            height: 16px;
+            background: #060a12;
+            border-radius: 30px;
             overflow: hidden;
-
-            margin: 5px 0;
+            margin-top: 7px;
         }
 
         #healthBar {
-            height: 100%;
             width: 100%;
-
-            background: #e84b4b;
-
-            transition:
-                width 0.3s;
+            height: 100%;
+            background: #ef4c55;
+            transition: width .25s;
         }
 
         #xpBar {
-            height: 100%;
             width: 0%;
-
+            height: 100%;
             background: #e7b83c;
-
-            transition:
-                width 0.3s;
-        }
-
-        #mineBar {
-            height: 100%;
-            width: 0%;
-
-            background: #d29a2e;
-
-            transition:
-                width 0.15s;
+            transition: width .25s;
         }
 
         .bar-text {
             text-align: center;
-
-            font-size: 13px;
-
             color: #c6cede;
+            font-size: 13px;
+            margin: 5px 0 8px;
         }
 
         #screen {
             min-height: 560px;
-
-            background:
-                rgba(
-                    12,
-                    17,
-                    28,
-                    0.98
-                );
-
-            border:
-                2px solid #34425f;
-
+            background: rgba(8, 13, 23, .97);
+            border: 2px solid #344563;
             border-radius: 18px;
-
             padding: 25px;
-
-            box-shadow:
-                0 0 35px
-                rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 35px rgba(0,0,0,.45);
         }
 
         h2 {
@@ -165,476 +119,326 @@
         }
 
         h3 {
-            color: #dce5f7;
+            color: #e5ebf7;
+        }
+
+        p {
+            line-height: 1.5;
         }
 
         button {
             width: 100%;
-
-            border: 0;
-
-            border-radius: 10px;
-
+            border-radius: 11px;
             padding: 14px;
-
             margin: 6px 0;
-
-            background: #263957;
-
+            background: #263b5e;
             color: white;
-
-            font-size: 16px;
-
-            cursor: pointer;
-
-            transition: 0.15s;
+            transition: .15s;
         }
 
-        button:hover:not(:disabled) {
-            background: #3c5780;
-
-            transform:
-                translateY(-2px);
+        button:hover {
+            background: #3a5783;
+            transform: translateY(-1px);
         }
 
-        button:active:not(:disabled) {
-            transform:
-                translateY(1px);
+        button:active {
+            transform: translateY(1px);
         }
 
         button:disabled {
+            opacity: .5;
             cursor: not-allowed;
-            opacity: 0.45;
-        }
-
-        .success-button {
-            background: #285b42;
-        }
-
-        .success-button:hover:not(:disabled) {
-            background: #367a58;
-        }
-
-        .danger-button {
-            background: #702d36;
-        }
-
-        .danger-button:hover:not(:disabled) {
-            background: #8b3843;
+            transform: none;
         }
 
         .gold-button {
-            background: #715b1e;
+            background: #735d1d;
         }
 
-        .gold-button:hover:not(:disabled) {
-            background: #917729;
+        .danger-button {
+            background: #762f39;
         }
 
-        .leader-button {
-            background: #6a4b18;
+        .success-button {
+            background: #286046;
         }
 
-        .admin-button {
-            background: #563b82;
+        .purple-button {
+            background: #513b76;
         }
 
-        .admin-button:hover:not(:disabled) {
-            background: #704fa8;
+        .back-button {
+            margin-bottom: 18px;
+            background: #202d45;
+            text-align: left;
         }
 
         .card-grid {
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-
             margin: 15px 0;
         }
 
+        .card,
+        .shop-item,
+        .mission,
+        .leader-row,
+        .admin-user {
+            background: #18243a;
+            border: 1px solid #344563;
+            border-radius: 13px;
+            padding: 16px;
+        }
+
         .card {
-            background: #192338;
-
-            border:
-                1px solid #34425f;
-
-            border-radius: 12px;
-
-            padding: 15px;
-
             text-align: center;
         }
 
+        .card .icon {
+            font-size: 38px;
+        }
+
         .shop-item {
-            background: #192338;
-
-            border:
-                1px solid #34425f;
-
-            border-radius: 12px;
-
-            padding: 15px;
-
             margin: 10px 0;
         }
 
         .shop-item h3 {
-            color: #ffd95a;
             margin-top: 0;
+            color: #ffd95a;
+        }
+
+        .shop-item small {
+            color: #9daac2;
         }
 
         .monster {
             text-align: center;
-
-            background: #251a27;
-
-            border:
-                1px solid #603c56;
-
-            border-radius: 15px;
-
+            background: #251927;
+            border: 1px solid #603c56;
+            border-radius: 16px;
             padding: 20px;
-
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .monster-emoji {
-            font-size: 80px;
+            font-size: 75px;
         }
 
         .monster-health {
-            color: #ff6d6d;
+            color: #ff7070;
             font-weight: bold;
         }
 
-        .mission-card {
-            background:
-                linear-gradient(
-                    135deg,
-                    #222b42,
-                    #182035
-                );
-
-            border:
-                1px solid #566789;
-
-            border-radius: 14px;
-
-            padding: 17px;
-
-            margin: 18px 0;
-        }
-
-        .mission-card.completed {
-            border-color: #4da56e;
-        }
-
-        .mission-text {
-            margin: 8px 0;
-
-            font-size: 18px;
-        }
-
-        .setting-row {
-            display: flex;
-
-            justify-content:
-                space-between;
-
-            align-items: center;
-
-            gap: 20px;
-
-            background: #192338;
-
-            border:
-                1px solid #34425f;
-
-            border-radius: 12px;
-
-            padding: 15px;
-
-            margin: 10px 0;
-        }
-
-        .setting-row button {
-            width: auto;
-
-            min-width: 140px;
-
-            margin: 0;
-        }
-
-        .top-row {
-            display: flex;
-
-            align-items: center;
-
-            justify-content:
-                space-between;
-
-            gap: 15px;
-
-            margin-bottom: 15px;
-        }
-
-        .compact-title {
-            margin: 0;
-        }
-
-        .back-button {
-            width: auto;
-
-            min-width: 120px;
-
-            margin: 0;
-        }
-
-        .icon-button {
-            width: auto;
-
-            margin: 0;
-
-            padding:
-                11px 15px;
-        }
-
-        .form-group {
-            margin: 15px 0;
-        }
-
-        .form-group label {
-            display: block;
-
-            margin-bottom: 7px;
-
-            color: #cdd6e9;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-
-            padding: 13px;
-
+        .battle-log {
+            max-height: 150px;
+            overflow-y: auto;
+            background: #0c121f;
             border-radius: 10px;
-
-            border:
-                1px solid #3b4b6d;
-
-            background: #0d1421;
-
-            color: white;
-
-            font-size: 16px;
-
-            outline: none;
+            padding: 10px;
+            margin-top: 12px;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #ffd95a;
-        }
-
-        .mine-box {
-            text-align: center;
-
-            background: #181f31;
-
-            border:
-                1px solid #3c4d70;
-
-            border-radius: 16px;
-
-            padding: 20px;
-        }
-
-        .mine-button {
-            font-size: 21px;
-            padding: 18px;
-        }
-
-        .big {
-            font-size: 62px;
-
-            text-align: center;
-
-            margin: 20px;
-        }
-
-        .small {
-            color: #9daac2;
-
-            font-size: 14px;
-        }
-
-        .separator {
-            border-top:
-                1px solid #34425f;
-
-            margin: 20px 0;
+        .log-line {
+            padding: 5px;
+            border-bottom: 1px solid #202d42;
+            color: #cfd8e9;
         }
 
         .message {
             min-height: 25px;
-
+            text-align: center;
+            color: #ffd95a;
+            font-weight: bold;
             margin-top: 12px;
-
-            text-align: center;
-
-            color: #ffd95a;
-
-            font-weight: bold;
         }
 
-        .warning-box {
-            background: #2b1b1e;
-
-            border:
-                1px solid #8a444d;
-
-            border-radius: 12px;
-
-            padding: 15px;
-
-            margin: 15px 0;
-        }
-
-        .leaderboard {
-            width: 100%;
-
-            border-collapse:
-                collapse;
-
-            margin-top: 15px;
-        }
-
-        .leaderboard th,
-        .leaderboard td {
-            border-bottom:
-                1px solid #34425f;
-
-            padding: 12px 8px;
-
-            text-align: left;
-        }
-
-        .leaderboard th {
-            color: #ffd95a;
-        }
-
-        .leaderboard tr.me {
-            background:
-                rgba(
-                    255,
-                    217,
-                    90,
-                    0.09
-                );
-        }
-
-        .rank {
-            width: 55px;
-            font-weight: bold;
-        }
-
-        .leaderboard-empty {
-            text-align: center;
-
+        .small {
             color: #9daac2;
-
-            padding:
-                35px 10px;
+            font-size: 14px;
         }
 
-        .admin-player {
-            background: #192338;
+        .big {
+            font-size: 60px;
+            text-align: center;
+            margin: 15px;
+        }
 
-            border:
-                1px solid #34425f;
+        .separator {
+            border-top: 1px solid #344563;
+            margin: 20px 0;
+        }
 
-            border-radius: 12px;
+        input,
+        select {
+            width: 100%;
+            padding: 14px;
+            margin: 7px 0 12px;
+            border-radius: 11px;
+            border: 1px solid #344563;
+            background: #0b111d;
+            color: white;
+            outline: none;
+        }
 
-            padding: 15px;
+        input:focus,
+        select:focus {
+            border-color: #ffd95a;
+        }
 
+        label {
+            display: block;
+            color: #cdd6e8;
+            margin-top: 8px;
+        }
+
+        .top-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .top-actions button {
+            margin: 0;
+        }
+
+        .mission {
             margin: 10px 0;
         }
 
-        .admin-player.banned {
-            border-color: #a34a54;
-
-            background: #291a1f;
+        .mission.completed {
+            border-color: #3f8c61;
         }
 
-        .admin-user-button {
-            text-align: left;
-            background: #192338;
+        .leader-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 8px 0;
         }
 
-        .admin-user-button:hover {
-            background: #263957;
+        .rank {
+            font-size: 25px;
+            width: 45px;
+            text-align: center;
+        }
+
+        .leader-info {
+            flex: 1;
+        }
+
+        .leader-info strong {
+            font-size: 17px;
+        }
+
+        .admin-user {
+            margin: 7px 0;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        .admin-user:hover {
+            background: #263a5d;
         }
 
         .admin-selected {
-            border:
-                2px solid #7057a8;
+            border: 2px solid #ffd95a;
+        }
+
+        .admin-panel {
+            background: #131e31;
+            border: 1px solid #465a7b;
+            border-radius: 15px;
+            padding: 18px;
+            margin-top: 15px;
+        }
+
+        .admin-title {
+            color: #ffd95a;
+            font-size: 22px;
+            margin-top: 0;
         }
 
         .badge {
             display: inline-block;
+            background: #263957;
+            border: 1px solid #546b91;
+            border-radius: 7px;
+            padding: 2px 7px;
+            margin-left: 5px;
+            font-size: 14px;
+        }
 
-            margin-left: 4px;
+        .admin-badge {
+            background: #503f20;
+            border-color: #8e752e;
+        }
 
+        .mine-box {
+            text-align: center;
+            background: #121c2d;
+            border: 1px solid #344563;
+            border-radius: 17px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        #mineButton {
+            font-size: 22px;
+            padding: 25px;
+            background: #6b5720;
+        }
+
+        .mine-number {
+            font-size: 42px;
             color: #ffd95a;
-
             font-weight: bold;
         }
 
-        @media (max-width: 700px) {
+        .cooldown {
+            color: #9daac2;
+            margin-top: 10px;
+        }
 
+        .equipment {
+            background: #121c2d;
+            border-radius: 12px;
+            padding: 14px;
+            margin: 10px 0;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .error {
+            color: #ff7474;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        .success {
+            color: #67d49a;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        @media(max-width: 750px) {
             #stats {
-                grid-template-columns:
-                    repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .card-grid {
-                grid-template-columns:
-                    1fr;
+                grid-template-columns: 1fr;
             }
 
-            .setting-row {
-                flex-direction:
-                    column;
-
-                align-items:
-                    stretch;
-            }
-
-            .setting-row button {
-                width: 100%;
-            }
-
-            header h1 {
-                font-size: 31px;
+            .top-actions {
+                grid-template-columns: 1fr;
             }
 
             #screen {
-                padding: 18px;
-            }
-
-            .top-row {
-                align-items:
-                    flex-start;
-            }
-
-            .leaderboard th,
-            .leaderboard td {
-                font-size: 13px;
-
-                padding:
-                    9px 5px;
+                padding: 17px;
             }
         }
     </style>
@@ -642,130 +446,61 @@
 
 <body>
 
-    <div id="game">
+<div id="game">
 
-        <header>
+    <header>
+        <h1>⚔️ QuestRPG ⚔️</h1>
+        <p>Dein eigenes Browser-RPG</p>
+    </header>
 
-            <h1>
-                ⚔️ QuestRPG ⚔️
-            </h1>
+    <section id="stats">
 
-            <p>
-                Dein eigenes Browser-RPG
-            </p>
-
-        </header>
-
-
-        <section id="stats">
-
-            <div class="stat">
-
-                👤
-
-                <strong id="name">
-                    Gast
-                </strong>
-
-            </div>
-
-
-            <div class="stat">
-
-                ⭐ Level
-
-                <strong id="level">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="stat">
-
-                💰 Gold
-
-                <strong id="gold">
-                    -
-                </strong>
-
-            </div>
-
-
-            <div class="stat">
-
-                ❤️ Leben
-
-                <strong>
-
-                    <span id="health">
-                        -
-                    </span>
-
-                    /
-
-                    <span id="maxHealth">
-                        -
-                    </span>
-
-                </strong>
-
-            </div>
-
-        </section>
-
-
-        <div class="bar">
-
-            <div id="healthBar"></div>
-
+        <div class="stat">
+            👤 <strong id="name">Gast</strong>
         </div>
 
+        <div class="stat">
+            ⭐ Level <strong id="level">-</strong>
+        </div>
 
-        <div class="bar-text">
+        <div class="stat">
+            💰 Gold <strong id="gold">-</strong>
+        </div>
+
+        <div class="stat">
             ❤️ Leben
+            <strong>
+                <span id="health">-</span>/<span id="maxHealth">-</span>
+            </strong>
         </div>
 
+    </section>
 
-        <div class="bar">
-
-            <div id="xpBar"></div>
-
-        </div>
-
-
-        <div class="bar-text">
-
-            ⭐ XP:
-
-            <span id="xp">
-                -
-            </span>
-
-            /
-
-            <span id="xpNeeded">
-                -
-            </span>
-
-        </div>
-
-
-        <main id="screen"></main>
-
-
-        <div
-            id="message"
-            class="message">
-        </div>
-
+    <div class="bar">
+        <div id="healthBar"></div>
     </div>
 
+    <div class="bar-text">
+        ❤️ Leben
+    </div>
 
-    <script
-        src="script.js"
-        defer>
-    </script>
+    <div class="bar">
+        <div id="xpBar"></div>
+    </div>
+
+    <div class="bar-text">
+        ⭐ XP:
+        <span id="xp">-</span> /
+        <span id="xpNeeded">-</span>
+    </div>
+
+    <main id="screen"></main>
+
+    <div id="message" class="message"></div>
+
+</div>
+
+<script src="script.js"></script>
 
 </body>
 </html>
