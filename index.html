@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>⚔️ QuestRPG</title>
+    <title>QuestRPG by 005x5</title>
 
     <style>
         * {
@@ -17,14 +17,14 @@
             font-family: Arial, Helvetica, sans-serif;
             color: white;
             background:
-                radial-gradient(circle at top, #263b63 0%, #111a2d 35%, #070a12 80%);
-            padding: 25px;
+                radial-gradient(circle at top, #263b63 0%, #101827 45%, #060912 100%);
+            padding: 20px;
         }
 
         button,
         input,
         select {
-            font: inherit;
+            font-family: inherit;
         }
 
         button {
@@ -44,31 +44,52 @@
         }
 
         header h1 {
-            margin: 5px 0;
             color: #ffd95a;
-            font-size: clamp(32px, 5vw, 52px);
-            text-shadow: 0 0 25px rgba(255, 217, 90, .25);
+            font-size: 44px;
+            margin: 10px 0 5px;
+            text-shadow: 0 0 25px rgba(255, 217, 90, .3);
         }
 
         header p {
             color: #9daac2;
-            margin: 5px;
+            margin: 0;
+        }
+
+        #topButtons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .top-button {
+            width: auto;
+            min-width: 130px;
+            padding: 11px 18px;
+            background: #172238;
+            border: 1px solid #34425f;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .top-button:hover {
+            background: #2a3c5d;
         }
 
         #stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 15px;
         }
 
         .stat {
             background: #172238;
-            border: 1px solid #344563;
-            border-radius: 13px;
-            padding: 14px 10px;
+            border: 1px solid #34425f;
+            padding: 13px;
+            border-radius: 12px;
             text-align: center;
-            min-height: 54px;
         }
 
         .stat strong {
@@ -77,22 +98,22 @@
 
         .bar {
             height: 16px;
-            background: #060a12;
-            border-radius: 30px;
+            background: #080c14;
+            border-radius: 20px;
             overflow: hidden;
-            margin-top: 7px;
+            margin: 6px 0;
         }
 
         #healthBar {
-            width: 100%;
             height: 100%;
-            background: #ef4c55;
+            width: 100%;
+            background: #ed4c4c;
             transition: width .25s;
         }
 
         #xpBar {
-            width: 0%;
             height: 100%;
+            width: 0%;
             background: #e7b83c;
             transition: width .25s;
         }
@@ -101,16 +122,16 @@
             text-align: center;
             color: #c6cede;
             font-size: 13px;
-            margin: 5px 0 8px;
+            margin-bottom: 7px;
         }
 
         #screen {
-            min-height: 560px;
+            min-height: 550px;
             background: rgba(8, 13, 23, .97);
-            border: 2px solid #344563;
+            border: 2px solid #34425f;
             border-radius: 18px;
             padding: 25px;
-            box-shadow: 0 0 35px rgba(0,0,0,.45);
+            box-shadow: 0 0 35px rgba(0,0,0,.4);
         }
 
         h2 {
@@ -119,58 +140,49 @@
         }
 
         h3 {
-            color: #e5ebf7;
+            color: #dce5f7;
         }
 
-        p {
-            line-height: 1.5;
-        }
-
-        button {
+        button.action {
             width: 100%;
-            border-radius: 11px;
+            border-radius: 10px;
             padding: 14px;
             margin: 6px 0;
-            background: #263b5e;
+            background: #263957;
             color: white;
+            font-size: 16px;
             transition: .15s;
         }
 
-        button:hover {
-            background: #3a5783;
-            transform: translateY(-1px);
+        button.action:hover {
+            background: #3c5780;
+            transform: translateY(-2px);
         }
 
-        button:active {
+        button.action:active {
             transform: translateY(1px);
         }
 
-        button:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-            transform: none;
+        button.gold {
+            background: #715b1e;
         }
 
-        .gold-button {
-            background: #735d1d;
+        button.danger {
+            background: #702d36;
         }
 
-        .danger-button {
-            background: #762f39;
+        button.success {
+            background: #285b42;
         }
 
-        .success-button {
-            background: #286046;
-        }
-
-        .purple-button {
-            background: #513b76;
+        button.purple {
+            background: #4d3975;
         }
 
         .back-button {
-            margin-bottom: 18px;
-            background: #202d45;
-            text-align: left;
+            background: #1b2942 !important;
+            border: 1px solid #3d4e6d;
+            margin-bottom: 20px !important;
         }
 
         .card-grid {
@@ -180,45 +192,59 @@
             margin: 15px 0;
         }
 
-        .card,
-        .shop-item,
-        .mission,
-        .leader-row,
-        .admin-user {
-            background: #18243a;
-            border: 1px solid #344563;
-            border-radius: 13px;
-            padding: 16px;
-        }
-
         .card {
+            background: #192338;
+            border: 1px solid #34425f;
+            border-radius: 12px;
+            padding: 17px;
             text-align: center;
         }
 
-        .card .icon {
-            font-size: 38px;
+        .shop-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .shop-tab {
+            padding: 12px;
+            border-radius: 9px;
+            background: #18243a;
+            color: white;
+            border: 1px solid #34425f;
+        }
+
+        .shop-tab.active {
+            background: #705b1f;
+            border-color: #d4ad35;
         }
 
         .shop-item {
+            background: #192338;
+            border: 1px solid #34425f;
+            border-radius: 12px;
+            padding: 16px;
             margin: 10px 0;
         }
 
         .shop-item h3 {
-            margin-top: 0;
             color: #ffd95a;
+            margin: 0 0 8px;
         }
 
-        .shop-item small {
-            color: #9daac2;
+        .price {
+            color: #ffd95a;
+            font-weight: bold;
         }
 
         .monster {
             text-align: center;
-            background: #251927;
+            background: #251a27;
             border: 1px solid #603c56;
-            border-radius: 16px;
+            border-radius: 15px;
             padding: 20px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .monster-emoji {
@@ -226,31 +252,16 @@
         }
 
         .monster-health {
-            color: #ff7070;
+            color: #ff6d6d;
             font-weight: bold;
-        }
-
-        .battle-log {
-            max-height: 150px;
-            overflow-y: auto;
-            background: #0c121f;
-            border-radius: 10px;
-            padding: 10px;
-            margin-top: 12px;
-        }
-
-        .log-line {
-            padding: 5px;
-            border-bottom: 1px solid #202d42;
-            color: #cfd8e9;
         }
 
         .message {
-            min-height: 25px;
             text-align: center;
             color: #ffd95a;
-            font-weight: bold;
+            min-height: 25px;
             margin-top: 12px;
+            font-weight: bold;
         }
 
         .small {
@@ -259,13 +270,13 @@
         }
 
         .big {
-            font-size: 60px;
+            font-size: 65px;
             text-align: center;
-            margin: 15px;
+            margin: 20px;
         }
 
         .separator {
-            border-top: 1px solid #344563;
+            border-top: 1px solid #34425f;
             margin: 20px 0;
         }
 
@@ -273,11 +284,12 @@
         select {
             width: 100%;
             padding: 14px;
-            margin: 7px 0 12px;
-            border-radius: 11px;
-            border: 1px solid #344563;
-            background: #0b111d;
+            margin: 7px 0;
+            border-radius: 10px;
+            border: 1px solid #34425f;
+            background: #0d1422;
             color: white;
+            font-size: 16px;
             outline: none;
         }
 
@@ -286,145 +298,79 @@
             border-color: #ffd95a;
         }
 
-        label {
-            display: block;
-            color: #cdd6e8;
-            margin-top: 8px;
+        .login-box {
+            max-width: 500px;
+            margin: 40px auto;
         }
 
-        .top-actions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 18px;
-        }
-
-        .top-actions button {
-            margin: 0;
-        }
-
-        .mission {
-            margin: 10px 0;
-        }
-
-        .mission.completed {
-            border-color: #3f8c61;
-        }
-
-        .leader-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin: 8px 0;
-        }
-
-        .rank {
-            font-size: 25px;
-            width: 45px;
+        .mining-box {
             text-align: center;
-        }
-
-        .leader-info {
-            flex: 1;
-        }
-
-        .leader-info strong {
-            font-size: 17px;
-        }
-
-        .admin-user {
-            margin: 7px 0;
-            cursor: pointer;
-            transition: .15s;
-        }
-
-        .admin-user:hover {
-            background: #263a5d;
-        }
-
-        .admin-selected {
-            border: 2px solid #ffd95a;
-        }
-
-        .admin-panel {
-            background: #131e31;
-            border: 1px solid #465a7b;
+            background: #101b2c;
+            border: 1px solid #34425f;
             border-radius: 15px;
-            padding: 18px;
-            margin-top: 15px;
-        }
-
-        .admin-title {
-            color: #ffd95a;
-            font-size: 22px;
-            margin-top: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            background: #263957;
-            border: 1px solid #546b91;
-            border-radius: 7px;
-            padding: 2px 7px;
-            margin-left: 5px;
-            font-size: 14px;
-        }
-
-        .admin-badge {
-            background: #503f20;
-            border-color: #8e752e;
-        }
-
-        .mine-box {
-            text-align: center;
-            background: #121c2d;
-            border: 1px solid #344563;
-            border-radius: 17px;
             padding: 25px;
-            margin: 20px 0;
         }
 
         #mineButton {
-            font-size: 22px;
-            padding: 25px;
-            background: #6b5720;
+            font-size: 20px;
+            min-height: 75px;
         }
 
-        .mine-number {
-            font-size: 42px;
+        .click-counter {
+            font-size: 28px;
             color: #ffd95a;
-            font-weight: bold;
+            margin: 15px 0;
         }
 
         .cooldown {
             color: #9daac2;
-            margin-top: 10px;
+            margin: 10px;
         }
 
-        .equipment {
-            background: #121c2d;
+        .admin-user {
+            background: #192338;
+            border: 1px solid #34425f;
             border-radius: 12px;
-            padding: 14px;
+            padding: 15px;
             margin: 10px 0;
         }
 
-        .center {
-            text-align: center;
+        .admin-user.selected {
+            border-color: #ffd95a;
+            box-shadow: 0 0 15px rgba(255,217,90,.15);
         }
 
-        .error {
-            color: #ff7474;
-            text-align: center;
-            margin: 8px 0;
+        .admin-actions {
+            margin-top: 15px;
         }
 
-        .success {
-            color: #67d49a;
-            text-align: center;
-            margin: 8px 0;
+        .admin-badge {
+            display: inline-block;
+            font-size: 18px;
+            margin-left: 5px;
         }
 
-        @media(max-width: 750px) {
+        .status-online {
+            color: #4ee58a;
+        }
+
+        .status-banned {
+            color: #ff6b6b;
+        }
+
+        .quest {
+            background: #192338;
+            border: 1px solid #34425f;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .quest strong {
+            color: #ffd95a;
+        }
+
+        @media (max-width: 750px) {
             #stats {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -433,8 +379,12 @@
                 grid-template-columns: 1fr;
             }
 
-            .top-actions {
-                grid-template-columns: 1fr;
+            .shop-tabs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            header h1 {
+                font-size: 32px;
             }
 
             #screen {
@@ -449,26 +399,34 @@
 <div id="game">
 
     <header>
-        <h1>⚔️ QuestRPG ⚔️</h1>
-        <p>Dein eigenes Browser-RPG</p>
+        <h1 id="gameTitle">⚔️ QuestRPG ⚔️</h1>
+        <p id="subtitle">QuestRPG by 005x5</p>
     </header>
+
+    <div id="topButtons"></div>
 
     <section id="stats">
 
         <div class="stat">
-            👤 <strong id="name">Gast</strong>
+            <span class="emoji">👤</span>
+            <strong id="name">Gast</strong>
         </div>
 
         <div class="stat">
-            ⭐ Level <strong id="level">-</strong>
+            <span class="emoji">⭐</span>
+            <span id="levelLabel">Level</span>
+            <strong id="level">-</strong>
         </div>
 
         <div class="stat">
-            💰 Gold <strong id="gold">-</strong>
+            <span class="emoji">💰</span>
+            <span id="goldLabel">Gold</span>
+            <strong id="gold">-</strong>
         </div>
 
         <div class="stat">
-            ❤️ Leben
+            <span class="emoji">❤️</span>
+            <span id="healthLabel">Leben</span>
             <strong>
                 <span id="health">-</span>/<span id="maxHealth">-</span>
             </strong>
@@ -481,7 +439,8 @@
     </div>
 
     <div class="bar-text">
-        ❤️ Leben
+        <span class="emoji">❤️</span>
+        <span id="healthBarText">Leben</span>
     </div>
 
     <div class="bar">
@@ -489,7 +448,8 @@
     </div>
 
     <div class="bar-text">
-        ⭐ XP:
+        <span class="emoji">⭐</span>
+        XP:
         <span id="xp">-</span> /
         <span id="xpNeeded">-</span>
     </div>
