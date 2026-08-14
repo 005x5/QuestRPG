@@ -1,85 +1,309 @@
-"use strict";
+// ============================================================
+// QuestRPG by 005x5
+// ============================================================
 
-/*2
-    QuestRPG
-    --------
-    Speicherung:
-    KEINE COOKIES.
-    Alles wird mit localStorage gespeichert.
+const OWNER = "005x5";
+const STORAGE_KEY = "questrpg_users_v2";
+const SESSION_KEY = "questrpg_session_v2";
+const SETTINGS_KEY = "questrpg_settings_v2";
 
-    Hinweis:
-    Das ist ein Browser-Spiel. Ein echtes Online-Account-System
-    mit sicheren Passwörtern/Adminrechten braucht einen Server.
-    Dieses System ist für ein lokales VS-Code-Projekt gedacht.
-*/
+
+// ============================================================
+// ÜBERSETZUNGEN
+// ============================================================
+
+const translations = {
+
+    de: {
+        subtitle: "QuestRPG by 005x5",
+        login: "Anmelden",
+        register: "Registrieren",
+        guest: "Als Gast spielen",
+        settings: "Einstellungen",
+        admin: "Admin Panel",
+        logout: "Ausloggen",
+        back: "← Zurück",
+        home: "Startseite",
+        shop: "Shop",
+        fight: "Kampf",
+        mine: "Goldmine",
+        missions: "Missionen",
+
+        username: "Benutzername",
+        password: "Passwort",
+        usernamePlaceholder: "Benutzername",
+        passwordPlaceholder: "Passwort",
+
+        level: "Level",
+        gold: "Gold",
+        health: "Leben",
+
+        attack: "Angreifen",
+        potion: "Heiltrank",
+        run: "Fliehen",
+
+        noPotion: "Du hast keinen Heiltrank.",
+        healed: "Du hast dich geheilt!",
+        enemyDefeated: "Monster besiegt!",
+
+        miningTitle: "⛏️ Goldmine",
+        miningText: "Klicke die benötigte Anzahl!",
+        miningButton: "⛏️ GOLD ABBAUEN",
+        miningCooldown: "Nächster Abbau in",
+
+        missionsTitle: "📜 Missionen",
+        missionDone: "Mission abgeschlossen!",
+
+        shopTitle: "🏪 Shop",
+        swords: "⚔️ Schwerter",
+        armor: "🛡️ Rüstungen",
+        potions: "🧪 Heiltränke",
+        pickaxes: "⛏️ Pickaxes",
+
+        settingsTitle: "⚙️ Einstellungen",
+        language: "Sprache",
+        emojis: "Emojis",
+        emojisOn: "😀 Emojis: AN",
+        emojisOff: "Emojis: AUS",
+
+        deleteAccount: "🗑️ Account löschen",
+        confirmDelete: "Möchtest du deinen Account wirklich löschen?",
+
+        adminTitle: "🖥️ Admin Panel",
+        searchUser: "User suchen",
+        selectUser: "Account auswählen",
+        giveGold: "Gold geben",
+        resetGold: "Gold auf 0 setzen",
+        setLevel: "Level setzen",
+        resetLevel: "Level zurücksetzen",
+        ban: "Account bannen",
+        unban: "Account entbannen",
+        deleteUser: "Account löschen",
+        makeAdmin: "Admin geben",
+        removeAdmin: "Admin entfernen",
+
+        active: "Aktiv",
+        banned: "GEBANNT",
+        noUsers: "Keine Accounts gefunden.",
+
+        loginSuccess: "Erfolgreich angemeldet!",
+        registerSuccess: "Account erstellt!",
+        wrongLogin: "Benutzername oder Passwort falsch.",
+        bannedLogin: "Dieser Account wurde gebannt.",
+        invalidUsername: "Der Benutzername darf nur Buchstaben, Zahlen und _ enthalten.",
+        usernameTaken: "Dieser Benutzername existiert bereits.",
+        passwordShort: "Das Passwort muss mindestens 4 Zeichen haben.",
+
+        insufficientGold: "Nicht genug Gold.",
+        purchased: "Gekauft!",
+        levelUp: "Level Up!",
+        victory: "Sieg!",
+        defeat: "Du wurdest besiegt!",
+        escaped: "Du bist geflohen.",
+
+        clickMore: "Noch",
+        clicks: "Klicks",
+        miningReward: "Du hast Gold gefunden!"
+    },
+
+    en: {
+        subtitle: "QuestRPG by 005x5",
+        login: "Login",
+        register: "Register",
+        guest: "Play as Guest",
+        settings: "Settings",
+        admin: "Admin Panel",
+        logout: "Logout",
+        back: "← Back",
+        home: "Home",
+        shop: "Shop",
+        fight: "Fight",
+        mine: "Gold Mine",
+        missions: "Missions",
+
+        username: "Username",
+        password: "Password",
+        usernamePlaceholder: "Username",
+        passwordPlaceholder: "Password",
+
+        level: "Level",
+        gold: "Gold",
+        health: "Health",
+
+        attack: "Attack",
+        potion: "Healing Potion",
+        run: "Escape",
+
+        noPotion: "You don't have a potion.",
+        healed: "You healed yourself!",
+        enemyDefeated: "Monster defeated!",
+
+        miningTitle: "⛏️ Gold Mine",
+        miningText: "Click the required amount!",
+        miningButton: "⛏️ MINE GOLD",
+        miningCooldown: "Next mining in",
+
+        missionsTitle: "📜 Missions",
+        missionDone: "Mission completed!",
+
+        shopTitle: "🏪 Shop",
+        swords: "⚔️ Swords",
+        armor: "🛡️ Armor",
+        potions: "🧪 Healing Potions",
+        pickaxes: "⛏️ Pickaxes",
+
+        settingsTitle: "⚙️ Settings",
+        language: "Language",
+        emojis: "Emojis",
+        emojisOn: "😀 Emojis: ON",
+        emojisOff: "Emojis: OFF",
+
+        deleteAccount: "🗑️ Delete Account",
+        confirmDelete: "Do you really want to delete your account?",
+
+        adminTitle: "🖥️ Admin Panel",
+        searchUser: "Search user",
+        selectUser: "Select account",
+        giveGold: "Give Gold",
+        resetGold: "Set Gold to 0",
+        setLevel: "Set Level",
+        resetLevel: "Reset Level",
+        ban: "Ban Account",
+        unban: "Unban Account",
+        deleteUser: "Delete Account",
+        makeAdmin: "Give Admin",
+        removeAdmin: "Remove Admin",
+
+        active: "Active",
+        banned: "BANNED",
+        noUsers: "No accounts found.",
+
+        loginSuccess: "Successfully logged in!",
+        registerSuccess: "Account created!",
+        wrongLogin: "Wrong username or password.",
+        bannedLogin: "This account is banned.",
+        invalidUsername: "Username may only contain letters, numbers and _.",
+        usernameTaken: "This username already exists.",
+        passwordShort: "Password must contain at least 4 characters.",
+
+        insufficientGold: "Not enough gold.",
+        purchased: "Purchased!",
+        levelUp: "Level Up!",
+        victory: "Victory!",
+        defeat: "You were defeated!",
+        escaped: "You escaped.",
+
+        clickMore: "Still",
+        clicks: "clicks",
+        miningReward: "You found gold!"
+    }
+};
+
 
 // ============================================================
 // DATEN
 // ============================================================
 
-const STORAGE_KEY = "questrpg_accounts_v4";
-const CURRENT_KEY = "questrpg_current_user_v4";
-const SETTINGS_KEY = "questrpg_settings_v4";
-
-let accounts = loadAccounts();
-let currentUser = localStorage.getItem(CURRENT_KEY) || null;
+let users = loadUsers();
 
 let settings = loadSettings();
 
-let currentScreen = "home";
-let currentEnemy = null;
-let battleLog = [];
+let currentUser = null;
 
-let mining = {
+let currentScreen = "home";
+
+let shopTab = "swords";
+
+let currentMonster = null;
+
+let miningState = {
     active: false,
-    clicksNeeded: 0,
     clicks: 0,
-    endTime: 0,
-    timer: null
+    required: 0,
+    timer: null,
+    cooldownUntil: 0
 };
 
 let adminSelectedUser = null;
 
 
 // ============================================================
-// HILFSFUNKTIONEN
+// SPEICHERN
 // ============================================================
 
-function loadAccounts() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+function loadUsers() {
 
-        if (!saved) {
+    try {
+
+        const data = localStorage.getItem(STORAGE_KEY);
+
+        if (!data) {
             return {};
         }
 
-        return JSON.parse(saved);
+        const parsed = JSON.parse(data);
+
+        if (!parsed || typeof parsed !== "object") {
+            return {};
+        }
+
+        return parsed;
+
     } catch (error) {
-        console.error("Accounts konnten nicht geladen werden:", error);
+
+        console.error("User loading error:", error);
+
         return {};
     }
 }
 
-function saveAccounts() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+
+function saveUsers() {
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(users)
+    );
 }
 
-function loadSettings() {
-    try {
-        const saved = localStorage.getItem(SETTINGS_KEY);
 
-        if (!saved) {
+function saveUser(username) {
+
+    if (!username) {
+        return;
+    }
+
+    if (!users[username]) {
+        return;
+    }
+
+    saveUsers();
+}
+
+
+function loadSettings() {
+
+    try {
+
+        const data = localStorage.getItem(SETTINGS_KEY);
+
+        if (!data) {
+
             return {
                 language: "de",
                 emojis: true
             };
         }
 
+        const parsed = JSON.parse(data);
+
         return {
-            language: saved.language || "de",
-            emojis: saved.emojis !== false
+            language: parsed.language === "en" ? "en" : "de",
+            emojis: parsed.emojis !== false
         };
+
     } catch {
+
         return {
             language: "de",
             emojis: true
@@ -87,594 +311,164 @@ function loadSettings() {
     }
 }
 
+
 function saveSettings() {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+
+    localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify(settings)
+    );
 }
 
-function getUser() {
-    if (!currentUser) {
-        return null;
+
+function saveSession(username) {
+
+    if (username) {
+        localStorage.setItem(
+            SESSION_KEY,
+            username
+        );
+    } else {
+        localStorage.removeItem(SESSION_KEY);
     }
-
-    return accounts[currentUser] || null;
 }
 
-function saveCurrentUser() {
-    if (currentUser && accounts[currentUser]) {
-        saveAccounts();
-    }
-}
 
-function escapeHTML(text) {
-    const div = document.createElement("div");
-    div.textContent = String(text);
-    return div.innerHTML;
-}
+function loadSession() {
 
-/*
-    Ganz wichtig:
-    Emojis werden NICHT mehr als HTML eingefügt.
-    Dadurch kann nicht mehr versehentlich
-    <span class="emoji">...</span>
-    im Spiel angezeigt werden.
-*/
-function safeText(text) {
-    return escapeHTML(text);
-}
-
-function icon(emoji) {
-    return settings.emojis ? emoji : "";
-}
-
-function showMessage(text) {
-    document.getElementById("message").textContent = text;
-
-    clearTimeout(showMessage.timeout);
-
-    showMessage.timeout = setTimeout(() => {
-        document.getElementById("message").textContent = "";
-    }, 3000);
-}
-
-function generateId() {
-    return Date.now() + "_" + Math.random().toString(36).slice(2);
+    return localStorage.getItem(SESSION_KEY);
 }
 
 
 // ============================================================
-// SPIELERDATEN
+// ÜBERSETZUNG
 // ============================================================
 
-function createPlayer(username, password) {
-    return {
+function t(key) {
+
+    return translations[settings.language][key] ||
+           translations.de[key] ||
+           key;
+}
+
+
+// ============================================================
+// EMOJIS
+// ============================================================
+
+function emoji(text) {
+
+    if (!settings.emojis) {
+        return "";
+    }
+
+    return text;
+}
+
+
+function updateEmojiVisibility() {
+
+    document.querySelectorAll(".emoji").forEach(el => {
+
+        const value = el.dataset.emoji;
+
+        if (value !== undefined) {
+
+            el.textContent =
+                settings.emojis ? value : "";
+        }
+    });
+}
+
+
+// ============================================================
+// USERNAME SICHERHEIT
+// ============================================================
+
+function isValidUsername(username) {
+
+    return /^[A-Za-z0-9_]+$/.test(username);
+}
+
+
+// ============================================================
+// USER ERSTELLEN
+// ============================================================
+
+function createUser(username, password) {
+
+    username = username.trim();
+
+    if (!isValidUsername(username)) {
+
+        showMessage(t("invalidUsername"));
+
+        return false;
+    }
+
+    if (password.length < 4) {
+
+        showMessage(t("passwordShort"));
+
+        return false;
+    }
+
+    if (users[username]) {
+
+        showMessage(t("usernameTaken"));
+
+        return false;
+    }
+
+    users[username] = {
+
         username: username,
+
         password: password,
 
+        gold: username === OWNER ? 500 : 50,
+
         level: 1,
+
         xp: 0,
 
-        gold: 50,
-
-        maxHealth: 100,
         health: 100,
 
-        weapon: {
-            name: "Holzschwert",
-            damage: 10
-        },
+        maxHealth: 100,
 
-        armor: {
-            name: "Keine Rüstung",
-            health: 0
-        },
+        damage: 10,
 
-        pickaxe: {
-            name: "Alte Spitzhacke",
-            miningBonus: 0
-        },
+        armor: 0,
 
-        inventory: [],
+        potions: 1,
 
-        completedMissions: [],
+        pickaxePower: 1,
 
         banned: false,
-        admin: username.toUpperCase() === "MORITZMAN3",
 
-        created: Date.now()
+        admin: username === OWNER,
+
+        created: Date.now(),
+
+        inventory: {
+            swords: [],
+            armor: [],
+            pickaxes: []
+        }
+
     };
-}
 
-function normalizeUsername(username) {
-    return username.trim().toUpperCase();
-}
+    saveUsers();
 
-function usernameIsValid(username) {
-    /*
-        Nur Buchstaben, Zahlen und _
-        Dadurch sind Emojis im Namen verboten.
-    */
-    return /^[A-Z0-9_]{3,20}$/i.test(username);
-}
+    currentUser = users[username];
 
+    saveSession(username);
 
-// ============================================================
-// INITIALER ADMIN
-// ============================================================
+    showMessage(t("registerSuccess"));
 
-function ensureMainAdmin() {
-    const key = "MORITZMAN3";
+    renderHome();
 
-    if (!accounts[key]) {
-        accounts[key] = createPlayer("MORITZMAN3", "MORITZMAN3");
-        accounts[key].admin = true;
-        saveAccounts();
-    } else {
-        accounts[key].admin = true;
-    }
-}
-
-ensureMainAdmin();
-
-
-// ============================================================
-// SHOP
-// ============================================================
-
-const weapons = [
-    {
-        id: "bronze_sword",
-        name: "Bronzeschwert",
-        icon: "🗡️",
-        price: 100,
-        damage: 18
-    },
-    {
-        id: "silver_sword",
-        name: "Silberschwert",
-        icon: "⚔️",
-        price: 250,
-        damage: 30
-    },
-    {
-        id: "gold_sword",
-        name: "Goldschwert",
-        icon: "⚔️",
-        price: 500,
-        damage: 48
-    },
-    {
-        id: "diamond_sword",
-        name: "Diamantschwert",
-        icon: "💎",
-        price: 1000,
-        damage: 75
-    },
-    {
-        id: "obsidian_sword",
-        name: "Obsidianschwert",
-        icon: "🔥",
-        price: 2000,
-        damage: 110
-    },
-    {
-        id: "legendary_sword",
-        name: "Legendenschwert",
-        icon: "🌟",
-        price: 5000,
-        damage: 180
-    }
-];
-
-const armors = [
-    {
-        id: "bronze_armor",
-        name: "Bronzerüstung",
-        icon: "🛡️",
-        price: 120,
-        health: 30
-    },
-    {
-        id: "silver_armor",
-        name: "Silberrüstung",
-        icon: "🛡️",
-        price: 300,
-        health: 60
-    },
-    {
-        id: "gold_armor",
-        name: "Goldrüstung",
-        icon: "👑",
-        price: 650,
-        health: 100
-    },
-    {
-        id: "diamond_armor",
-        name: "Diamantrüstung",
-        icon: "💎",
-        price: 1300,
-        health: 160
-    },
-    {
-        id: "obsidian_armor",
-        name: "Obsidianrüstung",
-        icon: "🔥",
-        price: 2500,
-        health: 230
-    },
-    {
-        id: "legendary_armor",
-        name: "Legendäre Rüstung",
-        icon: "🌟",
-        price: 6000,
-        health: 350
-    }
-];
-
-const pickaxes = [
-    {
-        id: "stone_pickaxe",
-        name: "Steinspitzhacke",
-        icon: "⛏️",
-        price: 80,
-        bonus: 2
-    },
-    {
-        id: "bronze_pickaxe",
-        name: "Bronzespitzhacke",
-        icon: "⛏️",
-        price: 180,
-        bonus: 5
-    },
-    {
-        id: "silver_pickaxe",
-        name: "Silberspitzhacke",
-        icon: "⛏️",
-        price: 400,
-        bonus: 9
-    },
-    {
-        id: "gold_pickaxe",
-        name: "Goldspitzhacke",
-        icon: "⛏️",
-        price: 800,
-        bonus: 15
-    },
-    {
-        id: "diamond_pickaxe",
-        name: "Diamantspitzhacke",
-        icon: "💎",
-        price: 1600,
-        bonus: 25
-    },
-    {
-        id: "obsidian_pickaxe",
-        name: "Obsidian-Spitzhacke",
-        icon: "🔥",
-        price: 3000,
-        bonus: 40
-    },
-    {
-        id: "legendary_pickaxe",
-        name: "Legendäre Spitzhacke",
-        icon: "🌟",
-        price: 7000,
-        bonus: 65
-    }
-];
-
-
-// ============================================================
-// MONSTER
-// ============================================================
-
-const monsters = [
-    {
-        name: "Schleim",
-        emoji: "🟢",
-        health: 35,
-        damage: 7,
-        xp: 20,
-        goldMin: 10,
-        goldMax: 25
-    },
-    {
-        name: "Goblin",
-        emoji: "👺",
-        health: 55,
-        damage: 11,
-        xp: 30,
-        goldMin: 15,
-        goldMax: 35
-    },
-    {
-        name: "Wolf",
-        emoji: "🐺",
-        health: 70,
-        damage: 14,
-        xp: 40,
-        goldMin: 20,
-        goldMax: 45
-    },
-    {
-        name: "Skelett",
-        emoji: "💀",
-        health: 90,
-        damage: 18,
-        xp: 55,
-        goldMin: 30,
-        goldMax: 60
-    },
-    {
-        name: "Ork",
-        emoji: "👹",
-        health: 120,
-        damage: 23,
-        xp: 70,
-        goldMin: 40,
-        goldMax: 80
-    },
-    {
-        name: "Vampir",
-        emoji: "🧛",
-        health: 150,
-        damage: 27,
-        xp: 90,
-        goldMin: 50,
-        goldMax: 100
-    },
-    {
-        name: "Drache",
-        emoji: "🐉",
-        health: 230,
-        damage: 35,
-        xp: 140,
-        goldMin: 80,
-        goldMax: 160
-    },
-    {
-        name: "Dämon",
-        emoji: "😈",
-        health: 300,
-        damage: 43,
-        xp: 200,
-        goldMin: 120,
-        goldMax: 240
-    }
-];
-
-
-// ============================================================
-// MISSIONEN
-// ============================================================
-
-const missions = [
-    {
-        id: 1,
-        title: "Der erste Kampf",
-        description: "Besiege dein erstes Monster.",
-        rewardMin: 40,
-        rewardMax: 80
-    },
-    {
-        id: 2,
-        title: "Monsterjäger",
-        description: "Besiege 3 Monster.",
-        rewardMin: 60,
-        rewardMax: 120
-    },
-    {
-        id: 3,
-        title: "Goldsucher",
-        description: "Sammle 200 Gold.",
-        rewardMin: 80,
-        rewardMax: 160
-    },
-    {
-        id: 4,
-        title: "Stärker werden",
-        description: "Erreiche Level 3.",
-        rewardMin: 100,
-        rewardMax: 200
-    },
-    {
-        id: 5,
-        title: "Diamantenjäger",
-        description: "Kaufe ein Diamant-Item.",
-        rewardMin: 150,
-        rewardMax: 300
-    },
-    {
-        id: 6,
-        title: "Kampfmeister",
-        description: "Besiege einen Drachen.",
-        rewardMin: 200,
-        rewardMax: 400
-    },
-    {
-        id: 7,
-        title: "Großer Reichtum",
-        description: "Besitze 1000 Gold.",
-        rewardMin: 250,
-        rewardMax: 500
-    },
-    {
-        id: 8,
-        title: "Legendär",
-        description: "Kaufe ein legendäres Item.",
-        rewardMin: 400,
-        rewardMax: 800
-    },
-    {
-        id: 9,
-        title: "Dämonenschlächter",
-        description: "Besiege einen Dämon.",
-        rewardMin: 500,
-        rewardMax: 1000
-    },
-    {
-        id: 10,
-        title: "Quest-Champion",
-        description: "Schließe alle anderen Missionen ab.",
-        rewardMin: 1000,
-        rewardMax: 2500
-    }
-];
-
-
-// ============================================================
-// UI
-// ============================================================
-
-function updateStats() {
-    const user = getUser();
-
-    if (!user) {
-        document.getElementById("name").textContent = "Gast";
-        document.getElementById("level").textContent = "-";
-        document.getElementById("gold").textContent = "-";
-        document.getElementById("health").textContent = "-";
-        document.getElementById("maxHealth").textContent = "-";
-        document.getElementById("xp").textContent = "-";
-        document.getElementById("xpNeeded").textContent = "-";
-
-        document.getElementById("healthBar").style.width = "100%";
-        document.getElementById("xpBar").style.width = "0%";
-        return;
-    }
-
-    document.getElementById("name").textContent =
-        user.username + (user.admin ? " 🖳" : "");
-
-    document.getElementById("level").textContent = user.level;
-    document.getElementById("gold").textContent = user.gold;
-    document.getElementById("health").textContent = user.health;
-    document.getElementById("maxHealth").textContent = user.maxHealth;
-
-    const needed = getXPNeeded(user.level);
-
-    document.getElementById("xp").textContent = user.xp;
-    document.getElementById("xpNeeded").textContent = needed;
-
-    const healthPercent =
-        Math.max(0, Math.min(100, (user.health / user.maxHealth) * 100));
-
-    const xpPercent =
-        Math.max(0, Math.min(100, (user.xp / needed) * 100));
-
-    document.getElementById("healthBar").style.width =
-        healthPercent + "%";
-
-    document.getElementById("xpBar").style.width =
-        xpPercent + "%";
-}
-
-function render(content) {
-    document.getElementById("screen").innerHTML = content;
-    updateStats();
-}
-
-function getXPNeeded(level) {
-    return 100 + ((level - 1) * 75);
-}
-
-function randomNumber(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function randomItem(array) {
-    return array[Math.floor(Math.random() * array.length)];
-}
-
-
-// ============================================================
-// STARTSEITE
-// ============================================================
-
-function showHome() {
-    currentScreen = "home";
-
-    const user = getUser();
-
-    if (!user) {
-        render(`
-            <div class="center">
-                <div class="big">⚔️</div>
-
-                <h2>Willkommen bei QuestRPG!</h2>
-
-                <p class="small">
-                    Kämpfe gegen Monster, erfülle Missionen,
-                    baue Gold ab und werde immer stärker.
-                </p>
-
-                <button class="success-button" onclick="showLogin()">
-                    🔐 Einloggen
-                </button>
-
-                <button onclick="showRegister()">
-                    📝 Account erstellen
-                </button>
-
-                <button class="gold-button" onclick="playAsGuest()">
-                    👤 Als Gast spielen
-                </button>
-            </div>
-        `);
-
-        return;
-    }
-
-    render(`
-        <div class="top-actions">
-            <button onclick="showBattle()">⚔️ Kampf</button>
-            <button onclick="showShop()">🛒 Shop</button>
-            <button onclick="showMissions()">📜 Missionen</button>
-            <button onclick="showMining()">⛏️ Gold abbauen</button>
-            <button onclick="showLeaderboard()">🏆 Leaderboard</button>
-            <button onclick="showSettings()">⚙️ Einstellungen</button>
-        </div>
-
-        ${user.admin ? `
-            <button class="purple-button" onclick="showAdminPanel()">
-                🖥️ Admin Panel
-            </button>
-        ` : ""}
-
-        <div class="separator"></div>
-
-        <div class="center">
-            <div class="big">⚔️</div>
-
-            <h2>Willkommen zurück, ${safeText(user.username)}!</h2>
-
-            <p>
-                Du bist Level <strong>${user.level}</strong>
-                und besitzt <strong>${user.gold} Gold</strong>.
-            </p>
-        </div>
-
-        <div class="card-grid">
-
-            <div class="card">
-                <div class="icon">⚔️</div>
-                <h3>Kampf</h3>
-                <p class="small">Besiege Monster.</p>
-            </div>
-
-            <div class="card">
-                <div class="icon">⛏️</div>
-                <h3>Minen</h3>
-                <p class="small">Sammle Gold.</p>
-            </div>
-
-            <div class="card">
-                <div class="icon">📜</div>
-                <h3>Missionen</h3>
-                <p class="small">Verdiene Belohnungen.</p>
-            </div>
-
-        </div>
-    `);
+    return true;
 }
 
 
@@ -682,155 +476,35 @@ function showHome() {
 // LOGIN
 // ============================================================
 
-function showLogin() {
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
-        </button>
+function login(username, password) {
 
-        <h2>🔐 Einloggen</h2>
+    username = username.trim();
 
-        <label>Username</label>
-        <input id="loginUsername" autocomplete="username">
+    const user = users[username];
 
-        <label>Passwort</label>
-        <input id="loginPassword" type="password" autocomplete="current-password">
+    if (!user || user.password !== password) {
 
-        <button class="success-button" onclick="login()">
-            🔐 Einloggen
-        </button>
+        showMessage(t("wrongLogin"));
 
-        <button onclick="showRegister()">
-            📝 Noch keinen Account? Registrieren
-        </button>
-
-        <button class="gold-button" onclick="playAsGuest()">
-            👤 Als Gast spielen
-        </button>
-
-        <div id="loginError" class="error"></div>
-    `);
-}
-
-function login() {
-    const username = normalizeUsername(
-        document.getElementById("loginUsername").value
-    );
-
-    const password =
-        document.getElementById("loginPassword").value;
-
-    const error = document.getElementById("loginError");
-
-    const user = accounts[username];
-
-    if (!user) {
-        error.textContent = "Account nicht gefunden.";
-        return;
-    }
-
-    if (user.password !== password) {
-        error.textContent = "Falsches Passwort.";
-        return;
+        return false;
     }
 
     if (user.banned) {
-        error.textContent = "Dieser Account wurde gebannt.";
-        return;
+
+        showMessage(t("bannedLogin"));
+
+        return false;
     }
 
-    currentUser = username;
+    currentUser = user;
 
-    localStorage.setItem(CURRENT_KEY, currentUser);
+    saveSession(username);
 
-    showMessage("Erfolgreich eingeloggt!");
-    showHome();
-}
+    showMessage(t("loginSuccess"));
 
+    renderHome();
 
-// ============================================================
-// REGISTRIERUNG
-// ============================================================
-
-function showRegister() {
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
-        </button>
-
-        <h2>📝 Account erstellen</h2>
-
-        <p class="small">
-            Dein Username darf nur Buchstaben, Zahlen und _ enthalten.
-            Emojis sind nicht erlaubt.
-        </p>
-
-        <label>Username</label>
-        <input id="registerUsername" maxlength="20" autocomplete="username">
-
-        <label>Passwort</label>
-        <input id="registerPassword" type="password" autocomplete="new-password">
-
-        <label>Passwort wiederholen</label>
-        <input id="registerPassword2" type="password">
-
-        <button class="success-button" onclick="register()">
-            📝 Account erstellen
-        </button>
-
-        <div id="registerError" class="error"></div>
-    `);
-}
-
-function register() {
-    const input =
-        document.getElementById("registerUsername");
-
-    const username =
-        normalizeUsername(input.value);
-
-    const password =
-        document.getElementById("registerPassword").value;
-
-    const password2 =
-        document.getElementById("registerPassword2").value;
-
-    const error =
-        document.getElementById("registerError");
-
-    if (!usernameIsValid(username)) {
-        error.textContent =
-            "Username: 3–20 Zeichen, nur Buchstaben, Zahlen und _.";
-        return;
-    }
-
-    if (accounts[username]) {
-        error.textContent =
-            "Dieser Username ist bereits vergeben.";
-        return;
-    }
-
-    if (password.length < 4) {
-        error.textContent =
-            "Das Passwort muss mindestens 4 Zeichen haben.";
-        return;
-    }
-
-    if (password !== password2) {
-        error.textContent =
-            "Die Passwörter stimmen nicht überein.";
-        return;
-    }
-
-    accounts[username] = createPlayer(username, password);
-
-    saveAccounts();
-
-    currentUser = username;
-    localStorage.setItem(CURRENT_KEY, currentUser);
-
-    showMessage("Account erstellt!");
-    showHome();
+    return true;
 }
 
 
@@ -839,231 +513,405 @@ function register() {
 // ============================================================
 
 function playAsGuest() {
+
     currentUser = null;
-    localStorage.removeItem(CURRENT_KEY);
 
-    showHome();
+    saveSession(null);
 
-    showMessage("Du spielst jetzt als Gast.");
+    renderHome();
 }
 
 
 // ============================================================
-// KAMPF
+// LOGOUT
 // ============================================================
 
-function createEnemy() {
-    const base = randomItem(monsters);
+function logout() {
 
-    const user = getUser();
+    currentUser = null;
 
-    const levelBonus = user
-        ? Math.max(0, user.level - 1)
-        : 0;
+    saveSession(null);
 
-    return {
-        ...base,
-        health: base.health + levelBonus * 12,
-        maxHealth: base.health + levelBonus * 12
-    };
+    currentScreen = "home";
+
+    renderHome();
 }
 
-function showBattle() {
-    const user = getUser();
 
-    if (!user) {
-        showLogin();
+// ============================================================
+// ACCOUNT LÖSCHEN
+// ============================================================
+
+function deleteOwnAccount() {
+
+    if (!currentUser) {
         return;
     }
 
-    currentScreen = "battle";
-
-    if (!currentEnemy || currentEnemy.health <= 0) {
-        currentEnemy = createEnemy();
-        battleLog = [];
-    }
-
-    renderBattle();
-}
-
-function renderBattle() {
-    const user = getUser();
-
-    if (!user || !currentEnemy) {
-        showHome();
+    if (!confirm(t("confirmDelete"))) {
         return;
     }
 
-    const enemy = currentEnemy;
+    const username = currentUser.username;
 
-    const enemyPercent =
-        Math.max(0, (enemy.health / enemy.maxHealth) * 100);
+    delete users[username];
 
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
-        </button>
+    saveUsers();
 
-        <h2>⚔️ Kampf</h2>
+    currentUser = null;
 
-        <div class="monster">
+    saveSession(null);
 
-            <div class="monster-emoji">
-                ${settings.emojis ? enemy.emoji : ""}
+    renderHome();
+}
+
+
+// ============================================================
+// LOGIN / REGISTER
+// ============================================================
+
+function renderAuth() {
+
+    const screen = document.getElementById("screen");
+
+    screen.innerHTML = `
+
+        <div class="login-box">
+
+            <h2>⚔️ QuestRPG</h2>
+
+            <div class="card">
+
+                <h3>${t("login")}</h3>
+
+                <input
+                    id="loginUsername"
+                    placeholder="${t("usernamePlaceholder")}"
+                    autocomplete="username"
+                >
+
+                <input
+                    id="loginPassword"
+                    type="password"
+                    placeholder="${t("passwordPlaceholder")}"
+                    autocomplete="current-password"
+                >
+
+                <button
+                    class="action success"
+                    onclick="handleLogin()"
+                >
+                    🔐 ${t("login")}
+                </button>
+
             </div>
 
-            <h2>${safeText(enemy.name)}</h2>
+            <div class="card">
 
-            <p class="monster-health">
-                ❤️ ${enemy.health} / ${enemy.maxHealth}
-            </p>
+                <h3>${t("register")}</h3>
 
-            <div class="bar">
-                <div
-                    style="
-                        width:${enemyPercent}%;
-                        height:100%;
-                        background:#e84b4b;
-                    "
-                ></div>
+                <input
+                    id="registerUsername"
+                    placeholder="${t("usernamePlaceholder")}"
+                    autocomplete="username"
+                >
+
+                <input
+                    id="registerPassword"
+                    type="password"
+                    placeholder="${t("passwordPlaceholder")}"
+                    autocomplete="new-password"
+                >
+
+                <button
+                    class="action purple"
+                    onclick="handleRegister()"
+                >
+                    ✨ ${t("register")}
+                </button>
+
             </div>
 
+            <button
+                class="action"
+                onclick="playAsGuest()"
+            >
+                👤 ${t("guest")}
+            </button>
+
         </div>
+    `;
 
-        <button
-            class="danger-button"
-            onclick="attackEnemy()"
-        >
-            ⚔️ Angreifen
-        </button>
-
-        <button
-            onclick="healBeforeBattle()"
-        >
-            ❤️ Heilen
-        </button>
-
-        <div class="battle-log">
-            ${
-                battleLog.length
-                    ? battleLog.map(
-                        line => `<div class="log-line">${safeText(line)}</div>`
-                      ).join("")
-                    : `<div class="log-line">Der Kampf beginnt!</div>`
-            }
-        </div>
-    `);
+    updateEmojiVisibility();
 }
 
-function attackEnemy() {
-    const user = getUser();
 
-    if (!user || !currentEnemy) {
-        return;
-    }
+function handleLogin() {
 
-    const damage = user.weapon.damage;
+    const username =
+        document.getElementById("loginUsername").value;
 
-    currentEnemy.health =
-        Math.max(0, currentEnemy.health - damage);
+    const password =
+        document.getElementById("loginPassword").value;
 
-    battleLog.unshift(
-        `⚔️ Angriff: ${damage} Schaden.`
-    );
+    login(username, password);
+}
 
-    if (currentEnemy.health <= 0) {
-        winBattle();
-        return;
-    }
 
-    const enemyDamage = Math.max(
-        1,
-        currentEnemy.damage - Math.floor(user.armor.health / 30)
-    );
+function handleRegister() {
 
-    user.health =
-        Math.max(0, user.health - enemyDamage);
+    const username =
+        document.getElementById("registerUsername").value;
 
-    battleLog.unshift(
-        `👹 ${currentEnemy.name} verursacht ${enemyDamage} Schaden.`
-    );
+    const password =
+        document.getElementById("registerPassword").value;
 
-    saveCurrentUser();
+    createUser(username, password);
+}
 
-    if (user.health <= 0) {
-        user.health = Math.floor(user.maxHealth * .5);
 
-        saveCurrentUser();
+// ============================================================
+// HOME
+// ============================================================
 
-        battleLog.unshift(
-            "💀 Du wurdest besiegt und verlierst etwas Leben."
-        );
-    }
+function renderHome() {
+
+    currentScreen = "home";
 
     updateStats();
-    renderBattle();
+
+    const screen = document.getElementById("screen");
+
+    if (!currentUser) {
+
+        screen.innerHTML = `
+
+            <div class="big">⚔️</div>
+
+            <h2>QuestRPG</h2>
+
+            <p class="small">
+                ${t("subtitle")}
+            </p>
+
+            <button
+                class="action success"
+                onclick="renderAuth()"
+            >
+                🔐 ${t("login")} / ${t("register")}
+            </button>
+
+            <button
+                class="action"
+                onclick="playAsGuest()"
+            >
+                👤 ${t("guest")}
+            </button>
+        `;
+
+        updateTopButtons();
+
+        updateEmojiVisibility();
+
+        return;
+    }
+
+    screen.innerHTML = `
+
+        <h2>⚔️ QuestRPG</h2>
+
+        <p>
+            Willkommen,
+            <strong>${escapeHtml(currentUser.username)}</strong>
+            ${currentUser.admin
+                ? `<span class="admin-badge">🖳</span>`
+                : ""}
+        </p>
+
+        <div class="card-grid">
+
+            <div class="card">
+                <div class="big">⚔️</div>
+                <h3>${t("fight")}</h3>
+                <button
+                    class="action"
+                    onclick="renderFight()"
+                >
+                    ${t("fight")}
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="big">🏪</div>
+                <h3>${t("shop")}</h3>
+                <button
+                    class="action gold"
+                    onclick="renderShop()"
+                >
+                    ${t("shop")}
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="big">⛏️</div>
+                <h3>${t("mine")}</h3>
+                <button
+                    class="action"
+                    onclick="renderMine()"
+                >
+                    ${t("mine")}
+                </button>
+            </div>
+
+        </div>
+
+        <button
+            class="action"
+            onclick="renderMissions()"
+        >
+            📜 ${t("missions")}
+        </button>
+
+    `;
+
+    updateTopButtons();
+
+    updateEmojiVisibility();
 }
 
-function winBattle() {
-    const user = getUser();
 
-    if (!user || !currentEnemy) {
+// ============================================================
+// TOP BUTTONS
+// ============================================================
+
+function updateTopButtons() {
+
+    const box = document.getElementById("topButtons");
+
+    if (!currentUser) {
+
+        box.innerHTML = `
+            <button class="top-button" onclick="renderAuth()">
+                🔐 ${t("login")}
+            </button>
+
+            <button class="top-button" onclick="renderSettings()">
+                ⚙️ ${t("settings")}
+            </button>
+        `;
+
         return;
     }
 
-    const enemy = currentEnemy;
+    let html = `
+        <button class="top-button" onclick="renderHome()">
+            🏠 ${t("home")}
+        </button>
 
-    const gold =
-        randomNumber(enemy.goldMin, enemy.goldMax);
+        <button class="top-button" onclick="renderShop()">
+            🏪 ${t("shop")}
+        </button>
 
-    user.gold += gold;
+        <button class="top-button" onclick="renderSettings()">
+            ⚙️ ${t("settings")}
+        </button>
+    `;
 
-    addXP(enemy.xp);
+    if (currentUser.admin) {
 
-    battleLog.unshift(
-        `🏆 Sieg! +${gold} Gold und +${enemy.xp} XP.`
-    );
-
-    if (enemy.name === "Drache") {
-        checkMission(6);
+        html += `
+            <button
+                class="top-button"
+                onclick="renderAdmin()"
+            >
+                🖳 ${t("admin")}
+            </button>
+        `;
     }
 
-    if (enemy.name === "Dämon") {
-        checkMission(9);
-    }
+    box.innerHTML = html;
 
-    checkMission(1);
-
-    currentEnemy = null;
-
-    saveCurrentUser();
-
-    setTimeout(() => {
-        showBattle();
-    }, 500);
+    updateEmojiVisibility();
 }
 
-function healBeforeBattle() {
-    const user = getUser();
 
-    if (!user) {
+// ============================================================
+// STATS
+// ============================================================
+
+function updateStats() {
+
+    if (!currentUser) {
+
+        document.getElementById("name").textContent = "Gast";
+
+        document.getElementById("level").textContent = "-";
+
+        document.getElementById("gold").textContent = "-";
+
+        document.getElementById("health").textContent = "-";
+
+        document.getElementById("maxHealth").textContent = "-";
+
+        document.getElementById("xp").textContent = "-";
+
+        document.getElementById("xpNeeded").textContent = "-";
+
+        document.getElementById("healthBar").style.width = "100%";
+
+        document.getElementById("xpBar").style.width = "0%";
+
         return;
     }
 
-    const cost = 20;
+    document.getElementById("name").textContent =
+        currentUser.username;
 
-    if (user.gold < cost) {
-        showMessage("Du brauchst 20 Gold.");
-        return;
-    }
+    document.getElementById("level").textContent =
+        currentUser.level;
 
-    user.gold -= cost;
-    user.health = user.maxHealth;
+    document.getElementById("gold").textContent =
+        currentUser.gold;
 
-    saveCurrentUser();
+    document.getElementById("health").textContent =
+        currentUser.health;
 
-    showMessage("Du bist vollständig geheilt.");
-    renderBattle();
+    document.getElementById("maxHealth").textContent =
+        currentUser.maxHealth;
+
+    const xpNeeded = currentUser.level * 100;
+
+    document.getElementById("xp").textContent =
+        currentUser.xp;
+
+    document.getElementById("xpNeeded").textContent =
+        xpNeeded;
+
+    const healthPercent =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                currentUser.health / currentUser.maxHealth * 100
+            )
+        );
+
+    const xpPercent =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                currentUser.xp / xpNeeded * 100
+            )
+        );
+
+    document.getElementById("healthBar").style.width =
+        healthPercent + "%";
+
+    document.getElementById("xpBar").style.width =
+        xpPercent + "%";
+
+    updateEmojiVisibility();
 }
 
 
@@ -1072,31 +920,33 @@ function healBeforeBattle() {
 // ============================================================
 
 function addXP(amount) {
-    const user = getUser();
 
-    if (!user) {
+    if (!currentUser) {
         return;
     }
 
-    user.xp += amount;
+    currentUser.xp += amount;
 
-    while (user.xp >= getXPNeeded(user.level)) {
-        user.xp -= getXPNeeded(user.level);
-        user.level++;
+    while (
+        currentUser.xp >= currentUser.level * 100
+    ) {
 
-        user.maxHealth += 15;
-        user.health = user.maxHealth;
+        currentUser.xp -= currentUser.level * 100;
 
-        showMessage(
-            `🎉 Level ${user.level} erreicht!`
-        );
+        currentUser.level++;
 
-        if (user.level >= 3) {
-            checkMission(4);
-        }
+        currentUser.maxHealth += 10;
+
+        currentUser.health = currentUser.maxHealth;
+
+        currentUser.damage += 2;
+
+        showMessage(t("levelUp"));
     }
 
-    saveCurrentUser();
+    saveUser(currentUser.username);
+
+    updateStats();
 }
 
 
@@ -1104,445 +954,956 @@ function addXP(amount) {
 // SHOP
 // ============================================================
 
-function showShop() {
-    const user = getUser();
+const shopItems = {
 
-    if (!user) {
-        showLogin();
-        return;
-    }
+    swords: [
 
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
+        {
+            name: "Holzschwert",
+            icon: "🗡️",
+            price: 30,
+            damage: 3
+        },
+
+        {
+            name: "Bronzeschwert",
+            icon: "⚔️",
+            price: 80,
+            damage: 7
+        },
+
+        {
+            name: "Silberschwert",
+            icon: "⚔️",
+            price: 180,
+            damage: 13
+        },
+
+        {
+            name: "Goldschwert",
+            icon: "⚔️",
+            price: 350,
+            damage: 22
+        },
+
+        {
+            name: "Diamantschwert",
+            icon: "💎",
+            price: 700,
+            damage: 35
+        },
+
+        {
+            name: "Drachenschwert",
+            icon: "🔥",
+            price: 1400,
+            damage: 55
+        }
+
+    ],
+
+    armor: [
+
+        {
+            name: "Lederüstung",
+            icon: "🥋",
+            price: 50,
+            health: 15
+        },
+
+        {
+            name: "Bronzerüstung",
+            icon: "🛡️",
+            price: 120,
+            health: 30
+        },
+
+        {
+            name: "Silberrüstung",
+            icon: "🛡️",
+            price: 250,
+            health: 50
+        },
+
+        {
+            name: "Goldrüstung",
+            icon: "👑",
+            price: 500,
+            health: 80
+        },
+
+        {
+            name: "Diamantrüstung",
+            icon: "💎",
+            price: 1000,
+            health: 130
+        },
+
+        {
+            name: "Drachenrüstung",
+            icon: "🐉",
+            price: 2000,
+            health: 200
+        }
+
+    ],
+
+    potions: [
+
+        {
+            name: "Heiltrank",
+            icon: "🧪",
+            price: 35,
+            heal: 40
+        },
+
+        {
+            name: "Großer Heiltrank",
+            icon: "❤️",
+            price: 100,
+            heal: 100
+        },
+
+        {
+            name: "Mega-Heiltrank",
+            icon: "💖",
+            price: 250,
+            heal: 250
+        }
+
+    ],
+
+    pickaxes: [
+
+        {
+            name: "Holz-Pickaxe",
+            icon: "⛏️",
+            price: 40,
+            power: 1
+        },
+
+        {
+            name: "Bronze-Pickaxe",
+            icon: "⛏️",
+            price: 100,
+            power: 2
+        },
+
+        {
+            name: "Silber-Pickaxe",
+            icon: "⛏️",
+            price: 250,
+            power: 3
+        },
+
+        {
+            name: "Gold-Pickaxe",
+            icon: "⛏️",
+            price: 500,
+            power: 5
+        },
+
+        {
+            name: "Diamant-Pickaxe",
+            icon: "💎",
+            price: 1000,
+            power: 8
+        },
+
+        {
+            name: "Drachen-Pickaxe",
+            icon: "🔥",
+            price: 2000,
+            power: 12
+        }
+
+    ]
+};
+
+
+function renderShop() {
+
+    currentScreen = "shop";
+
+    const screen = document.getElementById("screen");
+
+    screen.innerHTML = `
+
+        <button
+            class="action back-button"
+            onclick="renderHome()"
+        >
+            ${t("back")}
         </button>
 
-        <h2>🛒 Shop</h2>
+        <h2>${t("shopTitle")}</h2>
 
-        <p>
-            💰 Dein Gold:
-            <strong>${user.gold}</strong>
-        </p>
+        <div class="shop-tabs">
 
-        <h3>⚔️ Schwerter</h3>
+            <button
+                class="shop-tab ${shopTab === "swords" ? "active" : ""}"
+                onclick="setShopTab('swords')"
+            >
+                ${t("swords")}
+            </button>
 
-        ${weapons.map(item => `
+            <button
+                class="shop-tab ${shopTab === "armor" ? "active" : ""}"
+                onclick="setShopTab('armor')"
+            >
+                ${t("armor")}
+            </button>
+
+            <button
+                class="shop-tab ${shopTab === "potions" ? "active" : ""}"
+                onclick="setShopTab('potions')"
+            >
+                ${t("potions")}
+            </button>
+
+            <button
+                class="shop-tab ${shopTab === "pickaxes" ? "active" : ""}"
+                onclick="setShopTab('pickaxes')"
+            >
+                ${t("pickaxes")}
+            </button>
+
+        </div>
+
+        <div id="shopItems"></div>
+    `;
+
+    renderShopItems();
+
+    updateTopButtons();
+
+    updateEmojiVisibility();
+}
+
+
+function setShopTab(tab) {
+
+    shopTab = tab;
+
+    renderShop();
+}
+
+
+function renderShopItems() {
+
+    const box =
+        document.getElementById("shopItems");
+
+    if (!box) {
+        return;
+    }
+
+    const items = shopItems[shopTab];
+
+    box.innerHTML = items.map((item, index) => {
+
+        let description = "";
+
+        if (item.damage) {
+            description =
+                `⚔️ +${item.damage} Schaden`;
+        }
+
+        if (item.health) {
+            description =
+                `❤️ +${item.health} Max-Leben`;
+        }
+
+        if (item.heal) {
+            description =
+                `❤️ Heilt ${item.heal} Leben`;
+        }
+
+        if (item.power) {
+            description =
+                `⛏️ Mining-Power ${item.power}`;
+        }
+
+        return `
+
             <div class="shop-item">
 
                 <h3>
-                    ${settings.emojis ? item.icon : ""}
-                    ${item.name}
+                    ${item.icon} ${item.name}
                 </h3>
 
-                <p>
-                    Schaden:
-                    <strong>${item.damage}</strong>
+                <p>${description}</p>
+
+                <p class="price">
+                    💰 ${item.price} Gold
                 </p>
 
-                <small>
-                    💰 ${item.price} Gold
-                </small>
-
                 <button
-                    class="gold-button"
-                    onclick="buyWeapon('${item.id}')"
+                    class="action gold"
+                    onclick="buyItem('${shopTab}', ${index})"
                 >
-                    Kaufen
+                    🛒 Kaufen
                 </button>
 
             </div>
-        `).join("")}
+        `;
 
-        <h3>🛡️ Rüstungen</h3>
+    }).join("");
 
-        ${armors.map(item => `
-            <div class="shop-item">
-
-                <h3>
-                    ${settings.emojis ? item.icon : ""}
-                    ${item.name}
-                </h3>
-
-                <p>
-                    Extra Leben:
-                    <strong>+${item.health}</strong>
-                </p>
-
-                <small>
-                    💰 ${item.price} Gold
-                </small>
-
-                <button
-                    class="gold-button"
-                    onclick="buyArmor('${item.id}')"
-                >
-                    Kaufen
-                </button>
-
-            </div>
-        `).join("")}
-
-        <h3>⛏️ Spitzhacken</h3>
-
-        ${pickaxes.map(item => `
-            <div class="shop-item">
-
-                <h3>
-                    ${settings.emojis ? item.icon : ""}
-                    ${item.name}
-                </h3>
-
-                <p>
-                    Mining-Bonus:
-                    <strong>+${item.bonus}</strong>
-                </p>
-
-                <small>
-                    💰 ${item.price} Gold
-                </small>
-
-                <button
-                    class="gold-button"
-                    onclick="buyPickaxe('${item.id}')"
-                >
-                    Kaufen
-                </button>
-
-            </div>
-        `).join("")}
-    `);
-}
-
-function buyWeapon(id) {
-    const user = getUser();
-    const item = weapons.find(x => x.id === id);
-
-    if (!user || !item) {
-        return;
-    }
-
-    if (user.gold < item.price) {
-        showMessage("Nicht genug Gold!");
-        return;
-    }
-
-    user.gold -= item.price;
-
-    user.weapon = {
-        name: item.name,
-        damage: item.damage
-    };
-
-    saveCurrentUser();
-
-    showMessage(`${item.name} gekauft!`);
-    showShop();
-}
-
-function buyArmor(id) {
-    const user = getUser();
-    const item = armors.find(x => x.id === id);
-
-    if (!user || !item) {
-        return;
-    }
-
-    if (user.gold < item.price) {
-        showMessage("Nicht genug Gold!");
-        return;
-    }
-
-    user.gold -= item.price;
-
-    const oldBonus = user.armor.health;
-
-    user.maxHealth -= oldBonus;
-
-    user.armor = {
-        name: item.name,
-        health: item.health
-    };
-
-    user.maxHealth += item.health;
-    user.health = user.maxHealth;
-
-    saveCurrentUser();
-
-    checkMission(5);
-
-    if (item.name.includes("Legend")) {
-        checkMission(8);
-    }
-
-    showMessage(`${item.name} ausgerüstet!`);
-    showShop();
-}
-
-function buyPickaxe(id) {
-    const user = getUser();
-    const item = pickaxes.find(x => x.id === id);
-
-    if (!user || !item) {
-        return;
-    }
-
-    if (user.gold < item.price) {
-        showMessage("Nicht genug Gold!");
-        return;
-    }
-
-    user.gold -= item.price;
-
-    user.pickaxe = {
-        name: item.name,
-        miningBonus: item.bonus
-    };
-
-    saveCurrentUser();
-
-    if (item.name.includes("Legend")) {
-        checkMission(8);
-    }
-
-    showMessage(`${item.name} gekauft!`);
-    showShop();
+    updateEmojiVisibility();
 }
 
 
 // ============================================================
-// MINING
+// SHOP KAUFEN
 // ============================================================
 
-function showMining() {
-    const user = getUser();
+function buyItem(category, index) {
 
-    if (!user) {
-        showLogin();
+    if (!currentUser) {
         return;
     }
 
-    render(`
-        <button class="back-button" onclick="stopMiningAndHome()">
-            ← Zurück
+    const item = shopItems[category][index];
+
+    if (currentUser.gold < item.price) {
+
+        showMessage(t("insufficientGold"));
+
+        return;
+    }
+
+    currentUser.gold -= item.price;
+
+    if (category === "swords") {
+
+        currentUser.damage += item.damage;
+
+        currentUser.inventory.swords.push(
+            item.name
+        );
+    }
+
+    if (category === "armor") {
+
+        currentUser.maxHealth += item.health;
+
+        currentUser.health += item.health;
+
+        currentUser.armor += item.health;
+
+        currentUser.inventory.armor.push(
+            item.name
+        );
+    }
+
+    if (category === "potions") {
+
+        currentUser.potions++;
+
+    }
+
+    if (category === "pickaxes") {
+
+        if (item.power > currentUser.pickaxePower) {
+
+            currentUser.pickaxePower =
+                item.power;
+        }
+
+        currentUser.inventory.pickaxes.push(
+            item.name
+        );
+    }
+
+    saveUser(currentUser.username);
+
+    updateStats();
+
+    renderShop();
+
+    showMessage(
+        `${t("purchased")} ${item.name}`
+    );
+}
+
+
+// ============================================================
+// MONSTER
+// ============================================================
+
+const monsters = [
+
+    {
+        name: "Slime",
+        emoji: "🟢",
+        health: 40,
+        damage: 6,
+        xp: 25,
+        gold: 20
+    },
+
+    {
+        name: "Goblin",
+        emoji: "👺",
+        health: 70,
+        damage: 10,
+        xp: 40,
+        gold: 35
+    },
+
+    {
+        name: "Wolf",
+        emoji: "🐺",
+        health: 90,
+        damage: 13,
+        xp: 50,
+        gold: 45
+    },
+
+    {
+        name: "Skeleton",
+        emoji: "💀",
+        health: 120,
+        damage: 17,
+        xp: 70,
+        gold: 60
+    },
+
+    {
+        name: "Ork",
+        emoji: "👹",
+        health: 180,
+        damage: 22,
+        xp: 100,
+        gold: 90
+    },
+
+    {
+        name: "Troll",
+        emoji: "👾",
+        health: 260,
+        damage: 28,
+        xp: 140,
+        gold: 130
+    },
+
+    {
+        name: "Dämon",
+        emoji: "😈",
+        health: 380,
+        damage: 35,
+        xp: 190,
+        gold: 180
+    },
+
+    {
+        name: "Drache",
+        emoji: "🐉",
+        health: 600,
+        damage: 48,
+        xp: 300,
+        gold: 300
+    }
+
+];
+
+
+function createMonster() {
+
+    const base =
+        monsters[
+            Math.floor(
+                Math.random() * monsters.length
+            )
+        ];
+
+    const multiplier =
+        1 + ((currentUser.level - 1) * .12);
+
+    return {
+
+        name: base.name,
+
+        emoji: base.emoji,
+
+        maxHealth:
+            Math.floor(base.health * multiplier),
+
+        health:
+            Math.floor(base.health * multiplier),
+
+        damage:
+            Math.floor(base.damage * multiplier),
+
+        xp:
+            Math.floor(base.xp * multiplier),
+
+        gold:
+            Math.floor(base.gold * multiplier)
+
+    };
+}
+
+
+// ============================================================
+// KAMPF
+// ============================================================
+
+function renderFight() {
+
+    currentScreen = "fight";
+
+    if (!currentMonster) {
+
+        currentMonster = createMonster();
+    }
+
+    const screen = document.getElementById("screen");
+
+    screen.innerHTML = `
+
+        <button
+            class="action back-button"
+            onclick="renderHome()"
+        >
+            ${t("back")}
         </button>
 
-        <h2>⛏️ Gold abbauen</h2>
+        <h2>⚔️ ${t("fight")}</h2>
 
-        <p class="center">
-            Deine Spitzhacke:
-            <strong>${safeText(user.pickaxe.name)}</strong>
-        </p>
+        <div class="monster">
 
-        <div class="mine-box">
-
-            <div class="mine-number">
-                ${mining.active ? mining.clicks : "?"}
+            <div class="monster-emoji">
+                ${currentMonster.emoji}
             </div>
 
-            <p>
-                ${mining.active
-                    ? `Klicke ${mining.clicksNeeded}× auf den Button!`
-                    : "Starte eine neue Mining-Runde."
-                }
+            <h2>
+                ${escapeHtml(currentMonster.name)}
+            </h2>
+
+            <p class="monster-health">
+                ❤️ ${currentMonster.health}
+                /
+                ${currentMonster.maxHealth}
             </p>
+
+        </div>
+
+        <button
+            class="action danger"
+            onclick="attackMonster()"
+        >
+            ⚔️ ${t("attack")}
+        </button>
+
+        <button
+            class="action success"
+            onclick="usePotion()"
+        >
+            🧪 ${t("potion")}
+            (${currentUser.potions})
+        </button>
+
+        <button
+            class="action"
+            onclick="escapeFight()"
+        >
+            🏃 ${t("run")}
+        </button>
+
+    `;
+
+    updateEmojiVisibility();
+}
+
+
+function attackMonster() {
+
+    if (!currentUser || !currentMonster) {
+        return;
+    }
+
+    const damage =
+        Math.max(
+            1,
+            currentUser.damage +
+            randomNumber(0, 5)
+        );
+
+    currentMonster.health -= damage;
+
+    if (currentMonster.health <= 0) {
+
+        const gold =
+            currentMonster.gold +
+            randomNumber(0, 20);
+
+        currentUser.gold += gold;
+
+        addXP(currentMonster.xp);
+
+        saveUser(currentUser.username);
+
+        showMessage(
+            `${t("enemyDefeated")} +${gold} Gold`
+        );
+
+        currentMonster = null;
+
+        updateStats();
+
+        setTimeout(() => {
+
+            renderFight();
+
+        }, 500);
+
+        return;
+    }
+
+    const enemyDamage =
+        Math.max(
+            1,
+            currentMonster.damage -
+            Math.floor(currentUser.armor / 20)
+        );
+
+    currentUser.health -= enemyDamage;
+
+    if (currentUser.health <= 0) {
+
+        currentUser.health = 0;
+
+        saveUser(currentUser.username);
+
+        updateStats();
+
+        showMessage(t("defeat"));
+
+        setTimeout(() => {
+
+            currentUser.health =
+                currentUser.maxHealth;
+
+            saveUser(currentUser.username);
+
+            renderHome();
+
+        }, 1000);
+
+        return;
+    }
+
+    saveUser(currentUser.username);
+
+    updateStats();
+
+    renderFight();
+}
+
+
+function usePotion() {
+
+    if (!currentUser) {
+        return;
+    }
+
+    if (currentUser.potions <= 0) {
+
+        showMessage(t("noPotion"));
+
+        return;
+    }
+
+    if (
+        currentUser.health >=
+        currentUser.maxHealth
+    ) {
+
+        showMessage("❤️ Leben ist bereits voll.");
+
+        return;
+    }
+
+    const potion =
+        shopItems.potions[0];
+
+    currentUser.potions--;
+
+    currentUser.health =
+        Math.min(
+            currentUser.maxHealth,
+            currentUser.health + potion.heal
+        );
+
+    saveUser(currentUser.username);
+
+    updateStats();
+
+    renderFight();
+
+    showMessage(t("healed"));
+}
+
+
+function escapeFight() {
+
+    currentMonster = null;
+
+    showMessage(t("escaped"));
+
+    renderHome();
+}
+
+
+// ============================================================
+// GOLDMINE
+// ============================================================
+
+function renderMine() {
+
+    currentScreen = "mine";
+
+    stopMiningTimer();
+
+    const screen =
+        document.getElementById("screen");
+
+    const now = Date.now();
+
+    if (
+        miningState.cooldownUntil > now
+    ) {
+
+        const seconds =
+            Math.ceil(
+                (miningState.cooldownUntil - now) / 1000
+            );
+
+        screen.innerHTML = `
+
+            <button
+                class="action back-button"
+                onclick="leaveMine()"
+            >
+                ${t("back")}
+            </button>
+
+            <div class="mining-box">
+
+                <div class="big">⛏️</div>
+
+                <h2>${t("miningTitle")}</h2>
+
+                <p>${t("miningCooldown")}</p>
+
+                <div
+                    id="mineCooldown"
+                    class="click-counter"
+                >
+                    ${seconds}s
+                </div>
+
+            </div>
+        `;
+
+        startCooldownDisplay();
+
+        return;
+    }
+
+    if (!miningState.active) {
+
+        miningState.required =
+            randomNumber(
+                5,
+                10 + currentUser.pickaxePower * 2
+            );
+
+        miningState.clicks = 0;
+    }
+
+    screen.innerHTML = `
+
+        <button
+            class="action back-button"
+            onclick="leaveMine()"
+        >
+            ${t("back")}
+        </button>
+
+        <div class="mining-box">
+
+            <div class="big">⛏️</div>
+
+            <h2>${t("miningTitle")}</h2>
+
+            <p>${t("miningText")}</p>
+
+            <div class="click-counter">
+                <span id="mineClicks">
+                    ${miningState.clicks}
+                </span>
+                /
+                <span id="mineRequired">
+                    ${miningState.required}
+                </span>
+            </div>
 
             <button
                 id="mineButton"
-                onclick="mineClick()"
-                ${mining.active ? "" : ""}
-            >
-                ⛏️ ${mining.active ? "ABBAUEN" : "GOLD ABBauen"}
-            </button>
-
-            <div class="cooldown" id="mineCooldown">
-                ${mining.active
-                    ? "Mining läuft..."
-                    : "Cooldown: 8 Sekunden"
-                }
-            </div>
-
-        </div>
-
-        <div class="equipment">
-            💰 Je mehr Klicks du schaffst,
-            desto mehr Gold bekommst du.
-        </div>
-    `);
-
-    if (mining.active) {
-        updateMiningTimer();
-    }
-}
-
-function startMining() {
-    if (mining.active) {
-        return;
-    }
-
-    const user = getUser();
-
-    if (!user) {
-        showLogin();
-        return;
-    }
-
-    mining.active = true;
-
-    mining.clicksNeeded = randomNumber(5, 15);
-    mining.clicks = 0;
-
-    mining.endTime = Date.now() + 8000;
-
-    renderMiningState();
-
-    clearInterval(mining.timer);
-
-    mining.timer = setInterval(() => {
-        updateMiningTimer();
-    }, 100);
-}
-
-function renderMiningState() {
-    const user = getUser();
-
-    if (!user) {
-        return;
-    }
-
-    render(`
-        <button class="back-button" onclick="stopMiningAndHome()">
-            ← Zurück
-        </button>
-
-        <h2>⛏️ Gold abbauen</h2>
-
-        <p class="center">
-            ${safeText(user.pickaxe.name)}
-            · Bonus +${user.pickaxe.miningBonus}
-        </p>
-
-        <div class="mine-box">
-
-            <div class="mine-number">
-                ${mining.clicks} / ${mining.clicksNeeded}
-            </div>
-
-            <p>
-                Klicke so oft wie möglich!
-            </p>
-
-            <button
-                id="mineButton"
+                class="action gold"
                 onclick="mineClick()"
             >
-                ⛏️ GOLD ABBAUEN
+                ${t("miningButton")}
             </button>
 
-            <div class="cooldown" id="mineCooldown">
-                8.0 Sekunden
-            </div>
-
         </div>
-    `);
+    `;
 
-    updateMiningTimer();
+    updateEmojiVisibility();
 }
+
 
 function mineClick() {
-    if (!mining.active) {
-        startMining();
+
+    if (!currentUser) {
         return;
     }
 
-    mining.clicks++;
+    if (
+        miningState.cooldownUntil >
+        Date.now()
+    ) {
 
-    const number =
-        document.querySelector(".mine-number");
-
-    if (number) {
-        number.textContent =
-            `${mining.clicks} / ${mining.clicksNeeded}`;
+        return;
     }
 
-    if (mining.clicks >= mining.clicksNeeded) {
-        finishMining();
+    miningState.active = true;
+
+    miningState.clicks++;
+
+    const clicks =
+        document.getElementById("mineClicks");
+
+    if (clicks) {
+
+        clicks.textContent =
+            miningState.clicks;
+    }
+
+    if (
+        miningState.clicks >=
+        miningState.required
+    ) {
+
+        const baseGold =
+            randomNumber(10, 25);
+
+        const gold =
+            baseGold *
+            Math.max(
+                1,
+                currentUser.pickaxePower
+            );
+
+        currentUser.gold += gold;
+
+        saveUser(currentUser.username);
+
+        updateStats();
+
+        showMessage(
+            `${t("miningReward")} +${gold} 💰`
+        );
+
+        miningState.active = false;
+
+        miningState.clicks = 0;
+
+        miningState.required =
+            randomNumber(
+                5,
+                10 + currentUser.pickaxePower * 2
+            );
+
+        miningState.cooldownUntil =
+            Date.now() + 8000;
+
+        renderMine();
     }
 }
 
-function updateMiningTimer() {
-    if (!mining.active) {
-        return;
-    }
 
-    const remaining =
-        Math.max(0, mining.endTime - Date.now());
+function leaveMine() {
 
-    const seconds =
-        (remaining / 1000).toFixed(1);
+    stopMiningTimer();
 
-    const cooldown =
-        document.getElementById("mineCooldown");
+    currentScreen = "home";
 
-    if (cooldown) {
-        cooldown.textContent =
-            `${seconds} Sekunden`;
-    }
+    renderHome();
+}
 
-    if (remaining <= 0) {
-        finishMining();
+
+function stopMiningTimer() {
+
+    if (miningState.timer) {
+
+        clearInterval(
+            miningState.timer
+        );
+
+        miningState.timer = null;
     }
 }
 
-function finishMining() {
-    if (!mining.active) {
-        return;
-    }
 
-    const user = getUser();
+function startCooldownDisplay() {
 
-    clearInterval(mining.timer);
-    mining.timer = null;
+    stopMiningTimer();
 
-    if (!user) {
-        mining.active = false;
-        return;
-    }
+    miningState.timer =
+        setInterval(() => {
 
-    const earned =
-        mining.clicks * 3 +
-        user.pickaxe.miningBonus;
+            const element =
+                document.getElementById(
+                    "mineCooldown"
+                );
 
-    user.gold += earned;
+            if (!element) {
 
-    checkMission(3);
+                stopMiningTimer();
 
-    mining.active = false;
+                return;
+            }
 
-    saveCurrentUser();
+            const remaining =
+                Math.max(
+                    0,
+                    miningState.cooldownUntil -
+                    Date.now()
+                );
 
-    showMessage(`⛏️ Du hast ${earned} Gold gefunden!`);
+            if (remaining <= 0) {
 
-    showMining();
-}
+                stopMiningTimer();
 
-function stopMiningAndHome() {
-    /*
-        Wichtig:
-        Wenn man während des Cooldowns rausgeht,
-        wird der Timer sauber beendet.
-        Dadurch kann beim erneuten Öffnen
-        kein eingefrorener Timer entstehen.
-    */
+                miningState.cooldownUntil = 0;
 
-    clearInterval(mining.timer);
+                miningState.active = false;
 
-    mining.timer = null;
-    mining.active = false;
-    mining.clicks = 0;
-    mining.clicksNeeded = 0;
-    mining.endTime = 0;
+                renderMine();
 
-    showHome();
+                return;
+            }
+
+            element.textContent =
+                Math.ceil(
+                    remaining / 1000
+                ) + "s";
+
+        }, 200);
 }
 
 
@@ -1550,220 +1911,148 @@ function stopMiningAndHome() {
 // MISSIONEN
 // ============================================================
 
-function showMissions() {
-    const user = getUser();
+const missions = [
 
-    if (!user) {
-        showLogin();
-        return;
+    {
+        title: "Besiege dein erstes Monster",
+        reward: 75
+    },
+
+    {
+        title: "Finde Gold in der Mine",
+        reward: 90
+    },
+
+    {
+        title: "Kaufe ein Schwert",
+        reward: 120
+    },
+
+    {
+        title: "Kaufe eine Rüstung",
+        reward: 150
+    },
+
+    {
+        title: "Kaufe einen Heiltrank",
+        reward: 100
+    },
+
+    {
+        title: "Erreiche Level 2",
+        reward: 200
+    },
+
+    {
+        title: "Erreiche Level 3",
+        reward: 300
+    },
+
+    {
+        title: "Besiege einen Drachen",
+        reward: 500
+    },
+
+    {
+        title: "Verbessere deine Pickaxe",
+        reward: 350
+    },
+
+    {
+        title: "Werde ein echter QuestRPG-Held",
+        reward: 750
     }
 
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
+];
+
+
+function renderMissions() {
+
+    currentScreen = "missions";
+
+    const screen =
+        document.getElementById("screen");
+
+    screen.innerHTML = `
+
+        <button
+            class="action back-button"
+            onclick="renderHome()"
+        >
+            ${t("back")}
         </button>
 
-        <h2>📜 Missionen</h2>
+        <h2>${t("missionsTitle")}</h2>
 
-        <p class="small">
-            Erfülle Missionen und erhalte zufällige Goldbelohnungen.
-        </p>
+        ${missions.map((mission, index) => `
 
-        ${missions.map(mission => {
+            <div class="quest">
 
-            const done =
-                user.completedMissions.includes(mission.id);
+                <strong>
+                    Mission ${index + 1}
+                </strong>
 
-            return `
-                <div class="mission ${done ? "completed" : ""}">
+                <p>
+                    ${mission.title}
+                </p>
 
-                    <h3>
-                        ${done ? "✅" : "📜"}
-                        ${mission.id}. ${mission.title}
-                    </h3>
+                <p class="price">
+                    💰 ${mission.reward} Gold
+                </p>
 
-                    <p>
-                        ${mission.description}
-                    </p>
+                <button
+                    class="action"
+                    onclick="claimMission(${index})"
+                >
+                    🎁 ${t("missionDone")}
+                </button>
 
-                    <p class="small">
-                        Belohnung:
-                        ${mission.rewardMin}–${mission.rewardMax} Gold
-                    </p>
+            </div>
 
-                    ${
-                        done
-                            ? `<strong>✅ Abgeschlossen</strong>`
-                            : `<button onclick="tryCompleteMission(${mission.id})">
-                                Mission prüfen
-                               </button>`
-                    }
+        `).join("")}
+    `;
 
-                </div>
-            `;
-        }).join("")}
-    `);
-}
-
-function checkMission(id) {
-    const user = getUser();
-
-    if (!user) {
-        return;
-    }
-
-    if (user.completedMissions.includes(id)) {
-        return;
-    }
-
-    tryCompleteMission(id, true);
-}
-
-function tryCompleteMission(id, silent = false) {
-    const user = getUser();
-
-    if (!user) {
-        return;
-    }
-
-    const mission = missions.find(x => x.id === id);
-
-    if (!mission) {
-        return;
-    }
-
-    let completed = false;
-
-    switch (id) {
-
-        case 1:
-            completed = true;
-            break;
-
-        case 3:
-            completed = user.gold >= 200;
-            break;
-
-        case 4:
-            completed = user.level >= 3;
-            break;
-
-        case 5:
-            completed =
-                user.armor.name.includes("Diamant") ||
-                user.weapon.name.includes("Diamant") ||
-                user.pickaxe.name.includes("Diamant");
-            break;
-
-        case 6:
-            completed = false;
-            break;
-
-        case 8:
-            completed =
-                user.weapon.name.includes("Legend") ||
-                user.armor.name.includes("Legend") ||
-                user.pickaxe.name.includes("Legend");
-            break;
-
-        case 9:
-            completed = false;
-            break;
-
-        case 10:
-            completed =
-                user.completedMissions.length >= 9;
-            break;
-
-        default:
-            completed = false;
-    }
-
-    if (!completed) {
-        if (!silent) {
-            showMessage("Mission noch nicht erfüllt.");
-        }
-        return;
-    }
-
-    const reward =
-        randomNumber(
-            mission.rewardMin,
-            mission.rewardMax
-        );
-
-    user.gold += reward;
-
-    user.completedMissions.push(id);
-
-    saveCurrentUser();
-
-    if (!silent) {
-        showMessage(
-            `🎉 Mission abgeschlossen! +${reward} Gold`
-        );
-    }
+    updateEmojiVisibility();
 }
 
 
-// ============================================================
-// LEADERBOARD
-// ============================================================
+function claimMission(index) {
 
-function showLeaderboard() {
-    const list = Object.values(accounts)
-        .filter(user => !user.banned)
-        .sort((a, b) => {
+    if (!currentUser) {
+        return;
+    }
 
-            if (b.level !== a.level) {
-                return b.level - a.level;
-            }
+    if (!currentUser.completedMissions) {
 
-            return b.gold - a.gold;
-        });
+        currentUser.completedMissions = {};
+    }
 
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
-        </button>
+    if (
+        currentUser.completedMissions[index]
+    ) {
 
-        <h2>🏆 Leaderboard</h2>
+        showMessage("Diese Mission wurde bereits abgeholt.");
 
-        <p class="small">
-            Sortiert nach Level und anschließend Gold.
-        </p>
+        return;
+    }
 
-        ${
-            list.length === 0
-                ? `<p>Keine Spieler vorhanden.</p>`
-                : list.map((user, index) => `
-                    <div class="leader-row">
+    const mission = missions[index];
 
-                        <div class="rank">
-                            ${
-                                index === 0 ? "🥇" :
-                                index === 1 ? "🥈" :
-                                index === 2 ? "🥉" :
-                                "#" + (index + 1)
-                            }
-                        </div>
+    currentUser.completedMissions[index] =
+        true;
 
-                        <div class="leader-info">
-                            <strong>
-                                ${safeText(user.username)}
-                                ${user.admin ? " 🖳" : ""}
-                            </strong>
+    currentUser.gold +=
+        mission.reward;
 
-                            <div class="small">
-                                ⭐ Level ${user.level}
-                                · 💰 ${user.gold} Gold
-                            </div>
-                        </div>
+    saveUser(currentUser.username);
 
-                    </div>
-                `).join("")
-        }
-    `);
+    updateStats();
+
+    renderMissions();
+
+    showMessage(
+        `${t("missionDone")} +${mission.reward} Gold`
+    );
 }
 
 
@@ -1771,613 +2060,739 @@ function showLeaderboard() {
 // EINSTELLUNGEN
 // ============================================================
 
-function showSettings() {
-    const user = getUser();
+function renderSettings() {
 
-    if (!user) {
-        showLogin();
-        return;
-    }
+    currentScreen = "settings";
 
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
-        </button>
+    const screen =
+        document.getElementById("screen");
 
-        <h2>⚙️ Einstellungen</h2>
-
-        <div class="equipment">
-
-            <h3>👤 Account</h3>
-
-            <p>
-                Eingeloggt als:
-                <strong>${safeText(user.username)}</strong>
-
-                ${user.admin
-                    ? `<span class="badge admin-badge">🖳 Admin</span>`
-                    : ""
-                }
-            </p>
-
-        </div>
-
-        <h3>🌍 Sprache</h3>
-
-        <select id="languageSelect" onchange="changeLanguage()">
-            <option value="de" ${settings.language === "de" ? "selected" : ""}>
-                🇩🇪 Deutsch
-            </option>
-
-            <option value="en" ${settings.language === "en" ? "selected" : ""}>
-                🇬🇧 English
-            </option>
-        </select>
-
-        <h3>😀 Emojis</h3>
-
-        <select id="emojiSelect" onchange="changeEmojiSetting()">
-            <option value="on" ${settings.emojis ? "selected" : ""}>
-                😀 Emojis an
-            </option>
-
-            <option value="off" ${!settings.emojis ? "selected" : ""}>
-                Emojis aus
-            </option>
-        </select>
-
-        <div class="separator"></div>
-
-        <button onclick="logout()">
-            🚪 Ausloggen
-        </button>
+    screen.innerHTML = `
 
         <button
-            class="danger-button"
-            onclick="deleteOwnAccount()"
+            class="action back-button"
+            onclick="renderHome()"
         >
-            🗑️ Meinen Account löschen
-        </button>
-    `);
-}
-
-function changeLanguage() {
-    const value =
-        document.getElementById("languageSelect").value;
-
-    settings.language = value;
-
-    saveSettings();
-
-    showMessage(
-        value === "de"
-            ? "Sprache auf Deutsch gestellt."
-            : "Language changed to English."
-    );
-}
-
-function changeEmojiSetting() {
-    const value =
-        document.getElementById("emojiSelect").value;
-
-    settings.emojis = value === "on";
-
-    saveSettings();
-
-    /*
-        Das Emoji in MORITZMAN3's Admin-Abzeichen
-        wird absichtlich IMMER angezeigt.
-    */
-
-    showSettings();
-}
-
-function logout() {
-    stopMiningAndHome();
-
-    currentUser = null;
-
-    localStorage.removeItem(CURRENT_KEY);
-
-    currentEnemy = null;
-    battleLog = [];
-
-    showHome();
-
-    showMessage("Du wurdest ausgeloggt.");
-}
-
-function deleteOwnAccount() {
-    const user = getUser();
-
-    if (!user) {
-        return;
-    }
-
-    if (
-        user.username === "MORITZMAN3"
-    ) {
-        showMessage(
-            "Der Haupt-Admin kann sich hier nicht löschen."
-        );
-        return;
-    }
-
-    const confirmed = confirm(
-        "Möchtest du deinen Account wirklich löschen?"
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    delete accounts[user.username];
-
-    saveAccounts();
-
-    currentUser = null;
-
-    localStorage.removeItem(CURRENT_KEY);
-
-    showHome();
-
-    showMessage("Account gelöscht.");
-}
-
-
-// ============================================================
-// ADMIN PANEL
-// ============================================================
-
-function isMainAdmin() {
-    const user = getUser();
-
-    return user &&
-        user.username === "MORITZMAN3";
-}
-
-function showAdminPanel() {
-    if (!isMainAdmin()) {
-        showHome();
-        return;
-    }
-
-    adminSelectedUser = null;
-
-    render(`
-        <button class="back-button" onclick="showHome()">
-            ← Zurück
+            ${t("back")}
         </button>
 
-        <h2>🖥️ Admin Panel</h2>
+        <h2>${t("settingsTitle")}</h2>
 
-        <div class="admin-panel">
+        <div class="card">
 
-            <h3 class="admin-title">
-                🖥️ Benutzerverwaltung
-            </h3>
+            <h3>🌍 ${t("language")}</h3>
 
-            <label>Benutzer suchen</label>
-
-            <input
-                id="adminSearch"
-                placeholder="Username eingeben..."
-                oninput="searchAdminUsers()"
+            <select
+                id="languageSelect"
+                onchange="changeLanguage(this.value)"
             >
 
-            <div id="adminSearchResults">
-                ${renderAdminUserList()}
-            </div>
-
-            <div id="selectedAdminUser"></div>
-
-        </div>
-    `);
-}
-
-function renderAdminUserList() {
-    const users = Object.values(accounts);
-
-    if (!users.length) {
-        return `<p class="small">Keine Accounts vorhanden.</p>`;
-    }
-
-    return users.map(user => `
-        <div
-            class="admin-user"
-            onclick="selectAdminUser('${encodeURIComponent(user.username)}')"
-        >
-            <strong>
-                ${safeText(user.username)}
-                ${user.admin ? " 🖳" : ""}
-            </strong>
-
-            <div class="small">
-                ⭐ Level ${user.level}
-                · 💰 ${user.gold}
-                · ${user.banned ? "🚫 Gebannt" : "✅ Aktiv"}
-            </div>
-        </div>
-    `).join("");
-}
-
-function searchAdminUsers() {
-    const input =
-        document.getElementById("adminSearch");
-
-    if (!input) {
-        return;
-    }
-
-    const query =
-        normalizeUsername(input.value);
-
-    const results =
-        document.getElementById("adminSearchResults");
-
-    const users =
-        Object.values(accounts)
-            .filter(user =>
-                user.username.includes(query)
-            );
-
-    results.innerHTML =
-        users.length
-            ? users.map(user => `
-                <div
-                    class="admin-user"
-                    onclick="selectAdminUser('${encodeURIComponent(user.username)}')"
+                <option
+                    value="de"
+                    ${settings.language === "de" ? "selected" : ""}
                 >
-                    <strong>
-                        ${safeText(user.username)}
-                        ${user.admin ? " 🖳" : ""}
-                    </strong>
+                    Deutsch
+                </option>
 
-                    <div class="small">
-                        ⭐ Level ${user.level}
-                        · 💰 ${user.gold}
-                        · ${user.banned ? "🚫 Gebannt" : "✅ Aktiv"}
-                    </div>
-                </div>
-            `).join("")
-            : `<p class="small">Kein Benutzer gefunden.</p>`;
+                <option
+                    value="en"
+                    ${settings.language === "en" ? "selected" : ""}
+                >
+                    English
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="card">
+
+            <h3>😀 ${t("emojis")}</h3>
+
+            <button
+                class="action"
+                onclick="toggleEmojis()"
+            >
+                ${settings.emojis
+                    ? t("emojisOn")
+                    : t("emojisOff")}
+            </button>
+
+        </div>
+
+        ${
+            currentUser
+            ? `
+                <div class="separator"></div>
+
+                <button
+                    class="action danger"
+                    onclick="deleteOwnAccount()"
+                >
+                    ${t("deleteAccount")}
+                </button>
+
+                <button
+                    class="action"
+                    onclick="logout()"
+                >
+                    🔐 ${t("logout")}
+                </button>
+            `
+            : ""
+        }
+    `;
+
+    updateTopButtons();
+
+    updateEmojiVisibility();
 }
 
-function selectAdminUser(encodedUsername) {
-    if (!isMainAdmin()) {
+
+function changeLanguage(language) {
+
+    settings.language =
+        language === "en" ? "en" : "de";
+
+    saveSettings();
+
+    renderSettings();
+
+    updateStats();
+
+    updateTopButtons();
+}
+
+
+function toggleEmojis() {
+
+    settings.emojis =
+        !settings.emojis;
+
+    saveSettings();
+
+    renderSettings();
+
+    updateEmojiVisibility();
+}
+
+
+// ============================================================
+// ADMIN
+// ============================================================
+
+function renderAdmin() {
+
+    if (
+        !currentUser ||
+        !currentUser.admin
+    ) {
+
+        renderHome();
+
         return;
     }
 
-    const username =
-        decodeURIComponent(encodedUsername);
+    currentScreen = "admin";
 
-    if (!accounts[username]) {
+    const screen =
+        document.getElementById("screen");
+
+    screen.innerHTML = `
+
+        <button
+            class="action back-button"
+            onclick="renderHome()"
+        >
+            ${t("back")}
+        </button>
+
+        <h2>${t("adminTitle")}</h2>
+
+        <input
+            id="adminSearch"
+            placeholder="${t("searchUser")}"
+            oninput="renderAdminUsers()"
+        >
+
+        <div id="adminUsers"></div>
+
+        <div
+            id="adminSelected"
+            class="admin-actions"
+        ></div>
+    `;
+
+    renderAdminUsers();
+
+    updateTopButtons();
+
+    updateEmojiVisibility();
+}
+
+
+function renderAdminUsers() {
+
+    const box =
+        document.getElementById("adminUsers");
+
+    if (!box) {
         return;
     }
 
-    adminSelectedUser = username;
+    const search =
+        (
+            document.getElementById(
+                "adminSearch"
+            )?.value || ""
+        ).toLowerCase();
 
-    const target =
-        document.getElementById("selectedAdminUser");
+    const found =
+        Object.values(users).filter(user =>
+            user.username
+                .toLowerCase()
+                .includes(search)
+        );
 
-    if (!target) {
+    if (found.length === 0) {
+
+        box.innerHTML =
+            `<p class="small">${t("noUsers")}</p>`;
+
         return;
     }
 
-    const user = accounts[username];
+    box.innerHTML =
+        found.map(user => `
 
-    target.innerHTML = `
-        <div class="admin-panel">
+            <div
+                class="admin-user ${
+                    adminSelectedUser === user.username
+                    ? "selected"
+                    : ""
+                }"
+                onclick="selectAdminUser('${escapeAttribute(user.username)}')"
+            >
+
+                <strong>
+                    ${escapeHtml(user.username)}
+
+                    ${
+                        user.username === OWNER
+                        ? `<span class="admin-badge">🖳</span>`
+                        : ""
+                    }
+                </strong>
+
+                <p>
+                    ⭐ ${user.level}
+                    &nbsp;&nbsp;
+                    💰 ${user.gold}
+                </p>
+
+                <p class="${
+                    user.banned
+                    ? "status-banned"
+                    : "status-online"
+                }">
+
+                    ${
+                        user.banned
+                        ? "🚫 " + t("banned")
+                        : "✅ " + t("active")
+                    }
+
+                </p>
+
+            </div>
+
+        `).join("");
+
+    renderAdminSelected();
+}
+
+
+function selectAdminUser(username) {
+
+    if (!users[username]) {
+        return;
+    }
+
+    adminSelectedUser =
+        username;
+
+    renderAdminUsers();
+}
+
+
+function renderAdminSelected() {
+
+    const box =
+        document.getElementById(
+            "adminSelected"
+        );
+
+    if (!box) {
+        return;
+    }
+
+    if (!adminSelectedUser) {
+
+        box.innerHTML =
+            `<p class="small">${t("selectUser")}</p>`;
+
+        return;
+    }
+
+    const user =
+        users[adminSelectedUser];
+
+    if (!user) {
+
+        adminSelectedUser = null;
+
+        box.innerHTML = "";
+
+        return;
+    }
+
+    box.innerHTML = `
+
+        <div class="card">
 
             <h3>
-                👤 ${safeText(user.username)}
-                ${user.admin ? " 🖳" : ""}
+                👤 ${escapeHtml(user.username)}
+
+                ${
+                    user.username === OWNER
+                    ? `<span class="admin-badge">🖳</span>`
+                    : ""
+                }
             </h3>
 
             <p>
-                ⭐ Level:
-                <strong>${user.level}</strong>
+                💰 ${user.gold} Gold
             </p>
 
             <p>
-                💰 Gold:
-                <strong>${user.gold}</strong>
+                ⭐ Level ${user.level}
             </p>
-
-            <p>
-                ${user.banned
-                    ? "🚫 Gebannt"
-                    : "✅ Aktiv"
-                }
-            </p>
-
-            <div class="separator"></div>
-
-            <label>Gold hinzufügen</label>
 
             <input
                 id="adminGoldAmount"
                 type="number"
                 min="0"
-                placeholder="z.B. 500"
+                placeholder="Gold amount"
             >
 
             <button
-                class="gold-button"
+                class="action gold"
                 onclick="adminGiveGold()"
             >
-                💰 Gold geben
+                💰 ${t("giveGold")}
             </button>
 
-            <button onclick="adminResetGold()">
-                🔄 Gold auf 0 setzen
+            <button
+                class="action"
+                onclick="adminResetGold()"
+            >
+                🔄 ${t("resetGold")}
             </button>
-
-            <label>Level setzen</label>
 
             <input
                 id="adminLevelAmount"
                 type="number"
                 min="1"
-                placeholder="z.B. 10"
+                placeholder="Level"
             >
 
-            <button onclick="adminSetLevel()">
-                ⭐ Level setzen
-            </button>
-
-            <button onclick="adminResetLevel()">
-                🔄 Level zurücksetzen
+            <button
+                class="action"
+                onclick="adminSetLevel()"
+            >
+                ⭐ ${t("setLevel")}
             </button>
 
             <button
-                class="danger-button"
-                onclick="adminToggleBan()"
+                class="action"
+                onclick="adminResetLevel()"
             >
-                ${user.banned
-                    ? "✅ Account entbannen"
-                    : "🚫 Account bannen"
-                }
+                🔄 ${t("resetLevel")}
             </button>
 
-            <button
-                class="danger-button"
-                onclick="adminDeleteAccount()"
-            >
-                🗑️ Account löschen
-            </button>
+            ${
+                user.banned
+                ? `
+                    <button
+                        class="action success"
+                        onclick="adminToggleBan()"
+                    >
+                        ✅ ${t("unban")}
+                    </button>
+                `
+                : `
+                    <button
+                        class="action danger"
+                        onclick="adminToggleBan()"
+                    >
+                        🚫 ${t("ban")}
+                    </button>
+                `
+            }
 
             <button
-                class="purple-button"
-                onclick="adminToggleAdmin()"
+                class="action danger"
+                onclick="adminDeleteUser()"
             >
-                🖥️
-                ${user.admin
-                    ? "Admin entfernen"
-                    : "Zum Admin machen"
-                }
+                🗑️ ${t("deleteUser")}
             </button>
+
+            ${
+                user.admin
+                ? `
+                    <button
+                        class="action purple"
+                        onclick="adminToggleAdmin()"
+                    >
+                        🖥️ ${t("removeAdmin")}
+                    </button>
+                `
+                : `
+                    <button
+                        class="action purple"
+                        onclick="adminToggleAdmin()"
+                    >
+                        🖥️ ${t("makeAdmin")}
+                    </button>
+                `
+            }
 
         </div>
     `;
+
+    updateEmojiVisibility();
 }
 
-function getAdminTarget() {
-    if (!isMainAdmin()) {
-        return null;
-    }
+
+// ============================================================
+// ADMIN AKTIONEN
+// ============================================================
+
+function getSelectedAdminUser() {
 
     if (!adminSelectedUser) {
-        showMessage("Wähle zuerst einen Benutzer.");
         return null;
     }
 
-    return accounts[adminSelectedUser] || null;
+    return users[adminSelectedUser] || null;
 }
+
 
 function adminGiveGold() {
-    const target = getAdminTarget();
 
-    if (!target) {
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
     const input =
-        document.getElementById("adminGoldAmount");
+        document.getElementById(
+            "adminGoldAmount"
+        );
 
     const amount =
-        Number(input.value);
+        Number(input?.value);
 
     if (!Number.isFinite(amount) || amount < 0) {
-        showMessage("Ungültige Goldmenge.");
         return;
     }
 
-    target.gold += Math.floor(amount);
+    user.gold += Math.floor(amount);
 
-    saveAccounts();
+    saveUsers();
+
+    renderAdmin();
 
     showMessage(
-        `${amount} Gold gegeben.`
+        `💰 +${Math.floor(amount)} Gold`
     );
-
-    showAdminPanel();
 }
 
-function adminResetGold() {
-    const target = getAdminTarget();
 
-    if (!target) {
+function adminResetGold() {
+
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
-    target.gold = 0;
+    user.gold = 0;
 
-    saveAccounts();
+    saveUsers();
 
-    showMessage("Gold zurückgesetzt.");
-
-    showAdminPanel();
+    renderAdmin();
 }
 
-function adminSetLevel() {
-    const target = getAdminTarget();
 
-    if (!target) {
+function adminSetLevel() {
+
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
     const input =
-        document.getElementById("adminLevelAmount");
+        document.getElementById(
+            "adminLevelAmount"
+        );
 
     const level =
-        Number(input.value);
+        Number(input?.value);
 
     if (
         !Number.isFinite(level) ||
-        level < 1 ||
-        level > 999
+        level < 1
     ) {
-        showMessage("Ungültiges Level.");
         return;
     }
 
-    target.level = Math.floor(level);
-    target.xp = 0;
+    user.level =
+        Math.floor(level);
 
-    target.maxHealth =
-        100 +
-        ((target.level - 1) * 15) +
-        target.armor.health;
+    user.maxHealth =
+        100 + ((user.level - 1) * 10);
 
-    target.health = target.maxHealth;
+    user.health =
+        user.maxHealth;
 
-    saveAccounts();
+    saveUsers();
 
-    showMessage("Level gesetzt.");
-
-    showAdminPanel();
+    renderAdmin();
 }
+
 
 function adminResetLevel() {
-    const target = getAdminTarget();
 
-    if (!target) {
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
-    target.level = 1;
-    target.xp = 0;
+    user.level = 1;
 
-    target.maxHealth =
-        100 + target.armor.health;
+    user.xp = 0;
 
-    target.health = target.maxHealth;
+    user.maxHealth = 100;
 
-    saveAccounts();
+    user.health = 100;
 
-    showMessage("Level zurückgesetzt.");
+    saveUsers();
 
-    showAdminPanel();
+    renderAdmin();
 }
+
 
 function adminToggleBan() {
-    const target = getAdminTarget();
 
-    if (!target) {
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
-    if (target.username === "MORITZMAN3") {
-        showMessage("MORITZMAN3 kann nicht gebannt werden.");
+    if (user.username === OWNER) {
+
+        showMessage(
+            "Der Owner kann nicht gebannt werden."
+        );
+
         return;
     }
 
-    target.banned = !target.banned;
+    user.banned =
+        !user.banned;
 
-    saveAccounts();
+    saveUsers();
 
-    showMessage(
-        target.banned
-            ? "Account gebannt."
-            : "Account entbannt."
-    );
-
-    showAdminPanel();
+    renderAdmin();
 }
 
-function adminDeleteAccount() {
-    const target = getAdminTarget();
 
-    if (!target) {
+function adminDeleteUser() {
+
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
-    if (target.username === "MORITZMAN3") {
-        showMessage("Der Haupt-Admin kann nicht gelöscht werden.");
+    if (user.username === OWNER) {
+
+        showMessage(
+            "Der Owner kann nicht gelöscht werden."
+        );
+
         return;
     }
 
-    const confirmed = confirm(
-        `Account ${target.username} wirklich löschen?`
-    );
-
-    if (!confirmed) {
+    if (
+        !confirm(
+            `Account ${user.username} wirklich löschen?`
+        )
+    ) {
         return;
     }
 
-    delete accounts[target.username];
-
-    saveAccounts();
+    delete users[user.username];
 
     adminSelectedUser = null;
 
-    showMessage("Account gelöscht.");
+    saveUsers();
 
-    showAdminPanel();
+    renderAdmin();
 }
+
 
 function adminToggleAdmin() {
-    const target = getAdminTarget();
 
-    if (!target) {
+    const user =
+        getSelectedAdminUser();
+
+    if (!user) {
         return;
     }
 
-    if (target.username === "MORITZMAN3") {
+    if (user.username === OWNER) {
+
         showMessage(
-            "MORITZMAN3 bleibt Haupt-Admin."
+            "005x5 bleibt immer Admin."
         );
+
         return;
     }
 
-    target.admin = !target.admin;
+    user.admin =
+        !user.admin;
 
-    saveAccounts();
+    saveUsers();
 
-    showMessage(
-        target.admin
-            ? "Admin-Rechte vergeben."
-            : "Admin-Rechte entfernt."
-    );
-
-    showAdminPanel();
+    renderAdmin();
 }
 
 
 // ============================================================
-// AUTOMATISCHE SPEICHERUNG
+// HILFSFUNKTIONEN
 // ============================================================
 
-window.addEventListener("beforeunload", () => {
-    clearInterval(mining.timer);
-    saveAccounts();
-});
+function randomNumber(min, max) {
+
+    return Math.floor(
+        Math.random() * (max - min + 1)
+    ) + min;
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+function escapeAttribute(value) {
+
+    return String(value)
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'");
+}
+
+
+// ============================================================
+// NACHRICHT
+// ============================================================
+
+let messageTimer = null;
+
+function showMessage(text) {
+
+    const message =
+        document.getElementById("message");
+
+    if (!message) {
+        return;
+    }
+
+    message.textContent = text;
+
+    clearTimeout(messageTimer);
+
+    messageTimer =
+        setTimeout(() => {
+
+            message.textContent = "";
+
+        }, 3000);
+}
+
+
+// ============================================================
+// SESSION STARTEN
+// ============================================================
+
+function initializeGame() {
+
+    const session =
+        loadSession();
+
+    if (
+        session &&
+        users[session] &&
+        !users[session].banned
+    ) {
+
+        currentUser =
+            users[session];
+
+    } else {
+
+        currentUser = null;
+
+        if (
+            session &&
+            users[session]?.banned
+        ) {
+
+            saveSession(null);
+        }
+    }
+
+    updateStats();
+
+    renderHome();
+
+    updateEmojiVisibility();
+}
 
 
 // ============================================================
 // START
 // ============================================================
 
-updateStats();
-showHome();
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeGame
+);
