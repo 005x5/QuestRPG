@@ -1,8 +1,21 @@
+// ============================================================
+//                    ⚔️ QuestRPG ⚔️
+// ============================================================
+
+
+// ============================================================
+// STORAGE
+// ============================================================
+
 const KEYS = {
-    users: "questrpg_users_v1",
-    current: "questrpg_current_v1",
-    settings: "questrpg_settings_v1",
-    prefix: "questrpg_state_v1_"
+    users: "questrpg_users_v4",
+    current: "questrpg_current_v4",
+    settings: "questrpg_settings_v4",
+    prefix: "questrpg_state_v4_",
+
+    guest: "questrpg_guest_v4",
+
+    mineCooldown: "questrpg_mine_cooldown_v4"
 };
 
 
@@ -11,8 +24,7 @@ const KEYS = {
 // ============================================================
 
 const defaultSettings = {
-    language: "de",
-    emojis: true
+    language: "de"
 };
 
 
@@ -21,7 +33,6 @@ const defaultSettings = {
 // ============================================================
 
 const defaultPlayer = {
-
     name: "Held",
 
     level: 1,
@@ -50,8 +61,9 @@ const defaultPlayer = {
 
     defeatedByName: {},
 
-    missionIndex: 0
+    missionIndex: 0,
 
+    isGuest: false
 };
 
 
@@ -465,7 +477,6 @@ const missions = [
 // ============================================================
 
 let settings = loadSettings();
-
 let users = loadUsers();
 
 let currentUsername =
@@ -473,21 +484,19 @@ let currentUsername =
 
 let player = null;
 
-let currentMonster = null;
+let isGuest = false;
 
+let currentMonster = null;
 let monsterHealth = 0;
 
 let mineClicksRequired = 0;
-
 let mineClicksDone = 0;
-
-let mineCooldownUntil = 0;
 
 let mineTimer = null;
 
 
 // ============================================================
-// LOCALSTORAGE
+// STORAGE
 // ============================================================
 
 function loadSettings() {
@@ -497,7 +506,9 @@ function loadSettings() {
         return {
             ...defaultSettings,
             ...(JSON.parse(
-                localStorage.getItem(KEYS.settings)
+                localStorage.getItem(
+                    KEYS.settings
+                )
             ) || {})
         };
 
@@ -508,7 +519,6 @@ function loadSettings() {
         };
 
     }
-
 }
 
 
@@ -527,7 +537,9 @@ function loadUsers() {
     try {
 
         return JSON.parse(
-            localStorage.getItem(KEYS.users)
+            localStorage.getItem(
+                KEYS.users
+            )
         ) || {};
 
     } catch {
@@ -535,7 +547,6 @@ function loadUsers() {
         return {};
 
     }
-
 }
 
 
@@ -581,15 +592,15 @@ function loadPlayer(username) {
                 )
             );
 
-        const p = {
+        const loaded = {
             ...defaultPlayer,
             ...(saved || {})
         };
 
-        p.defeatedByName =
-            p.defeatedByName || {};
+        loaded.defeatedByName =
+            loaded.defeatedByName || {};
 
-        return p;
+        return loaded;
 
     } catch {
 
@@ -599,14 +610,19 @@ function loadPlayer(username) {
         };
 
     }
-
 }
 
 
 function savePlayer() {
 
-    if (!currentUsername || !player) {
+    if (
+        !player ||
+        player.isGuest ||
+        !currentUsername
+    ) {
+
         return;
+
     }
 
     localStorage.setItem(
@@ -618,7 +634,134 @@ function savePlayer() {
 
 
 // ============================================================
-// SPRACHEN
+// MINE COOLDOWN
+// Der Timer wird als Zeitstempel gespeichert.
+// Deshalb friert er beim Verlassen nicht ein.
+// ============================================================
+
+function getMineCooldownEnd() {
+
+    return Number(
+        localStorage.getItem(
+            KEYS.mineCooldown
+        )
+    ) || 0;
+
+}
+
+
+function setMineCooldown(seconds) {
+
+    localStorage.setItem(
+        KEYS.mineCooldown,
+        String(
+            Date.now() +
+            seconds * 1000
+        )
+    );
+
+}
+
+
+function getMineRemainingSeconds() {
+
+    const end =
+        getMineCooldownEnd();
+
+    return Math.max(
+        0,
+        Math.ceil(
+            (end - Date.now()) / 1000
+        )
+    );
+
+}
+
+
+function clearMineCooldown() {
+
+    localStorage.removeItem(
+        KEYS.mineCooldown
+    );
+
+}
+
+
+function startMineTimer() {
+
+    clearMineTimer();
+
+    mineTimer =
+        setInterval(
+            () => {
+
+                if (
+                    !player
+                ) {
+
+                    clearMineTimer();
+
+                    return;
+
+                }
+
+                const remaining =
+                    getMineRemainingSeconds();
+
+
+                if (
+                    remaining <= 0
+                ) {
+
+                    clearMineCooldown();
+
+                    clearMineTimer();
+
+                    renderMineReady();
+
+                    return;
+
+                }
+
+
+                const currentScreen =
+                    document.getElementById(
+                        "screen"
+                    )?.dataset?.screen;
+
+
+                if (
+                    currentScreen === "mineCooldown"
+                ) {
+
+                    renderMineCooldown();
+
+                }
+
+            },
+            250
+        );
+
+}
+
+
+function clearMineTimer() {
+
+    if (mineTimer) {
+
+        clearInterval(
+            mineTimer
+        );
+
+        mineTimer = null;
+
+    }
+
+}
+
+
+// ============================================================
+// TEXT / UI
 // ============================================================
 
 function t(de, en) {
@@ -626,39 +769,6 @@ function t(de, en) {
     return settings.language === "de"
         ? de
         : en;
-
-}
-
-
-function E(emoji) {
-
-    return settings.emojis
-        ? `<span class="emoji">${emoji}</span>`
-        : "";
-
-}
-
-
-// ============================================================
-// SICHERER TEXT
-// ============================================================
-
-function esc(text) {
-
-    return String(text).replace(
-        /[&<>'"]/g,
-
-        character => ({
-
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "'": "&#39;",
-            '"': "&quot;"
-
-        }[character])
-
-    );
 
 }
 
@@ -681,139 +791,57 @@ function monsterName(monster) {
 }
 
 
-// ============================================================
-// UI
-// ============================================================
+function render(html, screenName = "") {
 
-function render(html) {
+    const screen =
+        document.getElementById(
+            "screen"
+        );
 
-    document
-        .getElementById("screen")
-        .innerHTML = html;
+    if (!screen) {
+
+        return;
+
+    }
+
+    screen.dataset.screen =
+        screenName;
+
+    screen.innerHTML =
+        html;
 
 }
 
 
 function message(text) {
 
-    document
-        .getElementById("message")
-        .textContent = text;
+    const element =
+        document.getElementById(
+            "message"
+        );
 
-}
-
-
-function updateBodyEmojiClass() {
-
-    document.body.classList.toggle(
-        "no-emoji",
-        !settings.emojis
-    );
-
-}
-
-
-function updateTopStats() {
-
-    if (!document.getElementById("name")) {
-        return;
-    }
-
-    if (!player) {
-
-        document.getElementById("name")
-            .textContent = t(
-                "Gast",
-                "Guest"
-            );
-
-        document.getElementById("level")
-            .textContent = "-";
-
-        document.getElementById("gold")
-            .textContent = "-";
-
-        document.getElementById("health")
-            .textContent = "-";
-
-        document.getElementById("maxHealth")
-            .textContent = "-";
-
-        document.getElementById("xp")
-            .textContent = "-";
-
-        document.getElementById("xpNeeded")
-            .textContent = "-";
-
-        document.getElementById("healthBar")
-            .style.width = "0%";
-
-        document.getElementById("xpBar")
-            .style.width = "0%";
+    if (!element) {
 
         return;
 
     }
 
+    /*
+        KEINE <span>-Emoji-Verpackung mehr.
+        Das verhindert den Fehler:
+        <span class="emoji">❌</span> ...
+    */
 
-    document.getElementById("name")
-        .textContent =
-        player.name;
-
-    document.getElementById("level")
-        .textContent =
-        player.level;
-
-    document.getElementById("gold")
-        .textContent =
-        player.gold;
-
-    document.getElementById("health")
-        .textContent =
-        player.health;
-
-    document.getElementById("maxHealth")
-        .textContent =
-        player.maxHealth;
-
-
-    const needed =
-        player.level * 100;
-
-
-    document.getElementById("xp")
-        .textContent =
-        player.xp;
-
-    document.getElementById("xpNeeded")
-        .textContent =
-        needed;
-
-
-    document.getElementById("xpBar")
-        .style.width =
-        Math.min(
-            100,
-            (player.xp / needed) * 100
-        ) + "%";
-
-
-    document.getElementById("healthBar")
-        .style.width =
-        Math.max(
-            0,
-            Math.min(
-                100,
-                (player.health /
-                    player.maxHealth) *
-                    100
-            )
-        ) + "%";
+    element.innerHTML =
+        text;
 
 }
 
 
-function randomNumber(min, max) {
+function randomNumber(
+    min,
+    max
+) {
 
     return Math.floor(
         Math.random() *
@@ -823,15 +851,32 @@ function randomNumber(min, max) {
 }
 
 
+function esc(text) {
+
+    return String(text).replace(
+        /[&<>'"]/g,
+        character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#39;",
+            '"': "&quot;"
+        }[character])
+    );
+
+}
+
+
 // ============================================================
-// AUSGÜSTUNG
+// EQUIPMENT
 // ============================================================
 
 function getWeapon() {
 
     return weapons.find(
-        weapon =>
-            weapon.id === player.weaponId
+        item =>
+            item.id ===
+            player.weaponId
     ) || weapons[0];
 
 }
@@ -840,8 +885,9 @@ function getWeapon() {
 function getArmor() {
 
     return armors.find(
-        armor =>
-            armor.id === player.armorId
+        item =>
+            item.id ===
+            player.armorId
     ) || armors[0];
 
 }
@@ -850,9 +896,143 @@ function getArmor() {
 function getPickaxe() {
 
     return pickaxes.find(
-        pickaxe =>
-            pickaxe.id === player.pickaxeId
+        item =>
+            item.id ===
+            player.pickaxeId
     ) || pickaxes[0];
+
+}
+
+
+// ============================================================
+// UI STATUS
+// ============================================================
+
+function updateTopStats() {
+
+    const nameElement =
+        document.getElementById(
+            "name"
+        );
+
+    if (!nameElement) {
+
+        return;
+
+    }
+
+
+    if (!player) {
+
+        nameElement.textContent =
+            "Gast";
+
+        document.getElementById(
+            "level"
+        ).textContent = "-";
+
+        document.getElementById(
+            "gold"
+        ).textContent = "-";
+
+        document.getElementById(
+            "health"
+        ).textContent = "-";
+
+        document.getElementById(
+            "maxHealth"
+        ).textContent = "-";
+
+        document.getElementById(
+            "xp"
+        ).textContent = "-";
+
+        document.getElementById(
+            "xpNeeded"
+        ).textContent = "-";
+
+        document.getElementById(
+            "healthBar"
+        ).style.width = "0%";
+
+        document.getElementById(
+            "xpBar"
+        ).style.width = "0%";
+
+        return;
+
+    }
+
+
+    nameElement.textContent =
+        player.name;
+
+
+    document.getElementById(
+        "level"
+    ).textContent =
+        player.level;
+
+
+    document.getElementById(
+        "gold"
+    ).textContent =
+        player.gold;
+
+
+    document.getElementById(
+        "health"
+    ).textContent =
+        player.health;
+
+
+    document.getElementById(
+        "maxHealth"
+    ).textContent =
+        player.maxHealth;
+
+
+    const neededXP =
+        player.level * 100;
+
+
+    document.getElementById(
+        "xp"
+    ).textContent =
+        player.xp;
+
+
+    document.getElementById(
+        "xpNeeded"
+    ).textContent =
+        neededXP;
+
+
+    document.getElementById(
+        "xpBar"
+    ).style.width =
+        Math.min(
+            100,
+            (
+                player.xp /
+                neededXP
+            ) * 100
+        ) + "%";
+
+
+    document.getElementById(
+        "healthBar"
+    ).style.width =
+        Math.max(
+            0,
+            Math.min(
+                100,
+                (
+                    player.health /
+                    player.maxHealth
+                ) * 100
+            )
+        ) + "%";
 
 }
 
@@ -865,7 +1045,7 @@ function addXP(amount) {
 
     player.xp += amount;
 
-    let leveledUp = false;
+    let levelUp = false;
 
 
     while (
@@ -883,7 +1063,7 @@ function addXP(amount) {
         player.health =
             player.maxHealth;
 
-        leveledUp = true;
+        levelUp = true;
 
     }
 
@@ -893,15 +1073,13 @@ function addXP(amount) {
     updateTopStats();
 
 
-    if (leveledUp) {
+    if (levelUp) {
 
         message(
-            `${E("🎉")}
-             ${t(
-                 "Level Up! Du bist jetzt Level",
-                 "Level Up! You are now level"
-             )}
-             ${player.level}!`
+            `🎉 ${t(
+                "LEVEL UP! Du bist jetzt Level",
+                "LEVEL UP! You are now level"
+            )} ${player.level}!`
         );
 
     }
@@ -931,7 +1109,8 @@ function missionProgress(mission) {
 
         case "goblin":
             return (
-                player.defeatedByName.goblin || 0
+                player.defeatedByName.goblin ||
+                0
             );
 
         case "earned":
@@ -945,62 +1124,6 @@ function missionProgress(mission) {
 }
 
 
-function updateMission() {
-
-    if (!player) {
-        return;
-    }
-
-
-    const mission =
-        missions[player.missionIndex];
-
-
-    if (!mission) {
-        return;
-    }
-
-
-    if (
-        missionProgress(mission) <
-        mission.target
-    ) {
-
-        return;
-
-    }
-
-
-    const reward =
-        randomNumber(
-            mission.reward[0],
-            mission.reward[1]
-        );
-
-
-    player.gold += reward;
-
-    player.missionIndex++;
-
-
-    savePlayer();
-
-    updateTopStats();
-
-
-    message(
-        `${E("🎯")}
-         ${t(
-             "Mission abgeschlossen! +",
-             "Mission complete! +"
-         )}
-         ${reward}
-         ${t("Gold.", "gold.")}`
-    );
-
-}
-
-
 function missionText(mission) {
 
     return settings.language === "de"
@@ -1010,8 +1133,74 @@ function missionText(mission) {
 }
 
 
+function updateMission() {
+
+    if (!player) {
+
+        return;
+
+    }
+
+
+    while (
+        player.missionIndex <
+        missions.length
+    ) {
+
+        const mission =
+            missions[
+                player.missionIndex
+            ];
+
+
+        if (
+            missionProgress(
+                mission
+            ) <
+            mission.target
+        ) {
+
+            break;
+
+        }
+
+
+        const reward =
+            randomNumber(
+                mission.reward[0],
+                mission.reward[1]
+            );
+
+
+        player.gold +=
+            reward;
+
+
+        player.missionIndex++;
+
+
+        message(
+            `🎯 ${t(
+                "Mission abgeschlossen! +",
+                "Mission complete! +"
+            )}${reward} ${t(
+                "Gold!",
+                "gold!"
+            )}`
+        );
+
+    }
+
+
+    savePlayer();
+
+    updateTopStats();
+
+}
+
+
 // ============================================================
-// LOGIN
+// LOGIN MENU
 // ============================================================
 
 function showAuth() {
@@ -1019,27 +1208,31 @@ function showAuth() {
     clearMineTimer();
 
     currentUsername = null;
-
     player = null;
+    isGuest = false;
 
     localStorage.removeItem(
         KEYS.current
     );
 
     updateTopStats();
-
     message("");
 
 
     render(`
 
-        <div class="auth-top">
+        <div class="top-row">
+
+            <h2 class="compact-title">
+                ⚔️ QuestRPG
+            </h2>
+
 
             <button
                 class="icon-button"
                 onclick="openSettings(true)">
 
-                ${E("⚙️")}
+                ⚙️
                 ${t(
                     "Einstellungen",
                     "Settings"
@@ -1051,9 +1244,7 @@ function showAuth() {
 
 
         <div class="big">
-
-            ${E("🏰")}
-
+            🏰
         </div>
 
 
@@ -1070,8 +1261,8 @@ function showAuth() {
         <p class="small">
 
             ${t(
-                "Logge dich ein oder erstelle einen Account. Dein Spielstand wird in diesem Browser gespeichert.",
-                "Log in or create an account. Your game is saved in this browser."
+                "Logge dich ein, registriere dich oder spiele als Gast.",
+                "Log in, register, or play as a guest."
             )}
 
         </p>
@@ -1081,7 +1272,7 @@ function showAuth() {
             class="success-button"
             onclick="renderLogin()">
 
-            ${E("🔐")}
+            🔐
             ${t(
                 "Einloggen",
                 "Log in"
@@ -1093,10 +1284,35 @@ function showAuth() {
         <button
             onclick="renderRegister()">
 
-            ${E("📝")}
+            📝
             ${t(
                 "Registrieren",
                 "Register"
+            )}
+
+        </button>
+
+
+        <button
+            onclick="playAsGuest()">
+
+            🎮
+            ${t(
+                "Als Gast spielen",
+                "Play as Guest"
+            )}
+
+        </button>
+
+
+        <button
+            class="leader-button"
+            onclick="showLeaderboard(true)">
+
+            🏆
+            ${t(
+                "Leaderboard",
+                "Leaderboard"
             )}
 
         </button>
@@ -1107,7 +1323,7 @@ function showAuth() {
 
 
 // ============================================================
-// LOGIN-SEITE
+// LOGIN
 // ============================================================
 
 function renderLogin() {
@@ -1133,7 +1349,7 @@ function renderLogin() {
                 class="icon-button"
                 onclick="openSettings(true)">
 
-                ${E("⚙️")}
+                ⚙️
 
             </button>
 
@@ -1142,8 +1358,7 @@ function renderLogin() {
 
         <h2>
 
-            ${E("🔐")}
-
+            🔐
             ${t(
                 "Einloggen",
                 "Log in"
@@ -1155,11 +1370,14 @@ function renderLogin() {
         <div class="form-group">
 
             <label>
+
                 ${t(
                     "Benutzername",
                     "Username"
                 )}
+
             </label>
+
 
             <input
                 id="loginUser"
@@ -1172,11 +1390,14 @@ function renderLogin() {
         <div class="form-group">
 
             <label>
+
                 ${t(
                     "Passwort",
                     "Password"
                 )}
+
             </label>
+
 
             <input
                 id="loginPass"
@@ -1190,10 +1411,22 @@ function renderLogin() {
             class="success-button"
             onclick="login()">
 
-            ${E("🚀")}
+            🚀
             ${t(
                 "Einloggen",
                 "Log in"
+            )}
+
+        </button>
+
+
+        <button
+            onclick="playAsGuest()">
+
+            🎮
+            ${t(
+                "Als Gast spielen",
+                "Play as Guest"
             )}
 
         </button>
@@ -1215,7 +1448,7 @@ function renderLogin() {
 
 
 // ============================================================
-// REGISTRIERUNG
+// REGISTER
 // ============================================================
 
 function renderRegister() {
@@ -1241,7 +1474,7 @@ function renderRegister() {
                 class="icon-button"
                 onclick="openSettings(true)">
 
-                ${E("⚙️")}
+                ⚙️
 
             </button>
 
@@ -1250,8 +1483,7 @@ function renderRegister() {
 
         <h2>
 
-            ${E("📝")}
-
+            📝
             ${t(
                 "Account erstellen",
                 "Create account"
@@ -1263,11 +1495,14 @@ function renderRegister() {
         <div class="form-group">
 
             <label>
+
                 ${t(
                     "Benutzername",
                     "Username"
                 )}
+
             </label>
+
 
             <input
                 id="regUser"
@@ -1280,11 +1515,14 @@ function renderRegister() {
         <div class="form-group">
 
             <label>
+
                 ${t(
                     "Passwort",
                     "Password"
                 )}
+
             </label>
+
 
             <input
                 id="regPass"
@@ -1308,10 +1546,22 @@ function renderRegister() {
             class="success-button"
             onclick="register()">
 
-            ${E("✨")}
+            ✨
             ${t(
                 "Account erstellen",
                 "Create account"
+            )}
+
+        </button>
+
+
+        <button
+            onclick="playAsGuest()">
+
+            🎮
+            ${t(
+                "Als Gast spielen",
+                "Play as Guest"
             )}
 
         </button>
@@ -1346,20 +1596,22 @@ function register() {
 
         return message(
             t(
-                "Benutzername muss 3–16 Zeichen haben.",
-                "Username must be 3–16 characters."
+                "Der Benutzername muss 3–16 Zeichen haben.",
+                "The username must be 3–16 characters."
             )
         );
 
     }
 
 
-    if (password.length < 4) {
+    if (
+        password.length < 4
+    ) {
 
         return message(
             t(
-                "Passwort muss mindestens 4 Zeichen haben.",
-                "Password must be at least 4 characters."
+                "Das Passwort muss mindestens 4 Zeichen haben.",
+                "The password must contain at least 4 characters."
             )
         );
 
@@ -1371,7 +1623,7 @@ function register() {
         return message(
             t(
                 "Dieser Benutzername existiert bereits.",
-                "That username already exists."
+                "This username already exists."
             )
         );
 
@@ -1384,7 +1636,9 @@ function register() {
             rawUser.trim(),
 
         password:
-            password
+            password,
+
+        banned: false
 
     };
 
@@ -1393,9 +1647,7 @@ function register() {
 
 
     localStorage.setItem(
-
         stateKey(key),
-
         JSON.stringify({
 
             ...defaultPlayer,
@@ -1403,10 +1655,11 @@ function register() {
             name:
                 rawUser.trim(),
 
-            defeatedByName: {}
+            defeatedByName: {},
+
+            isGuest: false
 
         })
-
     );
 
 
@@ -1419,21 +1672,26 @@ function register() {
 
 
 // ============================================================
-// EINLOGGEN
+// LOGIN
 // ============================================================
 
 function login() {
 
-    loginWithCredentials(
-
+    const username =
         document.getElementById(
             "loginUser"
-        )?.value || "",
+        )?.value || "";
 
+
+    const password =
         document.getElementById(
             "loginPass"
-        )?.value || ""
+        )?.value || "";
 
+
+    loginWithCredentials(
+        username,
+        password
     );
 
 }
@@ -1459,7 +1717,7 @@ function loginWithCredentials(
 
         return message(
             t(
-                "Benutzername oder Passwort falsch.",
+                "Benutzername oder Passwort ist falsch.",
                 "Username or password is incorrect."
             )
         );
@@ -1467,7 +1725,22 @@ function loginWithCredentials(
     }
 
 
-    currentUsername = key;
+    if (account.banned) {
+
+        return message(
+            `🚫 ${t(
+                "Dieser Account ist gesperrt.",
+                "This account is banned."
+            )}`
+        );
+
+    }
+
+
+    currentUsername =
+        key;
+
+    isGuest = false;
 
 
     player =
@@ -1478,6 +1751,10 @@ function loginWithCredentials(
         account.username;
 
 
+    player.isGuest =
+        false;
+
+
     localStorage.setItem(
         KEYS.current,
         key
@@ -1485,6 +1762,7 @@ function loginWithCredentials(
 
 
     savePlayer();
+
 
     updateTopStats();
 
@@ -1494,7 +1772,55 @@ function loginWithCredentials(
 
 
 // ============================================================
-// AUSLOGGEN
+// GAST
+// ============================================================
+
+function playAsGuest() {
+
+    clearMineTimer();
+
+    currentUsername = null;
+
+    isGuest = true;
+
+
+    player = {
+
+        ...JSON.parse(
+            JSON.stringify(
+                defaultPlayer
+            )
+        ),
+
+        name:
+            settings.language === "de"
+                ? "Gast"
+                : "Guest",
+
+        isGuest: true,
+
+        defeatedByName: {}
+
+    };
+
+
+    updateTopStats();
+
+    mainMenu();
+
+
+    message(
+        `🎮 ${t(
+            "Du spielst als Gast. Dein Spielstand wird nicht dauerhaft gespeichert.",
+            "You are playing as a guest. Your save is not permanent."
+        )}`
+    );
+
+}
+
+
+// ============================================================
+// LOGOUT
 // ============================================================
 
 function logout() {
@@ -1503,10 +1829,9 @@ function logout() {
 
     clearMineTimer();
 
-
     currentUsername = null;
-
     player = null;
+    isGuest = false;
 
 
     localStorage.removeItem(
@@ -1520,7 +1845,127 @@ function logout() {
 
 
 // ============================================================
-// EINSTELLUNGEN
+// ACCOUNT LÖSCHEN
+// ============================================================
+
+function deleteAccount() {
+
+    if (
+        !player ||
+        !currentUsername ||
+        player.isGuest
+    ) {
+
+        return;
+
+    }
+
+
+    const first =
+        confirm(
+            t(
+                "Möchtest du deinen Account wirklich löschen?",
+                "Do you really want to delete your account?"
+            )
+        );
+
+
+    if (!first) {
+
+        return;
+
+    }
+
+
+    const second =
+        confirm(
+            t(
+                "ACHTUNG: Dein Account und dein kompletter Spielstand werden dauerhaft gelöscht. Fortfahren?",
+                "WARNING: Your account and all save data will be permanently deleted. Continue?"
+            )
+        );
+
+
+    if (!second) {
+
+        return;
+
+    }
+
+
+    const key =
+        currentUsername;
+
+
+    delete users[key];
+
+    saveUsers();
+
+
+    localStorage.removeItem(
+        stateKey(key)
+    );
+
+
+    localStorage.removeItem(
+        KEYS.current
+    );
+
+
+    currentUsername = null;
+    player = null;
+    isGuest = false;
+
+
+    render(`
+
+        <div class="big">
+            🗑️
+        </div>
+
+
+        <h2>
+
+            ${t(
+                "Account gelöscht",
+                "Account deleted"
+            )}
+
+        </h2>
+
+
+        <p>
+
+            ${t(
+                "Dein Account und dein Spielstand wurden gelöscht.",
+                "Your account and save data have been deleted."
+            )}
+
+        </p>
+
+
+        <button
+            class="success-button"
+            onclick="showAuth()">
+
+            🔐
+            ${t(
+                "Zum Login",
+                "Back to login"
+            )}
+
+        </button>
+
+    `);
+
+
+    updateTopStats();
+
+}
+
+
+// ============================================================
+// SETTINGS
 // ============================================================
 
 function openSettings(
@@ -1549,17 +1994,21 @@ function openSettings(
 
 
             <h2 class="compact-title">
-
-                ${E("⚙️")}
-
-                ${t(
-                    "Einstellungen",
-                    "Settings"
-                )}
-
+                ⚙️
             </h2>
 
         </div>
+
+
+        <h2>
+
+            ⚙️
+            ${t(
+                "Einstellungen",
+                "Settings"
+            )}
+
+        </h2>
 
 
         <div class="setting-row">
@@ -1567,20 +2016,20 @@ function openSettings(
             <div>
 
                 <strong>
-
-                    ${E("🌐")}
-
+                    🌐
                     ${t(
                         "Sprache",
                         "Language"
                     )}
-
                 </strong>
 
 
                 <div class="small">
 
-                    Deutsch / English
+                    ${t(
+                        "Deutsch oder Englisch",
+                        "German or English"
+                    )}
 
                 </div>
 
@@ -1601,60 +2050,19 @@ function openSettings(
         </div>
 
 
-        <div class="setting-row">
-
-            <div>
-
-                <strong>
-
-                    ${E("😀")}
-
-                    ${t(
-                        "Emojis",
-                        "Emojis"
-                    )}
-
-                </strong>
-
-
-                <div class="small">
-
-                    ${t(
-                        "Emojis ein- oder ausschalten",
-                        "Show or hide emojis"
-                    )}
-
-                </div>
-
-            </div>
-
-
-            <button
-                onclick="toggleEmojis()">
-
-                ${
-                    settings.emojis
-                        ? t("An", "On")
-                        : t("Aus", "Off")
-                }
-
-            </button>
-
-        </div>
-
-
         ${
-            player
+            player &&
+            !player.isGuest
                 ? `
 
                     <div class="separator"></div>
+
 
                     <button
                         class="danger-button"
                         onclick="logout()">
 
-                        ${E("🚪")}
-
+                        🚪
                         ${t(
                             "Ausloggen",
                             "Log out"
@@ -1662,17 +2070,57 @@ function openSettings(
 
                     </button>
 
+
+                    <button
+                        class="danger-button"
+                        onclick="deleteAccount()">
+
+                        🗑️
+                        ${t(
+                            "Account löschen",
+                            "Delete account"
+                        )}
+
+                    </button>
+
                 `
                 : `
-
                     <div class="separator"></div>
+                `
+        }
+
+
+        ${
+            player &&
+            !player.isGuest &&
+            userKey(player.name) === "moritzman3"
+
+                ? `
+
+                    <button
+                        class="admin-button"
+                        onclick="openAdminPanel()">
+
+                        🛠️
+                        Admin Panel
+
+                    </button>
+
+                `
+
+                : ""
+        }
+
+
+        ${
+            !player
+                ? `
 
                     <button
                         class="success-button"
                         onclick="renderLogin()">
 
-                        ${E("🔐")}
-
+                        🔐
                         ${t(
                             "Einloggen",
                             "Log in"
@@ -1684,8 +2132,7 @@ function openSettings(
                     <button
                         onclick="renderRegister()">
 
-                        ${E("📝")}
-
+                        📝
                         ${t(
                             "Registrieren",
                             "Register"
@@ -1693,7 +2140,20 @@ function openSettings(
 
                     </button>
 
+
+                    <button
+                        onclick="playAsGuest()">
+
+                        🎮
+                        ${t(
+                            "Als Gast spielen",
+                            "Play as Guest"
+                        )}
+
+                    </button>
+
                 `
+                : ""
         }
 
     `);
@@ -1711,28 +2171,11 @@ function toggleLanguage() {
 
     saveSettings();
 
-    updateBodyEmojiClass();
-
     updateTopStats();
 
-
-    openSettings(!player);
-
-}
-
-
-function toggleEmojis() {
-
-    settings.emojis =
-        !settings.emojis;
-
-
-    saveSettings();
-
-    updateBodyEmojiClass();
-
-
-    openSettings(!player);
+    openSettings(
+        !player
+    );
 
 }
 
@@ -1745,7 +2188,9 @@ function mainMenu() {
 
     if (!player) {
 
-        return showAuth();
+        showAuth();
+
+        return;
 
     }
 
@@ -1757,7 +2202,9 @@ function mainMenu() {
 
 
     const mission =
-        missions[player.missionIndex];
+        missions[
+            player.missionIndex
+        ];
 
 
     const missionHTML =
@@ -1768,23 +2215,22 @@ function mainMenu() {
                 <div class="mission-card">
 
                     <strong>
-
-                        ${E("🎯")}
-
+                        🎯
                         ${t(
                             "Mission",
                             "Mission"
                         )}
 
                         ${player.missionIndex + 1}/10
-
                     </strong>
 
 
                     <div class="mission-text">
 
                         ${esc(
-                            missionText(mission)
+                            missionText(
+                                mission
+                            )
                         )}
 
                     </div>
@@ -1793,7 +2239,9 @@ function mainMenu() {
                     <div class="small">
 
                         ${Math.min(
-                            missionProgress(mission),
+                            missionProgress(
+                                mission
+                            ),
                             mission.target
                         )}
 
@@ -1811,8 +2259,7 @@ function mainMenu() {
 
                 <div class="mission-card completed">
 
-                    ${E("🏆")}
-
+                    🏆
                     ${t(
                         "Alle 10 Missionen abgeschlossen!",
                         "All 10 missions completed!"
@@ -1823,15 +2270,34 @@ function mainMenu() {
             `;
 
 
+    const adminButton =
+        (
+            !player.isGuest &&
+            userKey(player.name) ===
+            "moritzman3"
+        )
+
+        ? `
+
+            <button
+                class="admin-button"
+                onclick="openAdminPanel()">
+
+                🛠️ Admin Panel
+
+            </button>
+
+          `
+
+        : "";
+
+
     render(`
 
         <div class="top-row">
 
             <h2 class="compact-title">
-
-                ${E("🏰")}
-                QuestRPG
-
+                ⚔️ QuestRPG
             </h2>
 
 
@@ -1839,7 +2305,7 @@ function mainMenu() {
                 class="icon-button"
                 onclick="openSettings(false)">
 
-                ${E("⚙️")}
+                ⚙️
 
             </button>
 
@@ -1850,8 +2316,7 @@ function mainMenu() {
 
             <div class="card">
 
-                ${E("🗡️")}
-
+                🗡️
                 <br>
 
                 <strong>
@@ -1874,8 +2339,7 @@ function mainMenu() {
 
             <div class="card">
 
-                ${E("🛡️")}
-
+                🛡️
                 <br>
 
                 <strong>
@@ -1898,8 +2362,7 @@ function mainMenu() {
 
             <div class="card">
 
-                ${E("⛏️")}
-
+                ⛏️
                 <br>
 
                 <strong>
@@ -1928,8 +2391,7 @@ function mainMenu() {
         <button
             onclick="showCharacter()">
 
-            ${E("👤")}
-
+            👤
             ${t(
                 "Charakter",
                 "Character"
@@ -1941,8 +2403,7 @@ function mainMenu() {
         <button
             onclick="startFight()">
 
-            ${E("⚔️")}
-
+            ⚔️
             ${t(
                 "Kämpfen",
                 "Fight"
@@ -1954,8 +2415,7 @@ function mainMenu() {
         <button
             onclick="openMine()">
 
-            ${E("⛏️")}
-
+            ⛏️
             ${t(
                 "Gold abbauen",
                 "Mine gold"
@@ -1967,14 +2427,29 @@ function mainMenu() {
         <button
             onclick="openShop()">
 
-            ${E("🏪")}
-
+            🏪
             ${t(
                 "Shop",
                 "Shop"
             )}
 
         </button>
+
+
+        <button
+            class="leader-button"
+            onclick="showLeaderboard(false)">
+
+            🏆
+            ${t(
+                "Leaderboard",
+                "Leaderboard"
+            )}
+
+        </button>
+
+
+        ${adminButton}
 
     `);
 
@@ -2011,8 +2486,7 @@ function showCharacter() {
 
             <h2 class="compact-title">
 
-                ${E("👤")}
-
+                👤
                 ${t(
                     "Charakter",
                     "Character"
@@ -2027,8 +2501,7 @@ function showCharacter() {
 
             <div class="card">
 
-                ${E("👤")}
-
+                👤
                 <br>
 
                 ${esc(
@@ -2040,15 +2513,10 @@ function showCharacter() {
 
             <div class="card">
 
-                ${E("⭐")}
-
+                ⭐
                 <br>
 
-                ${t(
-                    "Level",
-                    "Level"
-                )}
-
+                Level
                 ${player.level}
 
             </div>
@@ -2056,8 +2524,7 @@ function showCharacter() {
 
             <div class="card">
 
-                ${E("💰")}
-
+                💰
                 <br>
 
                 ${player.gold}
@@ -2068,14 +2535,11 @@ function showCharacter() {
 
 
         <h3>
-
-            ${E("🗡️")}
-
+            🗡️
             ${t(
                 "Waffe",
                 "Weapon"
             )}
-
         </h3>
 
 
@@ -2088,27 +2552,18 @@ function showCharacter() {
             )}
 
             —
-
             ⚔️
             ${getWeapon().damage}
-
-            ${t(
-                "Schaden",
-                "damage"
-            )}
 
         </p>
 
 
         <h3>
-
-            ${E("🛡️")}
-
+            🛡️
             ${t(
                 "Rüstung",
                 "Armor"
             )}
-
         </h3>
 
 
@@ -2121,7 +2576,6 @@ function showCharacter() {
             )}
 
             —
-
             ❤️
             +${getArmor().bonusHealth}
 
@@ -2129,14 +2583,11 @@ function showCharacter() {
 
 
         <h3>
-
-            ${E("⛏️")}
-
+            ⛏️
             ${t(
                 "Spitzhacke",
                 "Pickaxe"
             )}
-
         </h3>
 
 
@@ -2149,11 +2600,326 @@ function showCharacter() {
             )}
 
             —
-
             💰
             +${getPickaxe().bonus}
 
         </p>
+
+    `);
+
+}
+
+
+// ============================================================
+// LEADERBOARD
+// ============================================================
+
+function showLeaderboard(
+    fromAuth = false
+) {
+
+    clearMineTimer();
+
+
+    const entries = [];
+
+
+    Object.keys(users)
+        .forEach(
+            key => {
+
+                const account =
+                    users[key];
+
+
+                if (
+                    account.banned
+                ) {
+
+                    return;
+
+                }
+
+
+                const saved =
+                    loadPlayer(key);
+
+
+                entries.push({
+
+                    key,
+
+                    username:
+                        account.username,
+
+                    level:
+                        Number(
+                            saved.level
+                        ) || 1,
+
+                    xp:
+                        Number(
+                            saved.xp
+                        ) || 0,
+
+                    gold:
+                        Number(
+                            saved.gold
+                        ) || 0,
+
+                    defeated:
+                        Number(
+                            saved.defeated
+                        ) || 0
+
+                });
+
+            }
+        );
+
+
+    entries.sort(
+        (a, b) => {
+
+            if (
+                b.level !==
+                a.level
+            ) {
+
+                return (
+                    b.level -
+                    a.level
+                );
+
+            }
+
+
+            if (
+                b.xp !==
+                a.xp
+            ) {
+
+                return (
+                    b.xp -
+                    a.xp
+                );
+
+            }
+
+
+            return (
+                b.gold -
+                a.gold
+            );
+
+        }
+    );
+
+
+    let rows = "";
+
+
+    entries.forEach(
+        (entry, index) => {
+
+            const me =
+                currentUsername ===
+                entry.key;
+
+
+            let rank =
+                String(
+                    index + 1
+                );
+
+
+            if (
+                index === 0
+            ) {
+                rank = "🥇";
+            }
+
+            if (
+                index === 1
+            ) {
+                rank = "🥈";
+            }
+
+            if (
+                index === 2
+            ) {
+                rank = "🥉";
+            }
+
+
+            rows += `
+
+                <tr
+                    class="${
+                        me
+                            ? "me"
+                            : ""
+                    }">
+
+                    <td class="rank">
+                        ${rank}
+                    </td>
+
+                    <td>
+
+                        ${esc(
+                            entry.username
+                        )}
+
+                        ${
+                            me
+                                ? " ⭐"
+                                : ""
+                        }
+
+                    </td>
+
+                    <td>
+                        ${entry.level}
+                    </td>
+
+                    <td>
+                        ${entry.xp}
+                    </td>
+
+                    <td>
+                        ${entry.gold}
+                    </td>
+
+                    <td>
+                        ${entry.defeated}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+    );
+
+
+    render(`
+
+        <div class="top-row">
+
+            <button
+                class="back-button"
+                onclick="${
+                    fromAuth
+                        ? "showAuth()"
+                        : "mainMenu()"
+                }">
+
+                ←
+                ${t(
+                    "Zurück",
+                    "Back"
+                )}
+
+            </button>
+
+
+            <h2 class="compact-title">
+
+                🏆
+                ${t(
+                    "Leaderboard",
+                    "Leaderboard"
+                )}
+
+            </h2>
+
+        </div>
+
+
+        <p class="small">
+
+            ${t(
+                "Sortierung: Level → XP → Gold",
+                "Sorted by: Level → XP → Gold"
+            )}
+
+        </p>
+
+
+        ${
+            entries.length
+
+                ? `
+
+                    <table class="leaderboard">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+
+                                <th>
+                                    ${t(
+                                        "Spieler",
+                                        "Player"
+                                    )}
+                                </th>
+
+                                <th>
+                                    Level
+                                </th>
+
+                                <th>
+                                    XP
+                                </th>
+
+                                <th>
+                                    Gold
+                                </th>
+
+                                <th>
+                                    ${t(
+                                        "Besiegt",
+                                        "Defeated"
+                                    )}
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            ${rows}
+
+                        </tbody>
+
+                    </table>
+
+                `
+
+                : `
+
+                    <div class="leaderboard-empty">
+
+                        🏆
+
+                        <p>
+
+                            ${t(
+                                "Noch keine Spieler vorhanden.",
+                                "No players yet."
+                            )}
+
+                        </p>
+
+                    </div>
+
+                  `
+        }
 
     `);
 
@@ -2185,8 +2951,7 @@ function openShop() {
 
             <h2 class="compact-title">
 
-                ${E("🏪")}
-
+                🏪
                 ${t(
                     "Shop",
                     "Shop"
@@ -2199,17 +2964,14 @@ function openShop() {
 
         <p>
 
-            ${E("💰")}
-
+            💰
             ${t(
                 "Dein Gold",
                 "Your gold"
             )}:
 
             <strong>
-
                 ${player.gold}
-
             </strong>
 
         </p>
@@ -2218,8 +2980,7 @@ function openShop() {
         <button
             onclick="showWeapons()">
 
-            ${E("🗡️")}
-
+            🗡️
             ${t(
                 "Schwerter",
                 "Swords"
@@ -2231,8 +2992,7 @@ function openShop() {
         <button
             onclick="showArmors()">
 
-            ${E("🛡️")}
-
+            🛡️
             ${t(
                 "Rüstungen",
                 "Armor"
@@ -2244,8 +3004,7 @@ function openShop() {
         <button
             onclick="showPickaxes()">
 
-            ${E("⛏️")}
-
+            ⛏️
             ${t(
                 "Spitzhacken",
                 "Pickaxes"
@@ -2258,8 +3017,7 @@ function openShop() {
             class="success-button"
             onclick="buyPotion()">
 
-            ${E("🧪")}
-
+            🧪
             ${t(
                 "Heiltrank – 25 Gold",
                 "Health Potion – 25 gold"
@@ -2272,13 +3030,9 @@ function openShop() {
 }
 
 
-// ============================================================
-// SHOP-KARTEN
-// ============================================================
-
 function shopCard(
     title,
-    desc,
+    description,
     price,
     current,
     action
@@ -2294,36 +3048,28 @@ function shopCard(
 
 
             <p>
-                ${desc}
+                ${description}
             </p>
 
 
             <p>
-
                 💰
-
                 <strong>
                     ${price}
                 </strong>
-
             </p>
 
 
             <button
-                ${current
-                    ? "disabled"
-                    : ""}
-
+                ${current ? "disabled" : ""}
                 onclick="${action}">
 
                 ${
                     current
-
                         ? t(
                             "Ausgerüstet",
                             "Equipped"
                         )
-
                         : t(
                             "Kaufen",
                             "Buy"
@@ -2340,7 +3086,7 @@ function shopCard(
 
 
 // ============================================================
-// WAFFEN
+// WAFFENSHOP
 // ============================================================
 
 function showWeapons() {
@@ -2364,8 +3110,7 @@ function showWeapons() {
 
             <h2 class="compact-title">
 
-                ${E("🗡️")}
-
+                🗡️
                 ${t(
                     "Schwerter",
                     "Swords"
@@ -2384,33 +3129,35 @@ function showWeapons() {
 
     weapons
         .slice(1)
-        .forEach(item => {
+        .forEach(
+            item => {
 
-            html += shopCard(
+                html += shopCard(
 
-                `${E("🗡️")}
-                 ${esc(
-                     itemName(item)
-                 )}`,
+                    `🗡️
+                     ${esc(
+                         itemName(item)
+                     )}`,
 
-                `⚔️
-                 ${item.damage}
-                 ${t(
-                     "Schaden",
-                     "damage"
-                 )}`,
+                    `⚔️
+                     ${item.damage}
+                     ${t(
+                         "Schaden",
+                         "damage"
+                     )}`,
 
-                item.price,
+                    item.price,
 
-                current.id === item.id,
+                    current.id === item.id,
 
-                `buyWeapon(
-                    '${item.id}'
-                )`
+                    `buyWeapon(
+                        '${item.id}'
+                    )`
 
-            );
+                );
 
-        });
+            }
+        );
 
 
     render(html);
@@ -2428,7 +3175,9 @@ function buyWeapon(id) {
 
 
     if (!item) {
+
         return;
+
     }
 
 
@@ -2481,19 +3230,19 @@ function buyWeapon(id) {
 
 
     message(
-        `${E("✅")}
-         ${t(
-             "Gekauft",
-             "Bought"
-         )}:
-         ${itemName(item)}`
+        `✅ ${t(
+            "Gekauft",
+            "Bought"
+        )}: ${esc(
+            itemName(item)
+        )}`
     );
 
 }
 
 
 // ============================================================
-// RÜSTUNGEN
+// RÜSTUNGSSHOP
 // ============================================================
 
 function showArmors() {
@@ -2517,8 +3266,7 @@ function showArmors() {
 
             <h2 class="compact-title">
 
-                ${E("🛡️")}
-
+                🛡️
                 ${t(
                     "Rüstungen",
                     "Armor"
@@ -2537,33 +3285,35 @@ function showArmors() {
 
     armors
         .slice(1)
-        .forEach(item => {
+        .forEach(
+            item => {
 
-            html += shopCard(
+                html += shopCard(
 
-                `${E("🛡️")}
-                 ${esc(
-                     itemName(item)
-                 )}`,
+                    `🛡️
+                     ${esc(
+                         itemName(item)
+                     )}`,
 
-                `❤️
-                 +${item.bonusHealth}
-                 ${t(
-                     "maximale Leben",
-                     "max health"
-                 )}`,
+                    `❤️
+                     +${item.bonusHealth}
+                     ${t(
+                         "maximale Leben",
+                         "max health"
+                     )}`,
 
-                item.price,
+                    item.price,
 
-                current.id === item.id,
+                    current.id === item.id,
 
-                `buyArmor(
-                    '${item.id}'
-                )`
+                    `buyArmor(
+                        '${item.id}'
+                    )`
 
-            );
+                );
 
-        });
+            }
+        );
 
 
     render(html);
@@ -2581,7 +3331,9 @@ function buyArmor(id) {
 
 
     if (!item) {
+
         return;
+
     }
 
 
@@ -2648,19 +3400,19 @@ function buyArmor(id) {
 
 
     message(
-        `${E("✅")}
-         ${t(
-             "Gekauft",
-             "Bought"
-         )}:
-         ${itemName(item)}`
+        `✅ ${t(
+            "Gekauft",
+            "Bought"
+        )}: ${esc(
+            itemName(item)
+        )}`
     );
 
 }
 
 
 // ============================================================
-// SPITZHACKEN
+// SPITZHACKENSHOP
 // ============================================================
 
 function showPickaxes() {
@@ -2684,8 +3436,7 @@ function showPickaxes() {
 
             <h2 class="compact-title">
 
-                ${E("⛏️")}
-
+                ⛏️
                 ${t(
                     "Spitzhacken",
                     "Pickaxes"
@@ -2704,33 +3455,35 @@ function showPickaxes() {
 
     pickaxes
         .slice(1)
-        .forEach(item => {
+        .forEach(
+            item => {
 
-            html += shopCard(
+                html += shopCard(
 
-                `${E("⛏️")}
-                 ${esc(
-                     itemName(item)
-                 )}`,
+                    `⛏️
+                     ${esc(
+                         itemName(item)
+                     )}`,
 
-                `💰
-                 +${item.bonus}
-                 ${t(
-                     "Bonusgold",
-                     "bonus gold"
-                 )}`,
+                    `💰
+                     +${item.bonus}
+                     ${t(
+                         "Bonusgold",
+                         "bonus gold"
+                     )}`,
 
-                item.price,
+                    item.price,
 
-                current.id === item.id,
+                    current.id === item.id,
 
-                `buyPickaxe(
-                    '${item.id}'
-                )`
+                    `buyPickaxe(
+                        '${item.id}'
+                    )`
 
-            );
+                );
 
-        });
+            }
+        );
 
 
     render(html);
@@ -2748,7 +3501,9 @@ function buyPickaxe(id) {
 
 
     if (!item) {
+
         return;
+
     }
 
 
@@ -2785,10 +3540,8 @@ function buyPickaxe(id) {
     player.gold -=
         item.price;
 
-
     player.pickaxeId =
         item.id;
-
 
     player.itemsBought++;
 
@@ -2803,12 +3556,12 @@ function buyPickaxe(id) {
 
 
     message(
-        `${E("✅")}
-         ${t(
-             "Gekauft",
-             "Bought"
-         )}:
-         ${itemName(item)}`
+        `✅ ${t(
+            "Gekauft",
+            "Bought"
+        )}: ${esc(
+            itemName(item)
+        )}`
     );
 
 }
@@ -2870,11 +3623,10 @@ function buyPotion() {
 
 
     message(
-        `${E("🧪")}
-         ${t(
-             "+50 Leben",
-             "+50 health"
-         )}`
+        `🧪 ${t(
+            "+50 Leben",
+            "+50 health"
+        )}`
     );
 
 }
@@ -2886,12 +3638,15 @@ function buyPotion() {
 
 function openMine() {
 
-    if (
-        mineCooldownUntil >
-        Date.now()
-    ) {
+    const remaining =
+        getMineRemainingSeconds();
+
+
+    if (remaining > 0) {
 
         renderMineCooldown();
+
+        startMineTimer();
 
         return;
 
@@ -2899,7 +3654,10 @@ function openMine() {
 
 
     mineClicksRequired =
-        randomNumber(5, 12);
+        randomNumber(
+            5,
+            12
+        );
 
 
     mineClicksDone = 0;
@@ -2931,8 +3689,7 @@ function renderMine() {
 
             <h2 class="compact-title">
 
-                ${E("⛏️")}
-
+                ⛏️
                 ${t(
                     "Goldmine",
                     "Gold Mine"
@@ -2946,8 +3703,8 @@ function renderMine() {
         <p>
 
             ${t(
-                "Klicke die Taste so oft, wie der zufällige Zähler es verlangt.",
-                "Click the button as many times as the random counter requires."
+                "Drücke den Button so oft, wie der zufällige Zähler verlangt.",
+                "Press the button as many times as the random counter requires."
             )}
 
         </p>
@@ -2956,9 +3713,7 @@ function renderMine() {
         <div class="mine-box">
 
             <div class="big">
-
-                ${E("🪨")}
-
+                ⛏️
             </div>
 
 
@@ -2992,10 +3747,10 @@ function renderMine() {
                             (
                                 mineClicksDone /
                                 mineClicksRequired
-                            ) * 100
+                            ) *
+                            100
                         }%;
                     ">
-
                 </div>
 
             </div>
@@ -3005,8 +3760,7 @@ function renderMine() {
                 class="gold-button mine-button"
                 onclick="mineClick()">
 
-                ${E("⛏️")}
-
+                ⛏️
                 ${t(
                     "GOLD ABBAUEN",
                     "MINE GOLD"
@@ -3017,6 +3771,9 @@ function renderMine() {
         </div>
 
     `);
+
+
+    clearMineTimer();
 
 }
 
@@ -3049,7 +3806,10 @@ function mineClick() {
 
 
     const reward =
-        randomNumber(20, 40) +
+        randomNumber(
+            20,
+            40
+        ) +
         getPickaxe().bonus;
 
 
@@ -3059,25 +3819,21 @@ function mineClick() {
 
     player.totalMined++;
 
-
     player.totalGoldEarned +=
         reward;
 
 
     addXP(15);
 
-
     updateMission();
 
-
     savePlayer();
-
 
     updateTopStats();
 
 
-    mineCooldownUntil =
-        Date.now() + 8000;
+    // 8 Sekunden ab JETZT speichern
+    setMineCooldown(8);
 
 
     render(`
@@ -3099,8 +3855,7 @@ function mineClick() {
 
             <h2 class="compact-title">
 
-                ${E("💰")}
-
+                💰
                 ${t(
                     "Gold erhalten",
                     "Gold collected"
@@ -3112,19 +3867,15 @@ function mineClick() {
 
 
         <div class="big">
-
-            ${E("💰")}
-
+            💰
         </div>
 
 
         <h3>
-
             ${t(
                 "Geschafft!",
                 "Done!"
             )}
-
         </h3>
 
 
@@ -3144,18 +3895,18 @@ function mineClick() {
 
         <p>
 
-            ${E("⏳")}
+            ⏳
 
             ${t(
-                "Die Mine hat 8 Sekunden Cooldown.",
-                "The mine has an 8 second cooldown."
+                "Die Mine hat jetzt 8 Sekunden Cooldown.",
+                "The mine now has an 8 second cooldown."
             )}
 
         </p>
 
 
         <button
-            onclick="renderMineCooldown()">
+            onclick="renderMineCooldown(); startMineTimer();">
 
             ${t(
                 "Cooldown ansehen",
@@ -3166,25 +3917,20 @@ function mineClick() {
 
     `);
 
-
-    startMineTimer();
-
 }
 
 
 function renderMineCooldown() {
 
-    const seconds =
-        Math.ceil(
-            Math.max(
-                0,
-                mineCooldownUntil -
-                Date.now()
-            ) / 1000
-        );
+    const remaining =
+        getMineRemainingSeconds();
 
 
-    if (seconds <= 0) {
+    if (
+        remaining <= 0
+    ) {
+
+        clearMineCooldown();
 
         clearMineTimer();
 
@@ -3214,8 +3960,7 @@ function renderMineCooldown() {
 
             <h2 class="compact-title">
 
-                ${E("⏳")}
-
+                ⏳
                 ${t(
                     "Goldmine",
                     "Gold Mine"
@@ -3227,9 +3972,7 @@ function renderMineCooldown() {
 
 
         <div class="big">
-
-            ${E("⏳")}
-
+            ⏳
         </div>
 
 
@@ -3250,8 +3993,8 @@ function renderMineCooldown() {
                 "Remaining"
             )}:
 
-            <strong>
-                ${seconds}s
+            <strong id="mineCountdown">
+                ${remaining}s
             </strong>
 
         </p>
@@ -3268,13 +4011,13 @@ function renderMineCooldown() {
 
     `);
 
+
+    startMineTimer();
+
 }
 
 
 function renderMineReady() {
-
-    clearMineTimer();
-
 
     render(`
 
@@ -3295,8 +4038,7 @@ function renderMineReady() {
 
             <h2 class="compact-title">
 
-                ${E("⛏️")}
-
+                ⛏️
                 ${t(
                     "Goldmine bereit",
                     "Mine ready"
@@ -3308,9 +4050,7 @@ function renderMineReady() {
 
 
         <div class="big">
-
-            ${E("✅")}
-
+            ✅
         </div>
 
 
@@ -3328,8 +4068,7 @@ function renderMineReady() {
             class="gold-button"
             onclick="openMine()">
 
-            ${E("⛏️")}
-
+            ⛏️
             ${t(
                 "Mine starten",
                 "Start mining"
@@ -3338,65 +4077,6 @@ function renderMineReady() {
         </button>
 
     `);
-
-}
-
-
-function startMineTimer() {
-
-    clearMineTimer();
-
-
-    mineTimer =
-        setInterval(() => {
-
-            if (!player) {
-
-                clearMineTimer();
-
-                return;
-
-            }
-
-
-            if (
-                mineCooldownUntil <=
-                Date.now()
-            ) {
-
-                renderMineReady();
-
-                return;
-
-            }
-
-
-            if (
-                !document.querySelector(
-                    ".mine-button"
-                )
-            ) {
-
-                renderMineCooldown();
-
-            }
-
-        }, 500);
-
-}
-
-
-function clearMineTimer() {
-
-    if (mineTimer) {
-
-        clearInterval(
-            mineTimer
-        );
-
-        mineTimer = null;
-
-    }
 
 }
 
@@ -3433,8 +4113,7 @@ function renderFight() {
 
             <h2 class="compact-title">
 
-                ${E("⚔️")}
-
+                ⚔️
                 ${t(
                     "Kampf",
                     "Battle"
@@ -3449,9 +4128,7 @@ function renderFight() {
 
             <div class="monster-emoji">
 
-                ${E(
-                    currentMonster.emoji
-                )}
+                ${currentMonster.emoji}
 
             </div>
 
@@ -3470,11 +4147,8 @@ function renderFight() {
             <p class="monster-health">
 
                 ❤️
-
                 ${monsterHealth}
-
                 /
-
                 ${currentMonster.health}
 
             </p>
@@ -3512,9 +4186,7 @@ function renderFight() {
             )}:
 
             <strong>
-
                 ${getWeapon().damage}
-
             </strong>
 
         </p>
@@ -3524,8 +4196,7 @@ function renderFight() {
             class="danger-button"
             onclick="attack()">
 
-            ${E("⚔️")}
-
+            ⚔️
             ${t(
                 "Angreifen",
                 "Attack"
@@ -3537,8 +4208,7 @@ function renderFight() {
         <button
             onclick="useCombatPotion()">
 
-            ${E("🧪")}
-
+            🧪
             ${t(
                 "Heiltrank",
                 "Potion"
@@ -3552,8 +4222,7 @@ function renderFight() {
         <button
             onclick="escapeFight()">
 
-            ${E("🏃")}
-
+            🏃
             ${t(
                 "Fliehen",
                 "Flee"
@@ -3577,7 +4246,10 @@ function attack() {
 
 
     const critical =
-        randomNumber(1, 100) <= 15;
+        randomNumber(
+            1,
+            100
+        ) <= 15;
 
 
     if (critical) {
@@ -3591,7 +4263,10 @@ function attack() {
         damage;
 
 
-    // MONSTER TOT
+    // --------------------------------------------------------
+    // GEWONNEN
+    // --------------------------------------------------------
+
     if (
         monsterHealth <= 0
     ) {
@@ -3639,8 +4314,7 @@ function attack() {
 
                 <h2 class="compact-title">
 
-                    ${E("🏆")}
-
+                    🏆
                     ${t(
                         "Sieg",
                         "Victory"
@@ -3652,9 +4326,7 @@ function attack() {
 
 
             <div class="big">
-
-                ${E("🏆")}
-
+                🏆
             </div>
 
 
@@ -3674,31 +4346,34 @@ function attack() {
             </h3>
 
 
-            <p>
-
-                ${
-                    critical
-                        ? `
-                            ${E("💥")}
+            ${
+                critical
+                    ? `
+                        <p>
+                            💥
                             <strong>
                                 ${t(
-                                    "Kritischer Treffer!",
-                                    "Critical hit!"
+                                    "KRITISCHER TREFFER!",
+                                    "CRITICAL HIT!"
                                 )}
                             </strong>
-                            <br>
-                          `
-                        : ""
-                }
+                        </p>
+                    `
+                    : ""
+            }
+
+
+            <p>
 
                 ⚔️
-
-                ${damage}
-
                 ${t(
                     "Schaden",
-                    "damage"
-                )}
+                    "Damage"
+                )}:
+
+                <strong>
+                    ${damage}
+                </strong>
 
             </p>
 
@@ -3706,13 +4381,14 @@ function attack() {
             <p>
 
                 💰
-
-                +${reward}
-
                 ${t(
                     "Gold",
-                    "gold"
-                )}
+                    "Gold"
+                )}:
+
+                <strong>
+                    +${reward}
+                </strong>
 
             </p>
 
@@ -3720,10 +4396,14 @@ function attack() {
             <p>
 
                 ⭐
+                ${t(
+                    "XP",
+                    "XP"
+                )}:
 
-                +${currentMonster.xp}
-
-                XP
+                <strong>
+                    +${currentMonster.xp}
+                </strong>
 
             </p>
 
@@ -3732,6 +4412,7 @@ function attack() {
                 class="success-button"
                 onclick="mainMenu()">
 
+                👉
                 ${t(
                     "Weiter",
                     "Continue"
@@ -3749,20 +4430,19 @@ function attack() {
     }
 
 
-    // MONSTER GREIFT AN
+    // --------------------------------------------------------
+    // MONSTER GEGENSCHLAG
+    // --------------------------------------------------------
+
     const enemyDamage =
         randomNumber(
-
             Math.max(
                 1,
                 Math.floor(
-                    currentMonster.damage *
-                    0.7
+                    currentMonster.damage * 0.7
                 )
             ),
-
             currentMonster.damage
-
         );
 
 
@@ -3770,10 +4450,16 @@ function attack() {
         enemyDamage;
 
 
-    // SPIELER TOT
+    // --------------------------------------------------------
+    // SPIELER BESIEGT
+    // --------------------------------------------------------
+
     if (
         player.health <= 0
     ) {
+
+        player.health = 0;
+
 
         player.gold =
             Math.max(
@@ -3791,34 +4477,24 @@ function attack() {
 
         render(`
 
-            <div class="top-row">
-
-                <h2 class="compact-title">
-
-                    ${E("💀")}
-
-                    ${t(
-                        "Besiegt",
-                        "Defeated"
-                    )}
-
-                </h2>
-
-            </div>
-
-
             <div class="big">
-
-                ${E("💀")}
-
+                💀
             </div>
+
+
+            <h2>
+                ${t(
+                    "Du wurdest besiegt!",
+                    "You were defeated!"
+                )}
+            </h2>
 
 
             <p>
 
                 ${t(
-                    "Du wurdest besiegt. Du verlierst 25 Gold und wirst wiederbelebt.",
-                    "You were defeated. You lose 25 gold and are revived."
+                    "Du verlierst 25 Gold und wirst wiederbelebt.",
+                    "You lose 25 gold and are revived."
                 )}
 
             </p>
@@ -3827,6 +4503,7 @@ function attack() {
             <button
                 onclick="mainMenu()">
 
+                👉
                 ${t(
                     "Weiter",
                     "Continue"
@@ -3846,39 +4523,35 @@ function attack() {
 
     savePlayer();
 
-
     renderFight();
 
 
+    /*
+        Hier sind KEINE span-Tags mehr.
+        Dadurch können keine
+        <span class="emoji">...
+        Fehler mehr entstehen.
+    */
+
     message(
+        `⚔️
+         ${t(
+             "Angriff",
+             "Attack"
+         )}:
 
-        `${E(
-            critical
-                ? "💥"
-                : "⚔️"
-        )}
+         <strong>
+             ${damage}
+         </strong>.
 
-        ${
-            critical
-                ? t(
-                    "Kritischer Treffer!",
-                    "Critical hit!"
-                )
-                : t(
-                    "Angriff",
-                    "Attack"
-                )
-        }:
+         ${t(
+             "Gegnerschaden",
+             "Enemy damage"
+         )}:
 
-        ${damage}.
-
-        ${t(
-            "Gegnerischer Schaden",
-            "Enemy damage"
-        )}:
-
-        ${enemyDamage}.`
-
+         <strong>
+             ${enemyDamage}
+         </strong>.`
     );
 
 
@@ -3914,16 +4587,15 @@ function useCombatPotion() {
 
         return message(
             t(
-                "Volle Leben.",
-                "Full health."
+                "Du hast volle Leben.",
+                "Your health is already full."
             )
         );
 
     }
 
 
-    player.gold -=
-        25;
+    player.gold -= 25;
 
 
     player.health =
@@ -3940,17 +4612,16 @@ function useCombatPotion() {
 
     updateMission();
 
-    updateTopStats();
-
     renderFight();
+
+    updateTopStats();
 
 
     message(
-        `${E("🧪")}
-         +50
+        `🧪
          ${t(
-             "Leben",
-             "health"
+             "+50 Leben",
+             "+50 health"
          )}`
     );
 
@@ -3963,33 +4634,32 @@ function useCombatPotion() {
 
 function escapeFight() {
 
+    const chance =
+        randomNumber(
+            1,
+            100
+        );
+
+
     if (
-        randomNumber(1, 100) <= 70
+        chance <= 70
     ) {
 
         render(`
 
-            <div class="top-row">
-
-                <h2 class="compact-title">
-
-                    ${E("🏃")}
-
-                    ${t(
-                        "Flucht",
-                        "Escape"
-                    )}
-
-                </h2>
-
-            </div>
-
-
             <div class="big">
-
-                ${E("💨")}
-
+                💨
             </div>
+
+
+            <h2>
+
+                ${t(
+                    "Flucht erfolgreich!",
+                    "Escape successful!"
+                )}
+
+            </h2>
 
 
             <p>
@@ -4005,6 +4675,7 @@ function escapeFight() {
             <button
                 onclick="mainMenu()">
 
+                👉
                 ${t(
                     "Weiter",
                     "Continue"
@@ -4014,19 +4685,25 @@ function escapeFight() {
 
         `);
 
-
         return;
 
     }
 
 
-    player.health -=
+    const damage =
         currentMonster.damage;
+
+
+    player.health -=
+        damage;
 
 
     if (
         player.health <= 0
     ) {
+
+        player.health = 0;
+
 
         player.gold =
             Math.max(
@@ -4044,27 +4721,26 @@ function escapeFight() {
 
         render(`
 
-            <div class="top-row">
-
-                <h2 class="compact-title">
-
-                    ${E("💀")}
-
-                    ${t(
-                        "Besiegt",
-                        "Defeated"
-                    )}
-
-                </h2>
-
+            <div class="big">
+                💀
             </div>
+
+
+            <h2>
+
+                ${t(
+                    "Besiegt",
+                    "Defeated"
+                )}
+
+            </h2>
 
 
             <p>
 
                 ${t(
-                    "Die Flucht ist fehlgeschlagen. Du verlierst 25 Gold und wirst wiederbelebt.",
-                    "The escape failed. You lose 25 gold and are revived."
+                    "Die Flucht ist fehlgeschlagen. Du verlierst 25 Gold.",
+                    "The escape failed. You lose 25 gold."
                 )}
 
             </p>
@@ -4073,6 +4749,7 @@ function escapeFight() {
             <button
                 onclick="mainMenu()">
 
+                👉
                 ${t(
                     "Weiter",
                     "Continue"
@@ -4084,21 +4761,33 @@ function escapeFight() {
 
     } else {
 
-        savePlayer();
-
         renderFight();
 
 
         message(
+            `❌
+             ${t(
+                 "Flucht fehlgeschlagen.",
+                 "Escape failed."
+             )}
 
-            `${E("❌")}
+             ${t(
+                 "Du verlierst",
+                 "You lose"
+             )}
 
-            ${t(
-                "Flucht fehlgeschlagen.",
-                "Escape failed."
-            )}`
+             <strong>
+                 ${damage}
+             </strong>
 
+             ${t(
+                 "Leben.",
+                 "health."
+             )}`
         );
+
+
+        savePlayer();
 
     }
 
@@ -4109,40 +4798,691 @@ function escapeFight() {
 
 
 // ============================================================
+// ADMIN
+// Nur MORITZMAN3
+// ============================================================
+
+function isAdmin() {
+
+    return (
+        player &&
+        !player.isGuest &&
+        userKey(player.name) ===
+        "moritzman3"
+    );
+
+}
+
+
+// ============================================================
+// ADMIN PANEL
+// ============================================================
+
+function openAdminPanel() {
+
+    if (!isAdmin()) {
+
+        return message(
+            "🚫 Keine Berechtigung."
+        );
+
+    }
+
+
+    const playerKeys =
+        Object.keys(users);
+
+
+    let html = `
+
+        <div class="top-row">
+
+            <button
+                class="back-button"
+                onclick="mainMenu()">
+
+                ←
+                ${t(
+                    "Zurück",
+                    "Back"
+                )}
+
+            </button>
+
+
+            <h2 class="compact-title">
+                🛠️ Admin Panel
+            </h2>
+
+        </div>
+
+
+        <div class="warning-box">
+
+            ⚠️
+
+            ${t(
+                "Admin-Steuerung für QuestRPG.",
+                "QuestRPG administration."
+            )}
+
+        </div>
+
+    `;
+
+
+    if (
+        playerKeys.length === 0
+    ) {
+
+        html += `
+
+            <p>
+                Keine Accounts vorhanden.
+            </p>
+
+        `;
+
+        render(html);
+
+        return;
+
+    }
+
+
+    playerKeys.forEach(
+        key => {
+
+            const account =
+                users[key];
+
+
+            const saved =
+                loadPlayer(key);
+
+
+            html += `
+
+                <div
+                    class="admin-player ${
+                        account.banned
+                            ? "banned"
+                            : ""
+                    }">
+
+                    <h3>
+
+                        👤
+                        ${esc(
+                            account.username
+                        )}
+
+                    </h3>
+
+
+                    <p>
+
+                        ⭐ Level:
+                        <strong>
+                            ${saved.level}
+                        </strong>
+
+                        <br>
+
+                        💰 Gold:
+                        <strong>
+                            ${saved.gold}
+                        </strong>
+
+                        <br>
+
+                        ${
+                            account.banned
+                                ? "🚫 GEBANNT"
+                                : "✅ Aktiv"
+                        }
+
+                    </p>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            💰
+                            ${t(
+                                "Gold hinzufügen",
+                                "Add gold"
+                            )}
+                        </label>
+
+                        <input
+                            type="number"
+                            min="0"
+                            id="gold_${key}"
+                            placeholder="z.B. 500">
+
+                    </div>
+
+
+                    <button
+                        class="gold-button"
+                        onclick="adminGiveGold('${key}')">
+
+                        💰
+                        ${t(
+                            "Gold geben",
+                            "Give gold"
+                        )}
+
+                    </button>
+
+
+                    <button
+                        onclick="adminResetGold('${key}')">
+
+                        🔄
+                        ${t(
+                            "Gold auf 0 setzen",
+                            "Reset gold to 0"
+                        )}
+
+                    </button>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            ⭐
+                            ${t(
+                                "Level setzen",
+                                "Set level"
+                            )}
+                        </label>
+
+                        <input
+                            type="number"
+                            min="1"
+                            id="level_${key}"
+                            placeholder="z.B. 10">
+
+                    </div>
+
+
+                    <button
+                        onclick="adminSetLevel('${key}')">
+
+                        ⭐
+                        ${t(
+                            "Level setzen",
+                            "Set level"
+                        )}
+
+                    </button>
+
+
+                    <button
+                        onclick="adminResetLevel('${key}')">
+
+                        🔄
+                        ${t(
+                            "Level zurücksetzen",
+                            "Reset level"
+                        )}
+
+                    </button>
+
+
+                    ${
+                        account.banned
+
+                            ? `
+
+                                <button
+                                    class="success-button"
+                                    onclick="adminToggleBan('${key}')">
+
+                                    ✅
+                                    ${t(
+                                        "Account entbannen",
+                                        "Unban account"
+                                    )}
+
+                                </button>
+
+                              `
+
+                            : `
+
+                                <button
+                                    class="danger-button"
+                                    onclick="adminToggleBan('${key}')">
+
+                                    🚫
+                                    ${t(
+                                        "Account bannen",
+                                        "Ban account"
+                                    )}
+
+                                </button>
+
+                              `
+                    }
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    render(html);
+
+}
+
+
+// ============================================================
+// ADMIN: GOLD GEBEN
+// ============================================================
+
+function adminGiveGold(
+    key
+) {
+
+    if (!isAdmin()) {
+        return;
+    }
+
+
+    const input =
+        document.getElementById(
+            `gold_${key}`
+        );
+
+
+    const amount =
+        Number(
+            input?.value
+        );
+
+
+    if (
+        !Number.isFinite(amount) ||
+        amount < 0
+    ) {
+
+        return message(
+            t(
+                "Ungültige Goldmenge.",
+                "Invalid gold amount."
+            )
+        );
+
+    }
+
+
+    const target =
+        loadPlayer(key);
+
+
+    target.gold +=
+        Math.floor(amount);
+
+
+    localStorage.setItem(
+        stateKey(key),
+        JSON.stringify(target)
+    );
+
+
+    if (
+        key ===
+        currentUsername
+    ) {
+
+        player =
+            target;
+
+        updateTopStats();
+
+    }
+
+
+    openAdminPanel();
+
+
+    message(
+        `✅ ${amount} ${t(
+            "Gold hinzugefügt.",
+            "gold added."
+        )}`
+    );
+
+}
+
+
+// ============================================================
+// ADMIN: GOLD RESET
+// ============================================================
+
+function adminResetGold(
+    key
+) {
+
+    if (!isAdmin()) {
+        return;
+    }
+
+
+    const target =
+        loadPlayer(key);
+
+
+    target.gold = 0;
+
+
+    localStorage.setItem(
+        stateKey(key),
+        JSON.stringify(target)
+    );
+
+
+    if (
+        key ===
+        currentUsername
+    ) {
+
+        player =
+            target;
+
+        updateTopStats();
+
+    }
+
+
+    openAdminPanel();
+
+
+    message(
+        `🔄 ${t(
+            "Gold zurückgesetzt.",
+            "Gold reset."
+        )}`
+    );
+
+}
+
+
+// ============================================================
+// ADMIN: LEVEL SETZEN
+// ============================================================
+
+function adminSetLevel(
+    key
+) {
+
+    if (!isAdmin()) {
+        return;
+    }
+
+
+    const input =
+        document.getElementById(
+            `level_${key}`
+        );
+
+
+    const level =
+        Number(
+            input?.value
+        );
+
+
+    if (
+        !Number.isInteger(level) ||
+        level < 1 ||
+        level > 1000
+    ) {
+
+        return message(
+            t(
+                "Level muss zwischen 1 und 1000 liegen.",
+                "Level must be between 1 and 1000."
+            )
+        );
+
+    }
+
+
+    const target =
+        loadPlayer(key);
+
+
+    target.level =
+        level;
+
+
+    target.xp = 0;
+
+
+    target.maxHealth =
+        100 +
+        (
+            level - 1
+        ) * 20;
+
+
+    target.health =
+        target.maxHealth;
+
+
+    localStorage.setItem(
+        stateKey(key),
+        JSON.stringify(target)
+    );
+
+
+    if (
+        key ===
+        currentUsername
+    ) {
+
+        player =
+            target;
+
+        updateTopStats();
+
+    }
+
+
+    openAdminPanel();
+
+
+    message(
+        `⭐ ${t(
+            "Level gesetzt auf",
+            "Level set to"
+        )} ${level}.`
+    );
+
+}
+
+
+// ============================================================
+// ADMIN: LEVEL RESET
+// ============================================================
+
+function adminResetLevel(
+    key
+) {
+
+    if (!isAdmin()) {
+        return;
+    }
+
+
+    const target =
+        loadPlayer(key);
+
+
+    target.level = 1;
+
+    target.xp = 0;
+
+    target.maxHealth = 100;
+
+    target.health = 100;
+
+
+    localStorage.setItem(
+        stateKey(key),
+        JSON.stringify(target)
+    );
+
+
+    if (
+        key ===
+        currentUsername
+    ) {
+
+        player =
+            target;
+
+        updateTopStats();
+
+    }
+
+
+    openAdminPanel();
+
+
+    message(
+        `🔄 ${t(
+            "Level zurückgesetzt.",
+            "Level reset."
+        )}`
+    );
+
+}
+
+
+// ============================================================
+// ADMIN: BANNEN / ENTBANNEN
+// ============================================================
+
+function adminToggleBan(
+    key
+) {
+
+    if (!isAdmin()) {
+        return;
+    }
+
+
+    if (
+        key ===
+        currentUsername
+    ) {
+
+        return message(
+            t(
+                "Du kannst dich nicht selbst bannen.",
+                "You cannot ban yourself."
+            )
+        );
+
+    }
+
+
+    if (
+        users[key]
+    ) {
+
+        users[key].banned =
+            !users[key].banned;
+
+
+        saveUsers();
+
+    }
+
+
+    openAdminPanel();
+
+
+    message(
+        users[key].banned
+
+            ? `🚫 ${t(
+                "Account gebannt.",
+                "Account banned."
+              )}`
+
+            : `✅ ${t(
+                "Account entbannt.",
+                "Account unbanned."
+              )}`
+    );
+
+}
+
+
+// ============================================================
 // START
 // ============================================================
 
 function init() {
 
-    updateBodyEmojiClass();
+    const savedUser =
+        localStorage.getItem(
+            KEYS.current
+        );
 
 
     if (
-        currentUsername &&
-        users[currentUsername]
+        savedUser &&
+        users[savedUser] &&
+        !users[savedUser].banned
     ) {
+
+        currentUsername =
+            savedUser;
+
+
+        isGuest = false;
+
 
         player =
             loadPlayer(
-                currentUsername
+                savedUser
             );
 
 
         player.name =
             users[
-                currentUsername
+                savedUser
             ].username;
+
+
+        player.isGuest =
+            false;
 
 
         updateTopStats();
 
         mainMenu();
 
-    } else {
-
-        showAuth();
+        return;
 
     }
+
+
+    localStorage.removeItem(
+        KEYS.current
+    );
+
+
+    showAuth();
 
 }
 
