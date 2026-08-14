@@ -1,21 +1,43 @@
 // ============================================================
-//                    ⚔️ QuestRPG ⚔️
+//                       ⚔️ QuestRPG
+// ============================================================
+// Speicher:
+// - Accounts: Cookies
+// - Spielstände: Cookies
+// - Einstellungen: Cookie
+// - aktuelle Anmeldung: Cookie
+//
+// Zusätzlich gibt es localStorage als Fallback, falls der
+// Browser bei einer file://-Datei keine Cookies zulässt.
+//
+// Hinweis:
+// Diese Account-Lösung ist für ein lokales Lernprojekt.
+// Passwörter liegen im Browser und sind NICHT für eine echte
+// öffentliche Website geeignet.
 // ============================================================
 
 
 // ============================================================
-// STORAGE
+// STORAGE-NAMEN
 // ============================================================
 
-const KEYS = {
-    users: "questrpg_users_v4",
-    current: "questrpg_current_v4",
-    settings: "questrpg_settings_v4",
-    prefix: "questrpg_state_v4_",
+const STORAGE = {
 
-    guest: "questrpg_guest_v4",
+    userPrefix:
+        "qr_user_",
 
-    mineCooldown: "questrpg_mine_cooldown_v4"
+    statePrefix:
+        "qr_state_",
+
+    current:
+        "qr_current",
+
+    settings:
+        "qr_settings",
+
+    mineCooldown:
+        "qr_mine_cooldown"
+
 };
 
 
@@ -24,7 +46,10 @@ const KEYS = {
 // ============================================================
 
 const defaultSettings = {
-    language: "de"
+
+    language:
+        "de"
+
 };
 
 
@@ -33,37 +58,55 @@ const defaultSettings = {
 // ============================================================
 
 const defaultPlayer = {
-    name: "Held",
 
-    level: 1,
+    name:
+        "Held",
 
-    xp: 0,
+    level:
+        1,
 
-    gold: 50,
+    xp:
+        0,
 
-    health: 100,
+    gold:
+        50,
 
-    maxHealth: 100,
+    health:
+        100,
 
-    weaponId: "wood",
+    maxHealth:
+        100,
 
-    armorId: "cloth",
+    weaponId:
+        "wood",
 
-    pickaxeId: "wood_pickaxe",
+    armorId:
+        "cloth",
 
-    defeated: 0,
+    pickaxeId:
+        "wood_pickaxe",
 
-    totalMined: 0,
+    defeated:
+        0,
 
-    totalGoldEarned: 0,
+    totalMined:
+        0,
 
-    itemsBought: 0,
+    totalGoldEarned:
+        0,
 
-    defeatedByName: {},
+    itemsBought:
+        0,
 
-    missionIndex: 0,
+    defeatedByName:
+        {},
 
-    isGuest: false
+    missionIndex:
+        0,
+
+    isGuest:
+        false
+
 };
 
 
@@ -74,67 +117,139 @@ const defaultPlayer = {
 const weapons = [
 
     {
-        id: "wood",
-        nameDE: "Holzschwert",
-        nameEN: "Wooden Sword",
-        damage: 10,
-        price: 0
+        id:
+            "wood",
+
+        nameDE:
+            "Holzschwert",
+
+        nameEN:
+            "Wooden Sword",
+
+        damage:
+            10,
+
+        price:
+            0
     },
 
     {
-        id: "bronze",
-        nameDE: "Bronzeschwert",
-        nameEN: "Bronze Sword",
-        damage: 16,
-        price: 50
+        id:
+            "bronze",
+
+        nameDE:
+            "Bronzeschwert",
+
+        nameEN:
+            "Bronze Sword",
+
+        damage:
+            16,
+
+        price:
+            50
     },
 
     {
-        id: "silver",
-        nameDE: "Silberschwert",
-        nameEN: "Silver Sword",
-        damage: 24,
-        price: 100
+        id:
+            "silver",
+
+        nameDE:
+            "Silberschwert",
+
+        nameEN:
+            "Silver Sword",
+
+        damage:
+            24,
+
+        price:
+            100
     },
 
     {
-        id: "gold",
-        nameDE: "Goldschwert",
-        nameEN: "Golden Sword",
-        damage: 34,
-        price: 180
+        id:
+            "gold",
+
+        nameDE:
+            "Goldschwert",
+
+        nameEN:
+            "Golden Sword",
+
+        damage:
+            34,
+
+        price:
+            180
     },
 
     {
-        id: "iron",
-        nameDE: "Eisenschwert",
-        nameEN: "Iron Sword",
-        damage: 45,
-        price: 280
+        id:
+            "iron",
+
+        nameDE:
+            "Eisenschwert",
+
+        nameEN:
+            "Iron Sword",
+
+        damage:
+            45,
+
+        price:
+            280
     },
 
     {
-        id: "diamond",
-        nameDE: "Diamantschwert",
-        nameEN: "Diamond Sword",
-        damage: 62,
-        price: 450
+        id:
+            "diamond",
+
+        nameDE:
+            "Diamantschwert",
+
+        nameEN:
+            "Diamond Sword",
+
+        damage:
+            62,
+
+        price:
+            450
     },
 
     {
-        id: "dragon",
-        nameDE: "Drachenschwert",
-        nameEN: "Dragon Sword",
-        damage: 85,
-        price: 750
+        id:
+            "dragon",
+
+        nameDE:
+            "Drachenschwert",
+
+        nameEN:
+            "Dragon Sword",
+
+        damage:
+            85,
+
+        price:
+            750
     },
 
     {
-        id: "legendary",
-        nameDE: "Legendäres Schwert",
-        nameEN: "Legendary Sword",
-        damage: 120,
-        price: 1300
+        id:
+            "legendary",
+
+        nameDE:
+            "Legendäres Schwert",
+
+        nameEN:
+            "Legendary Sword",
+
+        damage:
+            120,
+
+        price:
+            1300
     }
 
 ];
@@ -147,67 +262,139 @@ const weapons = [
 const armors = [
 
     {
-        id: "cloth",
-        nameDE: "Alte Kleidung",
-        nameEN: "Old Clothes",
-        bonusHealth: 0,
-        price: 0
+        id:
+            "cloth",
+
+        nameDE:
+            "Alte Kleidung",
+
+        nameEN:
+            "Old Clothes",
+
+        bonusHealth:
+            0,
+
+        price:
+            0
     },
 
     {
-        id: "bronze",
-        nameDE: "Bronzerüstung",
-        nameEN: "Bronze Armor",
-        bonusHealth: 20,
-        price: 60
+        id:
+            "bronze",
+
+        nameDE:
+            "Bronzerüstung",
+
+        nameEN:
+            "Bronze Armor",
+
+        bonusHealth:
+            20,
+
+        price:
+            60
     },
 
     {
-        id: "silver",
-        nameDE: "Silberrüstung",
-        nameEN: "Silver Armor",
-        bonusHealth: 45,
-        price: 130
+        id:
+            "silver",
+
+        nameDE:
+            "Silberrüstung",
+
+        nameEN:
+            "Silver Armor",
+
+        bonusHealth:
+            45,
+
+        price:
+            130
     },
 
     {
-        id: "gold",
-        nameDE: "Goldrüstung",
-        nameEN: "Golden Armor",
-        bonusHealth: 80,
-        price: 220
+        id:
+            "gold",
+
+        nameDE:
+            "Goldrüstung",
+
+        nameEN:
+            "Golden Armor",
+
+        bonusHealth:
+            80,
+
+        price:
+            220
     },
 
     {
-        id: "iron",
-        nameDE: "Eisenrüstung",
-        nameEN: "Iron Armor",
-        bonusHealth: 120,
-        price: 330
+        id:
+            "iron",
+
+        nameDE:
+            "Eisenrüstung",
+
+        nameEN:
+            "Iron Armor",
+
+        bonusHealth:
+            120,
+
+        price:
+            330
     },
 
     {
-        id: "diamond",
-        nameDE: "Diamantrüstung",
-        nameEN: "Diamond Armor",
-        bonusHealth: 180,
-        price: 520
+        id:
+            "diamond",
+
+        nameDE:
+            "Diamantrüstung",
+
+        nameEN:
+            "Diamond Armor",
+
+        bonusHealth:
+            180,
+
+        price:
+            520
     },
 
     {
-        id: "dragon",
-        nameDE: "Drachenrüstung",
-        nameEN: "Dragon Armor",
-        bonusHealth: 280,
-        price: 850
+        id:
+            "dragon",
+
+        nameDE:
+            "Drachenrüstung",
+
+        nameEN:
+            "Dragon Armor",
+
+        bonusHealth:
+            280,
+
+        price:
+            850
     },
 
     {
-        id: "legendary",
-        nameDE: "Legendäre Rüstung",
-        nameEN: "Legendary Armor",
-        bonusHealth: 420,
-        price: 1500
+        id:
+            "legendary",
+
+        nameDE:
+            "Legendäre Rüstung",
+
+        nameEN:
+            "Legendary Armor",
+
+        bonusHealth:
+            420,
+
+        price:
+            1500
     }
 
 ];
@@ -220,67 +407,139 @@ const armors = [
 const pickaxes = [
 
     {
-        id: "wood_pickaxe",
-        nameDE: "Holzspitzhacke",
-        nameEN: "Wooden Pickaxe",
-        bonus: 5,
-        price: 0
+        id:
+            "wood_pickaxe",
+
+        nameDE:
+            "Holzspitzhacke",
+
+        nameEN:
+            "Wooden Pickaxe",
+
+        bonus:
+            5,
+
+        price:
+            0
     },
 
     {
-        id: "bronze_pickaxe",
-        nameDE: "Bronzespitzhacke",
-        nameEN: "Bronze Pickaxe",
-        bonus: 12,
-        price: 50
+        id:
+            "bronze_pickaxe",
+
+        nameDE:
+            "Bronzespitzhacke",
+
+        nameEN:
+            "Bronze Pickaxe",
+
+        bonus:
+            12,
+
+        price:
+            50
     },
 
     {
-        id: "silver_pickaxe",
-        nameDE: "Silberspitzhacke",
-        nameEN: "Silver Pickaxe",
-        bonus: 20,
-        price: 100
+        id:
+            "silver_pickaxe",
+
+        nameDE:
+            "Silberspitzhacke",
+
+        nameEN:
+            "Silver Pickaxe",
+
+        bonus:
+            20,
+
+        price:
+            100
     },
 
     {
-        id: "gold_pickaxe",
-        nameDE: "Goldspitzhacke",
-        nameEN: "Golden Pickaxe",
-        bonus: 35,
-        price: 175
+        id:
+            "gold_pickaxe",
+
+        nameDE:
+            "Goldspitzhacke",
+
+        nameEN:
+            "Golden Pickaxe",
+
+        bonus:
+            35,
+
+        price:
+            175
     },
 
     {
-        id: "iron_pickaxe",
-        nameDE: "Eisenspitzhacke",
-        nameEN: "Iron Pickaxe",
-        bonus: 50,
-        price: 260
+        id:
+            "iron_pickaxe",
+
+        nameDE:
+            "Eisenspitzhacke",
+
+        nameEN:
+            "Iron Pickaxe",
+
+        bonus:
+            50,
+
+        price:
+            260
     },
 
     {
-        id: "diamond_pickaxe",
-        nameDE: "Diamantspitzhacke",
-        nameEN: "Diamond Pickaxe",
-        bonus: 75,
-        price: 400
+        id:
+            "diamond_pickaxe",
+
+        nameDE:
+            "Diamantspitzhacke",
+
+        nameEN:
+            "Diamond Pickaxe",
+
+        bonus:
+            75,
+
+        price:
+            400
     },
 
     {
-        id: "dragon_pickaxe",
-        nameDE: "Drachenspitzhacke",
-        nameEN: "Dragon Pickaxe",
-        bonus: 110,
-        price: 650
+        id:
+            "dragon_pickaxe",
+
+        nameDE:
+            "Drachenspitzhacke",
+
+        nameEN:
+            "Dragon Pickaxe",
+
+        bonus:
+            110,
+
+        price:
+            650
     },
 
     {
-        id: "legendary_pickaxe",
-        nameDE: "Legendäre Spitzhacke",
-        nameEN: "Legendary Pickaxe",
-        bonus: 160,
-        price: 1100
+        id:
+            "legendary_pickaxe",
+
+        nameDE:
+            "Legendäre Spitzhacke",
+
+        nameEN:
+            "Legendary Pickaxe",
+
+        bonus:
+            160,
+
+        price:
+            1100
     }
 
 ];
@@ -293,274 +552,693 @@ const pickaxes = [
 const monsters = [
 
     {
-        id: "slime",
-        nameDE: "Schleim",
-        nameEN: "Slime",
-        emoji: "🟢",
-        health: 35,
-        damage: 8,
-        xp: 25,
-        gold: 20
+        id:
+            "slime",
+
+        nameDE:
+            "Schleim",
+
+        nameEN:
+            "Slime",
+
+        emoji:
+            "🟢",
+
+        health:
+            35,
+
+        damage:
+            8,
+
+        xp:
+            25,
+
+        gold:
+            20
     },
 
     {
-        id: "wolf",
-        nameDE: "Wilder Wolf",
-        nameEN: "Wild Wolf",
-        emoji: "🐺",
-        health: 55,
-        damage: 14,
-        xp: 40,
-        gold: 35
+        id:
+            "wolf",
+
+        nameDE:
+            "Wilder Wolf",
+
+        nameEN:
+            "Wild Wolf",
+
+        emoji:
+            "🐺",
+
+        health:
+            55,
+
+        damage:
+            14,
+
+        xp:
+            40,
+
+        gold:
+            35
     },
 
     {
-        id: "goblin",
-        nameDE: "Goblin",
-        nameEN: "Goblin",
-        emoji: "👺",
-        health: 75,
-        damage: 18,
-        xp: 60,
-        gold: 50
+        id:
+            "goblin",
+
+        nameDE:
+            "Goblin",
+
+        nameEN:
+            "Goblin",
+
+        emoji:
+            "👺",
+
+        health:
+            75,
+
+        damage:
+            18,
+
+        xp:
+            60,
+
+        gold:
+            50
     },
 
     {
-        id: "orc",
-        nameDE: "Ork",
-        nameEN: "Orc",
-        emoji: "👹",
-        health: 120,
-        damage: 25,
-        xp: 90,
-        gold: 80
+        id:
+            "orc",
+
+        nameDE:
+            "Ork",
+
+        nameEN:
+            "Orc",
+
+        emoji:
+            "👹",
+
+        health:
+            120,
+
+        damage:
+            25,
+
+        xp:
+            90,
+
+        gold:
+            80
     },
 
     {
-        id: "knight",
-        nameDE: "Dunkler Ritter",
-        nameEN: "Dark Knight",
-        emoji: "🛡️",
-        health: 180,
-        damage: 35,
-        xp: 140,
-        gold: 120
+        id:
+            "knight",
+
+        nameDE:
+            "Dunkler Ritter",
+
+        nameEN:
+            "Dark Knight",
+
+        emoji:
+            "🛡️",
+
+        health:
+            180,
+
+        damage:
+            35,
+
+        xp:
+            140,
+
+        gold:
+            120
     },
 
     {
-        id: "mage",
-        nameDE: "Magier",
-        nameEN: "Mage",
-        emoji: "🧙",
-        health: 220,
-        damage: 42,
-        xp: 180,
-        gold: 160
+        id:
+            "mage",
+
+        nameDE:
+            "Magier",
+
+        nameEN:
+            "Mage",
+
+        emoji:
+            "🧙",
+
+        health:
+            220,
+
+        damage:
+            42,
+
+        xp:
+            180,
+
+        gold:
+            160
     },
 
     {
-        id: "dragon",
-        nameDE: "Drache",
-        nameEN: "Dragon",
-        emoji: "🐉",
-        health: 350,
-        damage: 55,
-        xp: 300,
-        gold: 300
+        id:
+            "dragon",
+
+        nameDE:
+            "Drache",
+
+        nameEN:
+            "Dragon",
+
+        emoji:
+            "🐉",
+
+        health:
+            350,
+
+        damage:
+            55,
+
+        xp:
+            300,
+
+        gold:
+            300
     },
 
     {
-        id: "demon",
-        nameDE: "Dämon",
-        nameEN: "Demon",
-        emoji: "😈",
-        health: 500,
-        damage: 70,
-        xp: 500,
-        gold: 500
+        id:
+            "demon",
+
+        nameDE:
+            "Dämon",
+
+        nameEN:
+            "Demon",
+
+        emoji:
+            "😈",
+
+        health:
+            500,
+
+        damage:
+            70,
+
+        xp:
+            500,
+
+        gold:
+            500
     }
 
 ];
 
 
 // ============================================================
-// 10 MISSIONEN
+// MISSIONEN
 // ============================================================
 
 const missions = [
 
     {
-        type: "mine",
-        target: 1,
-        reward: [40, 70],
-        de: "Baue 1x Gold ab",
-        en: "Mine gold 1 time"
+        type:
+            "mine",
+
+        target:
+            1,
+
+        reward:
+            [40, 70],
+
+        de:
+            "Baue 1x Gold ab",
+
+        en:
+            "Mine gold 1 time"
     },
 
     {
-        type: "defeat",
-        target: 1,
-        reward: [50, 90],
-        de: "Besiege 1 Monster",
-        en: "Defeat 1 monster"
+        type:
+            "defeat",
+
+        target:
+            1,
+
+        reward:
+            [50, 90],
+
+        de:
+            "Besiege 1 Monster",
+
+        en:
+            "Defeat 1 monster"
     },
 
     {
-        type: "mine",
-        target: 3,
-        reward: [70, 120],
-        de: "Baue insgesamt 3x Gold ab",
-        en: "Mine gold 3 times"
+        type:
+            "mine",
+
+        target:
+            3,
+
+        reward:
+            [70, 120],
+
+        de:
+            "Baue insgesamt 3x Gold ab",
+
+        en:
+            "Mine gold 3 times"
     },
 
     {
-        type: "defeat",
-        target: 2,
-        reward: [90, 150],
-        de: "Besiege insgesamt 2 Monster",
-        en: "Defeat 2 monsters"
+        type:
+            "defeat",
+
+        target:
+            2,
+
+        reward:
+            [90, 150],
+
+        de:
+            "Besiege insgesamt 2 Monster",
+
+        en:
+            "Defeat 2 monsters"
     },
 
     {
-        type: "buy",
-        target: 1,
-        reward: [110, 180],
-        de: "Kaufe 1 Gegenstand im Shop",
-        en: "Buy 1 shop item"
+        type:
+            "buy",
+
+        target:
+            1,
+
+        reward:
+            [110, 180],
+
+        de:
+            "Kaufe 1 Gegenstand im Shop",
+
+        en:
+            "Buy 1 shop item"
     },
 
     {
-        type: "level",
-        target: 2,
-        reward: [140, 220],
-        de: "Erreiche Level 2",
-        en: "Reach level 2"
+        type:
+            "level",
+
+        target:
+            2,
+
+        reward:
+            [140, 220],
+
+        de:
+            "Erreiche Level 2",
+
+        en:
+            "Reach level 2"
     },
 
     {
-        type: "goblin",
-        target: 1,
-        reward: [160, 260],
-        de: "Besiege 1 Goblin",
-        en: "Defeat 1 Goblin"
+        type:
+            "goblin",
+
+        target:
+            1,
+
+        reward:
+            [160, 260],
+
+        de:
+            "Besiege 1 Goblin",
+
+        en:
+            "Defeat 1 Goblin"
     },
 
     {
-        type: "earned",
-        target: 300,
-        reward: [180, 300],
-        de: "Verdiene insgesamt 300 Gold",
-        en: "Earn 300 total gold"
+        type:
+            "earned",
+
+        target:
+            300,
+
+        reward:
+            [180, 300],
+
+        de:
+            "Verdiene insgesamt 300 Gold",
+
+        en:
+            "Earn 300 total gold"
     },
 
     {
-        type: "defeat",
-        target: 5,
-        reward: [220, 380],
-        de: "Besiege insgesamt 5 Monster",
-        en: "Defeat 5 monsters"
+        type:
+            "defeat",
+
+        target:
+            5,
+
+        reward:
+            [220, 380],
+
+        de:
+            "Besiege insgesamt 5 Monster",
+
+        en:
+            "Defeat 5 monsters"
     },
 
     {
-        type: "level",
-        target: 5,
-        reward: [400, 700],
-        de: "Erreiche Level 5",
-        en: "Reach level 5"
+        type:
+            "level",
+
+        target:
+            5,
+
+        reward:
+            [400, 700],
+
+        de:
+            "Erreiche Level 5",
+
+        en:
+            "Reach level 5"
     }
 
 ];
 
 
 // ============================================================
-// VARIABLEN
+// GLOBALE VARIABLEN
 // ============================================================
 
 let settings = loadSettings();
-let users = loadUsers();
+
+let users = loadAllUsers();
 
 let currentUsername =
-    localStorage.getItem(KEYS.current) || null;
+    cookieGet(
+        STORAGE.current
+    ) ||
+    localStorageSafeGet(
+        STORAGE.current
+    ) ||
+    null;
 
-let player = null;
+let player =
+    null;
 
-let isGuest = false;
+let isGuest =
+    false;
 
-let currentMonster = null;
-let monsterHealth = 0;
+let currentMonster =
+    null;
 
-let mineClicksRequired = 0;
-let mineClicksDone = 0;
+let monsterHealth =
+    0;
 
-let mineTimer = null;
+let mineClicksRequired =
+    0;
+
+let mineClicksDone =
+    0;
+
+let mineTimer =
+    null;
+
+let selectedAdminUser =
+    null;
 
 
 // ============================================================
-// STORAGE
+// COOKIE-FUNKTIONEN
 // ============================================================
 
-function loadSettings() {
+function cookieSet(
+    name,
+    value,
+    days = 3650
+) {
 
     try {
 
-        return {
-            ...defaultSettings,
-            ...(JSON.parse(
-                localStorage.getItem(
-                    KEYS.settings
+        const expires =
+            new Date(
+                Date.now() +
+                days *
+                24 *
+                60 *
+                60 *
+                1000
+            ).toUTCString();
+
+
+        document.cookie =
+            `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+
+    } catch {
+
+        // Fallback passiert an anderer Stelle.
+
+    }
+
+}
+
+
+function cookieGet(name) {
+
+    try {
+
+        const cookies =
+            document.cookie
+                .split("; ")
+                .filter(Boolean);
+
+
+        for (
+            const cookie of cookies
+        ) {
+
+            const separator =
+                cookie.indexOf("=");
+
+
+            if (
+                separator === -1
+            ) {
+
+                continue;
+
+            }
+
+
+            const key =
+                cookie.substring(
+                    0,
+                    separator
+                );
+
+
+            if (
+                key !== name
+            ) {
+
+                continue;
+
+            }
+
+
+            return decodeURIComponent(
+                cookie.substring(
+                    separator + 1
                 )
-            ) || {})
-        };
+            );
+
+        }
 
     } catch {
 
-        return {
-            ...defaultSettings
-        };
+        return null;
 
     }
-}
 
 
-function saveSettings() {
-
-    localStorage.setItem(
-        KEYS.settings,
-        JSON.stringify(settings)
-    );
+    return null;
 
 }
 
 
-function loadUsers() {
+function cookieDelete(name) {
 
     try {
 
-        return JSON.parse(
-            localStorage.getItem(
-                KEYS.users
-            )
-        ) || {};
+        document.cookie =
+            `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
 
     } catch {
 
-        return {};
+        // Ignorieren.
 
     }
+
 }
 
 
-function saveUsers() {
+// ============================================================
+// LOCAL STORAGE FALLBACK
+// ============================================================
 
-    localStorage.setItem(
-        KEYS.users,
-        JSON.stringify(users)
+function localStorageSafeGet(
+    key
+) {
+
+    try {
+
+        return localStorage.getItem(
+            key
+        );
+
+    } catch {
+
+        return null;
+
+    }
+
+}
+
+
+function localStorageSafeSet(
+    key,
+    value
+) {
+
+    try {
+
+        localStorage.setItem(
+            key,
+            value
+        );
+
+        return true;
+
+    } catch {
+
+        return false;
+
+    }
+
+}
+
+
+function localStorageSafeDelete(
+    key
+) {
+
+    try {
+
+        localStorage.removeItem(
+            key
+        );
+
+    } catch {
+
+        // Ignorieren.
+
+    }
+
+}
+
+
+// ============================================================
+// JSON STORAGE
+// ============================================================
+
+function saveJSON(
+    key,
+    value
+) {
+
+    const json =
+        JSON.stringify(value);
+
+
+    cookieSet(
+        key,
+        json
+    );
+
+
+    localStorageSafeSet(
+        key,
+        json
     );
 
 }
 
 
-function userKey(username) {
+function loadJSON(
+    key,
+    fallback = null
+) {
+
+    let value =
+        cookieGet(key);
+
+
+    if (
+        value === null
+    ) {
+
+        value =
+            localStorageSafeGet(
+                key
+            );
+
+    }
+
+
+    if (
+        value === null
+    ) {
+
+        return fallback;
+
+    }
+
+
+    try {
+
+        return JSON.parse(value);
+
+    } catch {
+
+        return fallback;
+
+    }
+
+}
+
+
+// ============================================================
+// USER-KEY
+// ============================================================
+
+function userKey(
+    username
+) {
 
     return username
         .trim()
@@ -569,47 +1247,379 @@ function userKey(username) {
 }
 
 
-function stateKey(username) {
+function userCookieName(
+    key
+) {
 
     return (
-        KEYS.prefix +
-        encodeURIComponent(
-            userKey(username)
-        )
+        STORAGE.userPrefix +
+        encodeURIComponent(key)
     );
 
 }
 
 
-function loadPlayer(username) {
+function stateCookieName(
+    key
+) {
+
+    return (
+        STORAGE.statePrefix +
+        encodeURIComponent(key)
+    );
+
+}
+
+
+// ============================================================
+// USER SPEICHERN
+// ============================================================
+
+function saveUser(
+    key
+) {
+
+    if (
+        !users[key]
+    ) {
+
+        return;
+
+    }
+
+
+    saveJSON(
+        userCookieName(key),
+        users[key]
+    );
+
+}
+
+
+function deleteUser(
+    key
+) {
+
+    cookieDelete(
+        userCookieName(key)
+    );
+
+    localStorageSafeDelete(
+        userCookieName(key)
+    );
+
+
+    cookieDelete(
+        stateCookieName(key)
+    );
+
+    localStorageSafeDelete(
+        stateCookieName(key)
+    );
+
+}
+
+
+function getUser(
+    key
+) {
+
+    const result =
+        loadJSON(
+            userCookieName(key),
+            null
+        );
+
+
+    if (
+        result
+    ) {
+
+        return result;
+
+    }
+
+
+    return null;
+
+}
+
+
+// ============================================================
+// ALLE USERS AUS COOKIES LADEN
+// ============================================================
+
+function loadAllUsers() {
+
+    const result = {};
+
 
     try {
 
-        const saved =
-            JSON.parse(
-                localStorage.getItem(
-                    stateKey(username)
+        const cookies =
+            document.cookie
+                .split("; ")
+                .filter(Boolean);
+
+
+        for (
+            const cookie of cookies
+        ) {
+
+            const separator =
+                cookie.indexOf("=");
+
+
+            if (
+                separator === -1
+            ) {
+
+                continue;
+
+            }
+
+
+            const name =
+                cookie.substring(
+                    0,
+                    separator
+                );
+
+
+            if (
+                !name.startsWith(
+                    STORAGE.userPrefix
                 )
-            );
+            ) {
 
-        const loaded = {
-            ...defaultPlayer,
-            ...(saved || {})
-        };
+                continue;
 
-        loaded.defeatedByName =
-            loaded.defeatedByName || {};
+            }
 
-        return loaded;
+
+            const keyEncoded =
+                name.substring(
+                    STORAGE.userPrefix.length
+                );
+
+
+            const key =
+                decodeURIComponent(
+                    keyEncoded
+                );
+
+
+            const raw =
+                decodeURIComponent(
+                    cookie.substring(
+                        separator + 1
+                    )
+                );
+
+
+            try {
+
+                result[key] =
+                    JSON.parse(raw);
+
+            } catch {
+
+                // kaputtes Cookie überspringen
+
+            }
+
+        }
 
     } catch {
 
-        return {
-            ...defaultPlayer,
-            defeatedByName: {}
-        };
+        // Fallback weiter unten
 
     }
+
+
+    // --------------------------------------------------------
+    // Alte / lokale User ergänzen
+    // --------------------------------------------------------
+
+    const legacyMaps = [
+        "questrpg_users_v4",
+        "questrpg_users_v3",
+        "questrpg_users_v2",
+        "questrpg_users_v1"
+    ];
+
+
+    for (
+        const legacyKey
+        of legacyMaps
+    ) {
+
+        const old =
+            loadJSON(
+                legacyKey,
+                null
+            );
+
+
+        if (
+            !old ||
+            typeof old !== "object"
+        ) {
+
+            continue;
+
+        }
+
+
+        for (
+            const key
+            of Object.keys(old)
+        ) {
+
+            if (
+                result[key]
+            ) {
+
+                continue;
+
+            }
+
+
+            const oldUser =
+                old[key];
+
+
+            result[key] = {
+
+                username:
+                    oldUser.username ||
+                    key,
+
+                password:
+                    oldUser.password ||
+                    "",
+
+                banned:
+                    Boolean(
+                        oldUser.banned
+                    ),
+
+                admin:
+                    Boolean(
+                        oldUser.admin
+                    )
+
+            };
+
+
+            saveUser(key);
+
+        }
+
+    }
+
+
+    // --------------------------------------------------------
+    // Admin immer prüfen
+    // --------------------------------------------------------
+
+    if (
+        result.moritzman3
+    ) {
+
+        result.moritzman3.admin =
+            true;
+
+        result.moritzman3.banned =
+            false;
+
+        saveJSON(
+            userCookieName(
+                "moritzman3"
+            ),
+            result.moritzman3
+        );
+
+    }
+
+
+    return result;
+
+}
+
+
+// ============================================================
+// EINSTELLUNGEN
+// ============================================================
+
+function loadSettings() {
+
+    const saved =
+        loadJSON(
+            STORAGE.settings,
+            null
+        );
+
+
+    return {
+
+        ...defaultSettings,
+
+        ...(saved || {})
+
+    };
+
+}
+
+
+function saveSettings() {
+
+    saveJSON(
+        STORAGE.settings,
+        settings
+    );
+
+}
+
+
+// ============================================================
+// PLAYER LOAD/SAVE
+// ============================================================
+
+function loadPlayer(
+    username
+) {
+
+    const key =
+        userKey(username);
+
+
+    const saved =
+        loadJSON(
+            stateCookieName(key),
+            null
+        );
+
+
+    const loaded = {
+
+        ...defaultPlayer,
+
+        ...(saved || {})
+
+    };
+
+
+    loaded.defeatedByName =
+        loaded.defeatedByName || {};
+
+
+    loaded.isGuest =
+        false;
+
+
+    return loaded;
+
 }
 
 
@@ -625,146 +1635,123 @@ function savePlayer() {
 
     }
 
-    localStorage.setItem(
-        stateKey(currentUsername),
-        JSON.stringify(player)
+
+    saveJSON(
+
+        stateCookieName(
+            currentUsername
+        ),
+
+        player
+
     );
 
 }
 
 
 // ============================================================
-// MINE COOLDOWN
-// Der Timer wird als Zeitstempel gespeichert.
-// Deshalb friert er beim Verlassen nicht ein.
+// MIGRATION VON ALTEN VERSIONEN
 // ============================================================
 
-function getMineCooldownEnd() {
+function migrateLegacyPlayer(
+    username,
+    key
+) {
 
-    return Number(
-        localStorage.getItem(
-            KEYS.mineCooldown
-        )
-    ) || 0;
-
-}
-
-
-function setMineCooldown(seconds) {
-
-    localStorage.setItem(
-        KEYS.mineCooldown,
-        String(
-            Date.now() +
-            seconds * 1000
-        )
-    );
-
-}
+    const versions = [
+        "v4",
+        "v3",
+        "v2",
+        "v1"
+    ];
 
 
-function getMineRemainingSeconds() {
+    for (
+        const version
+        of versions
+    ) {
 
-    const end =
-        getMineCooldownEnd();
-
-    return Math.max(
-        0,
-        Math.ceil(
-            (end - Date.now()) / 1000
-        )
-    );
-
-}
+        const legacyName =
+            `questrpg_state_${version}_${
+                encodeURIComponent(key)
+            }`;
 
 
-function clearMineCooldown() {
-
-    localStorage.removeItem(
-        KEYS.mineCooldown
-    );
-
-}
+        const old =
+            loadJSON(
+                legacyName,
+                null
+            );
 
 
-function startMineTimer() {
+        if (
+            old
+        ) {
 
-    clearMineTimer();
+            const newPlayer = {
 
-    mineTimer =
-        setInterval(
-            () => {
+                ...defaultPlayer,
 
-                if (
-                    !player
-                ) {
+                ...old,
 
-                    clearMineTimer();
+                name:
+                    username,
 
-                    return;
+                isGuest:
+                    false
 
-                }
-
-                const remaining =
-                    getMineRemainingSeconds();
+            };
 
 
-                if (
-                    remaining <= 0
-                ) {
-
-                    clearMineCooldown();
-
-                    clearMineTimer();
-
-                    renderMineReady();
-
-                    return;
-
-                }
+            saveJSON(
+                stateCookieName(key),
+                newPlayer
+            );
 
 
-                const currentScreen =
-                    document.getElementById(
-                        "screen"
-                    )?.dataset?.screen;
+            return;
 
-
-                if (
-                    currentScreen === "mineCooldown"
-                ) {
-
-                    renderMineCooldown();
-
-                }
-
-            },
-            250
-        );
-
-}
-
-
-function clearMineTimer() {
-
-    if (mineTimer) {
-
-        clearInterval(
-            mineTimer
-        );
-
-        mineTimer = null;
+        }
 
     }
 
 }
 
 
+function migrateLegacyData() {
+
+    Object.keys(
+        users
+    ).forEach(
+        key => {
+
+            if (
+                !cookieGet(
+                    stateCookieName(key)
+                )
+            ) {
+
+                migrateLegacyPlayer(
+                    users[key].username,
+                    key
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
 // ============================================================
-// TEXT / UI
+// SPRACHE
 // ============================================================
 
-function t(de, en) {
+function t(
+    de,
+    en
+) {
 
     return settings.language === "de"
         ? de
@@ -773,7 +1760,9 @@ function t(de, en) {
 }
 
 
-function itemName(item) {
+function itemName(
+    item
+) {
 
     return settings.language === "de"
         ? item.nameDE
@@ -782,7 +1771,9 @@ function itemName(item) {
 }
 
 
-function monsterName(monster) {
+function monsterName(
+    monster
+) {
 
     return settings.language === "de"
         ? monster.nameDE
@@ -791,12 +1782,42 @@ function monsterName(monster) {
 }
 
 
-function render(html, screenName = "") {
+// ============================================================
+// HTML / UI
+// ============================================================
+
+function esc(
+    text
+) {
+
+    return String(text).replace(
+        /[&<>'"]/g,
+
+        character => ({
+
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            "'": "&#39;",
+            '"': "&quot;"
+
+        }[character])
+
+    );
+
+}
+
+
+function render(
+    html,
+    screenName = ""
+) {
 
     const screen =
         document.getElementById(
             "screen"
         );
+
 
     if (!screen) {
 
@@ -804,8 +1825,10 @@ function render(html, screenName = "") {
 
     }
 
+
     screen.dataset.screen =
         screenName;
+
 
     screen.innerHTML =
         html;
@@ -813,12 +1836,15 @@ function render(html, screenName = "") {
 }
 
 
-function message(text) {
+function message(
+    text
+) {
 
     const element =
         document.getElementById(
             "message"
         );
+
 
     if (!element) {
 
@@ -826,11 +1852,10 @@ function message(text) {
 
     }
 
-    /*
-        KEINE <span>-Emoji-Verpackung mehr.
-        Das verhindert den Fehler:
-        <span class="emoji">❌</span> ...
-    */
+
+    // HTML ist hier absichtlich erlaubt,
+    // damit keine <span class="emoji">...
+    // als Text erscheinen.
 
     element.innerHTML =
         text;
@@ -845,23 +1870,26 @@ function randomNumber(
 
     return Math.floor(
         Math.random() *
-        (max - min + 1)
+        (
+            max -
+            min +
+            1
+        )
     ) + min;
 
 }
 
 
-function esc(text) {
+// ============================================================
+// USERNAME
+// ============================================================
 
-    return String(text).replace(
-        /[&<>'"]/g,
-        character => ({
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            "'": "&#39;",
-            '"': "&quot;"
-        }[character])
+function validUsername(
+    username
+) {
+
+    return /^[A-Za-z0-9_]+$/.test(
+        username
     );
 
 }
@@ -905,17 +1933,85 @@ function getPickaxe() {
 
 
 // ============================================================
-// UI STATUS
+// ADMIN
+// ============================================================
+
+function isAdmin() {
+
+    if (
+        !player ||
+        player.isGuest ||
+        !currentUsername
+    ) {
+
+        return false;
+
+    }
+
+
+    const account =
+        users[
+            currentUsername
+        ];
+
+
+    if (
+        currentUsername ===
+        "moritzman3"
+    ) {
+
+        return true;
+
+    }
+
+
+    return Boolean(
+        account?.admin
+    );
+
+}
+
+
+function adminBadge(
+    username
+) {
+
+    const key =
+        userKey(username);
+
+
+    if (
+        users[key]?.admin ||
+        key === "moritzman3"
+    ) {
+
+        return `
+            <span class="badge">
+                🖳
+            </span>
+        `;
+
+    }
+
+
+    return "";
+
+}
+
+
+// ============================================================
+// TOP-STATS
 // ============================================================
 
 function updateTopStats() {
 
-    const nameElement =
+    const name =
         document.getElementById(
             "name"
         );
 
-    if (!nameElement) {
+
+    if (!name) {
 
         return;
 
@@ -924,47 +2020,64 @@ function updateTopStats() {
 
     if (!player) {
 
-        nameElement.textContent =
+        name.textContent =
             "Gast";
+
 
         document.getElementById(
             "level"
-        ).textContent = "-";
+        ).textContent =
+            "-";
+
 
         document.getElementById(
             "gold"
-        ).textContent = "-";
+        ).textContent =
+            "-";
+
 
         document.getElementById(
             "health"
-        ).textContent = "-";
+        ).textContent =
+            "-";
+
 
         document.getElementById(
             "maxHealth"
-        ).textContent = "-";
+        ).textContent =
+            "-";
+
 
         document.getElementById(
             "xp"
-        ).textContent = "-";
+        ).textContent =
+            "-";
+
 
         document.getElementById(
             "xpNeeded"
-        ).textContent = "-";
+        ).textContent =
+            "-";
+
 
         document.getElementById(
             "healthBar"
-        ).style.width = "0%";
+        ).style.width =
+            "0%";
+
 
         document.getElementById(
             "xpBar"
-        ).style.width = "0%";
+        ).style.width =
+            "0%";
+
 
         return;
 
     }
 
 
-    nameElement.textContent =
+    name.textContent =
         player.name;
 
 
@@ -993,7 +2106,8 @@ function updateTopStats() {
 
 
     const neededXP =
-        player.level * 100;
+        player.level *
+        100;
 
 
     document.getElementById(
@@ -1016,7 +2130,8 @@ function updateTopStats() {
             (
                 player.xp /
                 neededXP
-            ) * 100
+            ) *
+            100
         ) + "%";
 
 
@@ -1030,7 +2145,8 @@ function updateTopStats() {
                 (
                     player.health /
                     player.maxHealth
-                ) * 100
+                ) *
+                100
             )
         ) + "%";
 
@@ -1041,29 +2157,40 @@ function updateTopStats() {
 // XP
 // ============================================================
 
-function addXP(amount) {
+function addXP(
+    amount
+) {
 
-    player.xp += amount;
+    player.xp +=
+        amount;
 
-    let levelUp = false;
+
+    let leveled =
+        false;
 
 
     while (
         player.xp >=
-        player.level * 100
+        player.level *
+        100
     ) {
 
         player.xp -=
-            player.level * 100;
+            player.level *
+            100;
+
 
         player.level++;
 
-        player.maxHealth += 20;
+        player.maxHealth +=
+            20;
 
         player.health =
             player.maxHealth;
 
-        levelUp = true;
+
+        leveled =
+            true;
 
     }
 
@@ -1073,7 +2200,7 @@ function addXP(amount) {
     updateTopStats();
 
 
-    if (levelUp) {
+    if (leveled) {
 
         message(
             `🎉 ${t(
@@ -1091,9 +2218,13 @@ function addXP(amount) {
 // MISSIONEN
 // ============================================================
 
-function missionProgress(mission) {
+function missionProgress(
+    mission
+) {
 
-    switch (mission.type) {
+    switch (
+        mission.type
+    ) {
 
         case "mine":
             return player.totalMined;
@@ -1108,6 +2239,7 @@ function missionProgress(mission) {
             return player.level;
 
         case "goblin":
+
             return (
                 player.defeatedByName.goblin ||
                 0
@@ -1124,7 +2256,9 @@ function missionProgress(mission) {
 }
 
 
-function missionText(mission) {
+function missionText(
+    mission
+) {
 
     return settings.language === "de"
         ? mission.de
@@ -1200,22 +2334,41 @@ function updateMission() {
 
 
 // ============================================================
-// LOGIN MENU
+// LOGIN / AUTH
 // ============================================================
 
 function showAuth() {
 
     clearMineTimer();
 
-    currentUsername = null;
-    player = null;
-    isGuest = false;
+    selectedAdminUser =
+        null;
 
-    localStorage.removeItem(
-        KEYS.current
+
+    currentUsername =
+        null;
+
+
+    player =
+        null;
+
+
+    isGuest =
+        false;
+
+
+    cookieDelete(
+        STORAGE.current
     );
 
+
+    localStorageSafeDelete(
+        STORAGE.current
+    );
+
+
     updateTopStats();
+
     message("");
 
 
@@ -1262,7 +2415,7 @@ function showAuth() {
 
             ${t(
                 "Logge dich ein, registriere dich oder spiele als Gast.",
-                "Log in, register, or play as a guest."
+                "Log in, register or play as a guest."
             )}
 
         </p>
@@ -1323,7 +2476,7 @@ function showAuth() {
 
 
 // ============================================================
-// LOGIN
+// LOGIN FORM
 // ============================================================
 
 function renderLogin() {
@@ -1370,12 +2523,10 @@ function renderLogin() {
         <div class="form-group">
 
             <label>
-
                 ${t(
                     "Benutzername",
                     "Username"
                 )}
-
             </label>
 
 
@@ -1390,12 +2541,10 @@ function renderLogin() {
         <div class="form-group">
 
             <label>
-
                 ${t(
                     "Passwort",
                     "Password"
                 )}
-
             </label>
 
 
@@ -1448,7 +2597,7 @@ function renderLogin() {
 
 
 // ============================================================
-// REGISTER
+// REGISTER FORM
 // ============================================================
 
 function renderRegister() {
@@ -1495,12 +2644,10 @@ function renderRegister() {
         <div class="form-group">
 
             <label>
-
                 ${t(
                     "Benutzername",
                     "Username"
                 )}
-
             </label>
 
 
@@ -1515,12 +2662,10 @@ function renderRegister() {
         <div class="form-group">
 
             <label>
-
                 ${t(
                     "Passwort",
                     "Password"
                 )}
-
             </label>
 
 
@@ -1535,8 +2680,8 @@ function renderRegister() {
         <p class="small">
 
             ${t(
-                "Benutzername: 3–16 Zeichen. Passwort: mindestens 4 Zeichen.",
-                "Username: 3–16 characters. Password: at least 4 characters."
+                "Nur Buchstaben, Zahlen und _. Keine Emojis.",
+                "Only letters, numbers and _. No emojis."
             )}
 
         </p>
@@ -1571,6 +2716,10 @@ function renderRegister() {
 }
 
 
+// ============================================================
+// REGISTER
+// ============================================================
+
 function register() {
 
     const rawUser =
@@ -1585,8 +2734,14 @@ function register() {
         )?.value || "";
 
 
+    const trimmed =
+        rawUser.trim();
+
+
     const key =
-        userKey(rawUser);
+        userKey(
+            trimmed
+        );
 
 
     if (
@@ -1598,6 +2753,22 @@ function register() {
             t(
                 "Der Benutzername muss 3–16 Zeichen haben.",
                 "The username must be 3–16 characters."
+            )
+        );
+
+    }
+
+
+    if (
+        !validUsername(
+            trimmed
+        )
+    ) {
+
+        return message(
+            t(
+                "Der Benutzername darf nur Buchstaben, Zahlen und _ enthalten. Emojis sind nicht erlaubt.",
+                "The username may only contain letters, numbers and _. Emojis are not allowed."
             )
         );
 
@@ -1618,7 +2789,9 @@ function register() {
     }
 
 
-    if (users[key]) {
+    if (
+        users[key]
+    ) {
 
         return message(
             t(
@@ -1633,38 +2806,52 @@ function register() {
     users[key] = {
 
         username:
-            rawUser.trim(),
+            trimmed,
 
         password:
             password,
 
-        banned: false
+        banned:
+            false,
+
+        admin:
+            key ===
+            "moritzman3"
 
     };
 
 
-    saveUsers();
+    saveUser(key);
 
 
-    localStorage.setItem(
-        stateKey(key),
-        JSON.stringify({
+    const newPlayer = {
 
-            ...defaultPlayer,
+        ...JSON.parse(
+            JSON.stringify(
+                defaultPlayer
+            )
+        ),
 
-            name:
-                rawUser.trim(),
+        name:
+            trimmed,
 
-            defeatedByName: {},
+        isGuest:
+            false,
 
-            isGuest: false
+        defeatedByName:
+            {}
 
-        })
+    };
+
+
+    saveJSON(
+        stateCookieName(key),
+        newPlayer
     );
 
 
     loginWithCredentials(
-        rawUser.trim(),
+        trimmed,
         password
     );
 
@@ -1703,7 +2890,9 @@ function loginWithCredentials(
 ) {
 
     const key =
-        userKey(rawUser);
+        userKey(
+            rawUser
+        );
 
 
     const account =
@@ -1712,7 +2901,8 @@ function loginWithCredentials(
 
     if (
         !account ||
-        account.password !== password
+        account.password !==
+        password
     ) {
 
         return message(
@@ -1725,7 +2915,9 @@ function loginWithCredentials(
     }
 
 
-    if (account.banned) {
+    if (
+        account.banned
+    ) {
 
         return message(
             `🚫 ${t(
@@ -1740,11 +2932,15 @@ function loginWithCredentials(
     currentUsername =
         key;
 
-    isGuest = false;
+
+    isGuest =
+        false;
 
 
     player =
-        loadPlayer(key);
+        loadPlayer(
+            key
+        );
 
 
     player.name =
@@ -1755,14 +2951,19 @@ function loginWithCredentials(
         false;
 
 
-    localStorage.setItem(
-        KEYS.current,
+    cookieSet(
+        STORAGE.current,
+        key
+    );
+
+
+    localStorageSafeSet(
+        STORAGE.current,
         key
     );
 
 
     savePlayer();
-
 
     updateTopStats();
 
@@ -1779,9 +2980,13 @@ function playAsGuest() {
 
     clearMineTimer();
 
-    currentUsername = null;
 
-    isGuest = true;
+    currentUsername =
+        null;
+
+
+    isGuest =
+        true;
 
 
     player = {
@@ -1793,13 +2998,16 @@ function playAsGuest() {
         ),
 
         name:
-            settings.language === "de"
-                ? "Gast"
-                : "Guest",
+            t(
+                "Gast",
+                "Guest"
+            ),
 
-        isGuest: true,
+        isGuest:
+            true,
 
-        defeatedByName: {}
+        defeatedByName:
+            {}
 
     };
 
@@ -1811,8 +3019,8 @@ function playAsGuest() {
 
     message(
         `🎮 ${t(
-            "Du spielst als Gast. Dein Spielstand wird nicht dauerhaft gespeichert.",
-            "You are playing as a guest. Your save is not permanent."
+            "Du spielst als Gast. Der Gast-Spielstand wird nicht dauerhaft gespeichert.",
+            "You are playing as a guest. Guest progress is not permanently saved."
         )}`
     );
 
@@ -1829,14 +3037,27 @@ function logout() {
 
     clearMineTimer();
 
-    currentUsername = null;
-    player = null;
-    isGuest = false;
 
-
-    localStorage.removeItem(
-        KEYS.current
+    cookieDelete(
+        STORAGE.current
     );
+
+
+    localStorageSafeDelete(
+        STORAGE.current
+    );
+
+
+    currentUsername =
+        null;
+
+
+    player =
+        null;
+
+
+    isGuest =
+        false;
 
 
     showAuth();
@@ -1880,8 +3101,8 @@ function deleteAccount() {
     const second =
         confirm(
             t(
-                "ACHTUNG: Dein Account und dein kompletter Spielstand werden dauerhaft gelöscht. Fortfahren?",
-                "WARNING: Your account and all save data will be permanently deleted. Continue?"
+                "ACHTUNG: Dein Account und dein kompletter Spielstand werden dauerhaft gelöscht.",
+                "WARNING: Your account and all save data will be permanently deleted."
             )
         );
 
@@ -1899,22 +3120,32 @@ function deleteAccount() {
 
     delete users[key];
 
-    saveUsers();
 
-
-    localStorage.removeItem(
-        stateKey(key)
+    deleteUser(
+        key
     );
 
 
-    localStorage.removeItem(
-        KEYS.current
+    cookieDelete(
+        STORAGE.current
     );
 
 
-    currentUsername = null;
-    player = null;
-    isGuest = false;
+    localStorageSafeDelete(
+        STORAGE.current
+    );
+
+
+    currentUsername =
+        null;
+
+
+    player =
+        null;
+
+
+    isGuest =
+        false;
 
 
     render(`
@@ -1925,12 +3156,10 @@ function deleteAccount() {
 
 
         <h2>
-
             ${t(
                 "Account gelöscht",
                 "Account deleted"
             )}
-
         </h2>
 
 
@@ -1965,12 +3194,18 @@ function deleteAccount() {
 
 
 // ============================================================
-// SETTINGS
+// EINSTELLUNGEN
 // ============================================================
 
 function openSettings(
     fromAuth = false
 ) {
+
+    const back =
+        fromAuth
+            ? "showAuth()"
+            : "mainMenu()";
+
 
     render(`
 
@@ -1978,11 +3213,7 @@ function openSettings(
 
             <button
                 class="back-button"
-                onclick="${
-                    fromAuth
-                        ? "showAuth()"
-                        : "mainMenu()"
-                }">
+                onclick="${back}">
 
                 ←
                 ${t(
@@ -2001,13 +3232,11 @@ function openSettings(
 
 
         <h2>
-
             ⚙️
             ${t(
                 "Einstellungen",
                 "Settings"
             )}
-
         </h2>
 
 
@@ -2022,7 +3251,6 @@ function openSettings(
                         "Language"
                     )}
                 </strong>
-
 
                 <div class="small">
 
@@ -2040,7 +3268,8 @@ function openSettings(
                 onclick="toggleLanguage()">
 
                 ${
-                    settings.language === "de"
+                    settings.language ===
+                    "de"
                         ? "Deutsch"
                         : "English"
                 }
@@ -2053,6 +3282,7 @@ function openSettings(
         ${
             player &&
             !player.isGuest
+
                 ? `
 
                     <div class="separator"></div>
@@ -2084,18 +3314,19 @@ function openSettings(
                     </button>
 
                 `
-                : `
-                    <div class="separator"></div>
-                `
+
+                : ""
+
         }
 
 
         ${
-            player &&
-            !player.isGuest &&
-            userKey(player.name) === "moritzman3"
+            isAdmin()
 
                 ? `
+
+                    <div class="separator"></div>
+
 
                     <button
                         class="admin-button"
@@ -2109,12 +3340,17 @@ function openSettings(
                 `
 
                 : ""
+
         }
 
 
         ${
             !player
+
                 ? `
+
+                    <div class="separator"></div>
+
 
                     <button
                         class="success-button"
@@ -2153,7 +3389,9 @@ function openSettings(
                     </button>
 
                 `
+
                 : ""
+
         }
 
     `);
@@ -2164,7 +3402,8 @@ function openSettings(
 function toggleLanguage() {
 
     settings.language =
-        settings.language === "de"
+        settings.language ===
+        "de"
             ? "en"
             : "de";
 
@@ -2172,6 +3411,7 @@ function toggleLanguage() {
     saveSettings();
 
     updateTopStats();
+
 
     openSettings(
         !player
@@ -2207,89 +3447,79 @@ function mainMenu() {
         ];
 
 
-    const missionHTML =
-        mission
-
-            ? `
-
-                <div class="mission-card">
-
-                    <strong>
-                        🎯
-                        ${t(
-                            "Mission",
-                            "Mission"
-                        )}
-
-                        ${player.missionIndex + 1}/10
-                    </strong>
+    let missionHTML =
+        "";
 
 
-                    <div class="mission-text">
+    if (mission) {
 
-                        ${esc(
-                            missionText(
-                                mission
-                            )
-                        )}
+        missionHTML = `
 
-                    </div>
+            <div class="mission-card">
 
+                <strong>
 
-                    <div class="small">
-
-                        ${Math.min(
-                            missionProgress(
-                                mission
-                            ),
-                            mission.target
-                        )}
-
-                        /
-
-                        ${mission.target}
-
-                    </div>
-
-                </div>
-
-            `
-
-            : `
-
-                <div class="mission-card completed">
-
-                    🏆
+                    🎯
                     ${t(
-                        "Alle 10 Missionen abgeschlossen!",
-                        "All 10 missions completed!"
+                        "Mission",
+                        "Mission"
+                    )}
+
+                    ${
+                        player.missionIndex + 1
+                    }/10
+
+                </strong>
+
+
+                <div class="mission-text">
+
+                    ${esc(
+                        missionText(
+                            mission
+                        )
                     )}
 
                 </div>
 
-            `;
 
+                <div class="small">
 
-    const adminButton =
-        (
-            !player.isGuest &&
-            userKey(player.name) ===
-            "moritzman3"
-        )
+                    ${Math.min(
+                        missionProgress(
+                            mission
+                        ),
+                        mission.target
+                    )}
 
-        ? `
+                    /
 
-            <button
-                class="admin-button"
-                onclick="openAdminPanel()">
+                    ${mission.target}
 
-                🛠️ Admin Panel
+                </div>
 
-            </button>
+            </div>
 
-          `
+        `;
 
-        : "";
+    } else {
+
+        missionHTML = `
+
+            <div class="mission-card completed">
+
+                🏆
+
+                ${t(
+                    "Alle 10 Missionen abgeschlossen!",
+                    "All 10 missions completed!"
+                )}
+
+            </div>
+
+        `;
+
+    }
 
 
     render(`
@@ -2297,7 +3527,9 @@ function mainMenu() {
         <div class="top-row">
 
             <h2 class="compact-title">
+
                 ⚔️ QuestRPG
+
             </h2>
 
 
@@ -2317,7 +3549,9 @@ function mainMenu() {
             <div class="card">
 
                 🗡️
+
                 <br>
+
 
                 <strong>
 
@@ -2328,6 +3562,7 @@ function mainMenu() {
                     )}
 
                 </strong>
+
 
                 <br>
 
@@ -2340,7 +3575,9 @@ function mainMenu() {
             <div class="card">
 
                 🛡️
+
                 <br>
+
 
                 <strong>
 
@@ -2351,6 +3588,7 @@ function mainMenu() {
                     )}
 
                 </strong>
+
 
                 <br>
 
@@ -2363,7 +3601,9 @@ function mainMenu() {
             <div class="card">
 
                 ⛏️
+
                 <br>
+
 
                 <strong>
 
@@ -2374,6 +3614,7 @@ function mainMenu() {
                     )}
 
                 </strong>
+
 
                 <br>
 
@@ -2449,7 +3690,24 @@ function mainMenu() {
         </button>
 
 
-        ${adminButton}
+        ${
+            isAdmin()
+
+                ? `
+
+                    <button
+                        class="admin-button"
+                        onclick="openAdminPanel()">
+
+                        🛠️
+                        Admin Panel
+
+                    </button>
+
+                `
+
+                : ""
+        }
 
     `);
 
@@ -2502,11 +3760,18 @@ function showCharacter() {
             <div class="card">
 
                 👤
+
                 <br>
 
                 ${esc(
                     player.name
                 )}
+
+                ${
+                    adminBadge(
+                        player.name
+                    )
+                }
 
             </div>
 
@@ -2514,6 +3779,7 @@ function showCharacter() {
             <div class="card">
 
                 ⭐
+
                 <br>
 
                 Level
@@ -2525,6 +3791,7 @@ function showCharacter() {
             <div class="card">
 
                 💰
+
                 <br>
 
                 ${player.gold}
@@ -2552,6 +3819,7 @@ function showCharacter() {
             )}
 
             —
+
             ⚔️
             ${getWeapon().damage}
 
@@ -2559,11 +3827,13 @@ function showCharacter() {
 
 
         <h3>
+
             🛡️
             ${t(
                 "Rüstung",
                 "Armor"
             )}
+
         </h3>
 
 
@@ -2576,6 +3846,7 @@ function showCharacter() {
             )}
 
             —
+
             ❤️
             +${getArmor().bonusHealth}
 
@@ -2583,11 +3854,13 @@ function showCharacter() {
 
 
         <h3>
+
             ⛏️
             ${t(
                 "Spitzhacke",
                 "Pickaxe"
             )}
+
         </h3>
 
 
@@ -2600,6 +3873,7 @@ function showCharacter() {
             )}
 
             —
+
             💰
             +${getPickaxe().bonus}
 
@@ -2642,12 +3916,16 @@ function showLeaderboard(
 
 
                 const saved =
-                    loadPlayer(key);
+                    loadPlayer(
+                        key
+                    );
 
 
                 entries.push({
 
-                    key,
+                    key:
+
+                        key,
 
                     username:
                         account.username,
@@ -2679,7 +3957,10 @@ function showLeaderboard(
 
 
     entries.sort(
-        (a, b) => {
+        (
+            a,
+            b
+        ) => {
 
             if (
                 b.level !==
@@ -2716,11 +3997,15 @@ function showLeaderboard(
     );
 
 
-    let rows = "";
+    let rows =
+        "";
 
 
     entries.forEach(
-        (entry, index) => {
+        (
+            entry,
+            index
+        ) => {
 
             const me =
                 currentUsername ===
@@ -2739,11 +4024,13 @@ function showLeaderboard(
                 rank = "🥇";
             }
 
+
             if (
                 index === 1
             ) {
                 rank = "🥈";
             }
+
 
             if (
                 index === 2
@@ -2762,12 +4049,19 @@ function showLeaderboard(
                     }">
 
                     <td class="rank">
+
                         ${rank}
+
                     </td>
+
 
                     <td>
 
                         ${esc(
+                            entry.username
+                        )}
+
+                        ${adminBadge(
                             entry.username
                         )}
 
@@ -2779,17 +4073,21 @@ function showLeaderboard(
 
                     </td>
 
+
                     <td>
                         ${entry.level}
                     </td>
+
 
                     <td>
                         ${entry.xp}
                     </td>
 
+
                     <td>
                         ${entry.gold}
                     </td>
+
 
                     <td>
                         ${entry.defeated}
@@ -2840,25 +4138,28 @@ function showLeaderboard(
         <p class="small">
 
             ${t(
-                "Sortierung: Level → XP → Gold",
-                "Sorted by: Level → XP → Gold"
+                "Sortiert nach Level → XP → Gold",
+                "Sorted by Level → XP → Gold"
             )}
 
         </p>
 
 
         ${
-            entries.length
+            entries.length > 0
 
                 ? `
 
-                    <table class="leaderboard">
+                    <table
+                        class="leaderboard">
 
                         <thead>
 
                             <tr>
 
-                                <th>#</th>
+                                <th>
+                                    #
+                                </th>
 
                                 <th>
                                     ${t(
@@ -2903,7 +4204,8 @@ function showLeaderboard(
 
                 : `
 
-                    <div class="leaderboard-empty">
+                    <div
+                        class="leaderboard-empty">
 
                         🏆
 
@@ -2918,7 +4220,7 @@ function showLeaderboard(
 
                     </div>
 
-                  `
+                `
         }
 
     `);
@@ -2971,7 +4273,9 @@ function openShop() {
             )}:
 
             <strong>
+
                 ${player.gold}
+
             </strong>
 
         </p>
@@ -3030,6 +4334,10 @@ function openShop() {
 }
 
 
+// ============================================================
+// SHOP-KARTE
+// ============================================================
+
 function shopCard(
     title,
     description,
@@ -3053,15 +4361,23 @@ function shopCard(
 
 
             <p>
+
                 💰
+
                 <strong>
                     ${price}
                 </strong>
+
             </p>
 
 
             <button
-                ${current ? "disabled" : ""}
+                ${
+                    current
+                        ? "disabled"
+                        : ""
+                }
+
                 onclick="${action}">
 
                 ${
@@ -3132,29 +4448,31 @@ function showWeapons() {
         .forEach(
             item => {
 
-                html += shopCard(
+                html +=
+                    shopCard(
 
-                    `🗡️
-                     ${esc(
-                         itemName(item)
-                     )}`,
+                        `🗡️
+                        ${esc(
+                            itemName(item)
+                        )}`,
 
-                    `⚔️
-                     ${item.damage}
-                     ${t(
-                         "Schaden",
-                         "damage"
-                     )}`,
+                        `⚔️
+                        ${item.damage}
+                        ${t(
+                            "Schaden",
+                            "damage"
+                        )}`,
 
-                    item.price,
+                        item.price,
 
-                    current.id === item.id,
+                        current.id ===
+                        item.id,
 
-                    `buyWeapon(
-                        '${item.id}'
-                    )`
+                        `buyWeapon(
+                            '${item.id}'
+                        )`
 
-                );
+                    );
 
             }
         );
@@ -3165,7 +4483,9 @@ function showWeapons() {
 }
 
 
-function buyWeapon(id) {
+function buyWeapon(
+    id
+) {
 
     const item =
         weapons.find(
@@ -3175,9 +4495,7 @@ function buyWeapon(id) {
 
 
     if (!item) {
-
         return;
-
     }
 
 
@@ -3214,8 +4532,10 @@ function buyWeapon(id) {
     player.gold -=
         item.price;
 
+
     player.weaponId =
         item.id;
+
 
     player.itemsBought++;
 
@@ -3242,7 +4562,7 @@ function buyWeapon(id) {
 
 
 // ============================================================
-// RÜSTUNGSSHOP
+// RÜSTUNGEN
 // ============================================================
 
 function showArmors() {
@@ -3288,29 +4608,31 @@ function showArmors() {
         .forEach(
             item => {
 
-                html += shopCard(
+                html +=
+                    shopCard(
 
-                    `🛡️
-                     ${esc(
-                         itemName(item)
-                     )}`,
+                        `🛡️
+                        ${esc(
+                            itemName(item)
+                        )}`,
 
-                    `❤️
-                     +${item.bonusHealth}
-                     ${t(
-                         "maximale Leben",
-                         "max health"
-                     )}`,
+                        `❤️
+                        +${item.bonusHealth}
+                        ${t(
+                            "maximale Leben",
+                            "max health"
+                        )}`,
 
-                    item.price,
+                        item.price,
 
-                    current.id === item.id,
+                        current.id ===
+                        item.id,
 
-                    `buyArmor(
-                        '${item.id}'
-                    )`
+                        `buyArmor(
+                            '${item.id}'
+                        )`
 
-                );
+                    );
 
             }
         );
@@ -3321,7 +4643,9 @@ function showArmors() {
 }
 
 
-function buyArmor(id) {
+function buyArmor(
+    id
+) {
 
     const item =
         armors.find(
@@ -3331,9 +4655,7 @@ function buyArmor(id) {
 
 
     if (!item) {
-
         return;
-
     }
 
 
@@ -3412,7 +4734,7 @@ function buyArmor(id) {
 
 
 // ============================================================
-// SPITZHACKENSHOP
+// SPITZHACKEN
 // ============================================================
 
 function showPickaxes() {
@@ -3458,29 +4780,31 @@ function showPickaxes() {
         .forEach(
             item => {
 
-                html += shopCard(
+                html +=
+                    shopCard(
 
-                    `⛏️
-                     ${esc(
-                         itemName(item)
-                     )}`,
+                        `⛏️
+                        ${esc(
+                            itemName(item)
+                        )}`,
 
-                    `💰
-                     +${item.bonus}
-                     ${t(
-                         "Bonusgold",
-                         "bonus gold"
-                     )}`,
+                        `💰
+                        +${item.bonus}
+                        ${t(
+                            "Bonusgold",
+                            "bonus gold"
+                        )}`,
 
-                    item.price,
+                        item.price,
 
-                    current.id === item.id,
+                        current.id ===
+                        item.id,
 
-                    `buyPickaxe(
-                        '${item.id}'
-                    )`
+                        `buyPickaxe(
+                            '${item.id}'
+                        )`
 
-                );
+                    );
 
             }
         );
@@ -3491,7 +4815,9 @@ function showPickaxes() {
 }
 
 
-function buyPickaxe(id) {
+function buyPickaxe(
+    id
+) {
 
     const item =
         pickaxes.find(
@@ -3501,9 +4827,7 @@ function buyPickaxe(id) {
 
 
     if (!item) {
-
         return;
-
     }
 
 
@@ -3540,8 +4864,10 @@ function buyPickaxe(id) {
     player.gold -=
         item.price;
 
+
     player.pickaxeId =
         item.id;
+
 
     player.itemsBought++;
 
@@ -3602,7 +4928,8 @@ function buyPotion() {
     }
 
 
-    player.gold -= 25;
+    player.gold -=
+        25;
 
 
     player.health =
@@ -3642,7 +4969,9 @@ function openMine() {
         getMineRemainingSeconds();
 
 
-    if (remaining > 0) {
+    if (
+        remaining > 0
+    ) {
 
         renderMineCooldown();
 
@@ -3660,7 +4989,8 @@ function openMine() {
         );
 
 
-    mineClicksDone = 0;
+    mineClicksDone =
+        0;
 
 
     renderMine();
@@ -3823,7 +5153,10 @@ function mineClick() {
         reward;
 
 
-    addXP(15);
+    addXP(
+        15
+    );
+
 
     updateMission();
 
@@ -3832,8 +5165,9 @@ function mineClick() {
     updateTopStats();
 
 
-    // 8 Sekunden ab JETZT speichern
-    setMineCooldown(8);
+    setMineCooldown(
+        8
+    );
 
 
     render(`
@@ -3872,10 +5206,12 @@ function mineClick() {
 
 
         <h3>
+
             ${t(
                 "Geschafft!",
                 "Done!"
             )}
+
         </h3>
 
 
@@ -3906,7 +5242,10 @@ function mineClick() {
 
 
         <button
-            onclick="renderMineCooldown(); startMineTimer();">
+            onclick="
+                renderMineCooldown();
+                startMineTimer();
+            ">
 
             ${t(
                 "Cooldown ansehen",
@@ -3916,6 +5255,79 @@ function mineClick() {
         </button>
 
     `);
+
+}
+
+
+function getMineCooldownEnd() {
+
+    return Number(
+        cookieGet(
+            STORAGE.mineCooldown
+        ) ||
+        localStorageSafeGet(
+            STORAGE.mineCooldown
+        ) ||
+        0
+    );
+
+}
+
+
+function setMineCooldown(
+    seconds
+) {
+
+    const end =
+        Date.now() +
+        seconds *
+        1000;
+
+
+    cookieSet(
+        STORAGE.mineCooldown,
+        String(end)
+    );
+
+
+    localStorageSafeSet(
+        STORAGE.mineCooldown,
+        String(end)
+    );
+
+}
+
+
+function getMineRemainingSeconds() {
+
+    const end =
+        getMineCooldownEnd();
+
+
+    return Math.max(
+        0,
+        Math.ceil(
+            (
+                end -
+                Date.now()
+            ) /
+            1000
+        )
+    );
+
+}
+
+
+function clearMineCooldown() {
+
+    cookieDelete(
+        STORAGE.mineCooldown
+    );
+
+
+    localStorageSafeDelete(
+        STORAGE.mineCooldown
+    );
 
 }
 
@@ -3993,8 +5405,11 @@ function renderMineCooldown() {
                 "Remaining"
             )}:
 
-            <strong id="mineCountdown">
+            <strong
+                id="mineCountdown">
+
                 ${remaining}s
+
             </strong>
 
         </p>
@@ -4018,6 +5433,9 @@ function renderMineCooldown() {
 
 
 function renderMineReady() {
+
+    clearMineTimer();
+
 
     render(`
 
@@ -4077,6 +5495,86 @@ function renderMineReady() {
         </button>
 
     `);
+
+}
+
+
+function startMineTimer() {
+
+    clearMineTimer();
+
+
+    mineTimer =
+        setInterval(
+            () => {
+
+                if (
+                    !player
+                ) {
+
+                    clearMineTimer();
+
+                    return;
+
+                }
+
+
+                const remaining =
+                    getMineRemainingSeconds();
+
+
+                if (
+                    remaining <= 0
+                ) {
+
+                    clearMineCooldown();
+
+                    clearMineTimer();
+
+                    renderMineReady();
+
+                    return;
+
+                }
+
+
+                const countdown =
+                    document.getElementById(
+                        "mineCountdown"
+                    );
+
+
+                if (
+                    countdown
+                ) {
+
+                    countdown.textContent =
+                        `${remaining}s`;
+
+                }
+
+            },
+            250
+        );
+
+}
+
+
+function clearMineTimer() {
+
+    if (
+        mineTimer
+    ) {
+
+        clearInterval(
+            mineTimer
+        );
+
+
+        mineTimer =
+            null;
+
+    }
 
 }
 
@@ -4147,8 +5645,11 @@ function renderFight() {
             <p class="monster-health">
 
                 ❤️
+
                 ${monsterHealth}
+
                 /
+
                 ${currentMonster.health}
 
             </p>
@@ -4186,7 +5687,9 @@ function renderFight() {
             )}:
 
             <strong>
+
                 ${getWeapon().damage}
+
             </strong>
 
         </p>
@@ -4213,7 +5716,6 @@ function renderFight() {
                 "Heiltrank",
                 "Potion"
             )}
-
             (25)
 
         </button>
@@ -4235,10 +5737,6 @@ function renderFight() {
 }
 
 
-// ============================================================
-// ANGRIFF
-// ============================================================
-
 function attack() {
 
     let damage =
@@ -4252,7 +5750,9 @@ function attack() {
         ) <= 15;
 
 
-    if (critical) {
+    if (
+        critical
+    ) {
 
         damage *= 2;
 
@@ -4264,11 +5764,12 @@ function attack() {
 
 
     // --------------------------------------------------------
-    // GEWONNEN
+    // MONSTER BESIEGT
     // --------------------------------------------------------
 
     if (
-        monsterHealth <= 0
+        monsterHealth <=
+        0
     ) {
 
         const reward =
@@ -4293,7 +5794,8 @@ function attack() {
             (
                 player.defeatedByName[
                     currentMonster.id
-                ] || 0
+                ] ||
+                0
             ) + 1;
 
 
@@ -4310,24 +5812,19 @@ function attack() {
 
         render(`
 
-            <div class="top-row">
-
-                <h2 class="compact-title">
-
-                    🏆
-                    ${t(
-                        "Sieg",
-                        "Victory"
-                    )}
-
-                </h2>
-
-            </div>
-
-
             <div class="big">
                 🏆
             </div>
+
+
+            <h2>
+
+                ${t(
+                    "Sieg!",
+                    "Victory!"
+                )}
+
+            </h2>
 
 
             <h3>
@@ -4351,12 +5848,16 @@ function attack() {
                     ? `
                         <p>
                             💥
+
                             <strong>
+
                                 ${t(
                                     "KRITISCHER TREFFER!",
                                     "CRITICAL HIT!"
                                 )}
+
                             </strong>
+
                         </p>
                     `
                     : ""
@@ -4430,16 +5931,13 @@ function attack() {
     }
 
 
-    // --------------------------------------------------------
-    // MONSTER GEGENSCHLAG
-    // --------------------------------------------------------
-
     const enemyDamage =
         randomNumber(
             Math.max(
                 1,
                 Math.floor(
-                    currentMonster.damage * 0.7
+                    currentMonster.damage *
+                    0.7
                 )
             ),
             currentMonster.damage
@@ -4455,10 +5953,12 @@ function attack() {
     // --------------------------------------------------------
 
     if (
-        player.health <= 0
+        player.health <=
+        0
     ) {
 
-        player.health = 0;
+        player.health =
+            0;
 
 
         player.gold =
@@ -4483,10 +5983,12 @@ function attack() {
 
 
             <h2>
+
                 ${t(
                     "Du wurdest besiegt!",
                     "You were defeated!"
                 )}
+
             </h2>
 
 
@@ -4523,18 +6025,20 @@ function attack() {
 
     savePlayer();
 
+
     renderFight();
 
 
-    /*
-        Hier sind KEINE span-Tags mehr.
-        Dadurch können keine
-        <span class="emoji">...
-        Fehler mehr entstehen.
-    */
+    // WICHTIG:
+    // Kein span-HTML für Emojis.
+    // Dadurch entstehen keine
+    // <span class="emoji">...</span>
+    // Fehler.
 
     message(
+
         `⚔️
+
          ${t(
              "Angriff",
              "Attack"
@@ -4552,6 +6056,7 @@ function attack() {
          <strong>
              ${enemyDamage}
          </strong>.`
+
     );
 
 
@@ -4567,7 +6072,8 @@ function attack() {
 function useCombatPotion() {
 
     if (
-        player.gold < 25
+        player.gold <
+        25
     ) {
 
         return message(
@@ -4595,7 +6101,8 @@ function useCombatPotion() {
     }
 
 
-    player.gold -= 25;
+    player.gold -=
+        25;
 
 
     player.health =
@@ -4619,6 +6126,7 @@ function useCombatPotion() {
 
     message(
         `🧪
+
          ${t(
              "+50 Leben",
              "+50 health"
@@ -4629,7 +6137,7 @@ function useCombatPotion() {
 
 
 // ============================================================
-// FLIEHEN
+// FLUCHTEN
 // ============================================================
 
 function escapeFight() {
@@ -4642,7 +6150,8 @@ function escapeFight() {
 
 
     if (
-        chance <= 70
+        chance <=
+        70
     ) {
 
         render(`
@@ -4685,6 +6194,7 @@ function escapeFight() {
 
         `);
 
+
         return;
 
     }
@@ -4699,10 +6209,12 @@ function escapeFight() {
 
 
     if (
-        player.health <= 0
+        player.health <=
+        0
     ) {
 
-        player.health = 0;
+        player.health =
+            0;
 
 
         player.gold =
@@ -4761,11 +6273,16 @@ function escapeFight() {
 
     } else {
 
+        savePlayer();
+
+
         renderFight();
 
 
         message(
+
             `❌
+
              ${t(
                  "Flucht fehlgeschlagen.",
                  "Escape failed."
@@ -4784,10 +6301,8 @@ function escapeFight() {
                  "Leben.",
                  "health."
              )}`
+
         );
-
-
-        savePlayer();
 
     }
 
@@ -4798,29 +6313,14 @@ function escapeFight() {
 
 
 // ============================================================
-// ADMIN
-// Nur MORITZMAN3
-// ============================================================
-
-function isAdmin() {
-
-    return (
-        player &&
-        !player.isGuest &&
-        userKey(player.name) ===
-        "moritzman3"
-    );
-
-}
-
-
-// ============================================================
 // ADMIN PANEL
 // ============================================================
 
 function openAdminPanel() {
 
-    if (!isAdmin()) {
+    if (
+        !isAdmin()
+    ) {
 
         return message(
             "🚫 Keine Berechtigung."
@@ -4829,11 +6329,27 @@ function openAdminPanel() {
     }
 
 
-    const playerKeys =
-        Object.keys(users);
+    selectedAdminUser =
+        null;
 
 
-    let html = `
+    renderAdminPanel();
+
+}
+
+
+function renderAdminPanel() {
+
+    if (
+        !isAdmin()
+    ) {
+
+        return;
+
+    }
+
+
+    render(`
 
         <div class="top-row">
 
@@ -4851,7 +6367,10 @@ function openAdminPanel() {
 
 
             <h2 class="compact-title">
-                🛠️ Admin Panel
+
+                🛠️
+                Admin Panel
+
             </h2>
 
         </div>
@@ -4859,224 +6378,537 @@ function openAdminPanel() {
 
         <div class="warning-box">
 
-            ⚠️
+            🛠️
 
-            ${t(
-                "Admin-Steuerung für QuestRPG.",
-                "QuestRPG administration."
-            )}
+            <strong>
+                QuestRPG Admin Panel
+            </strong>
+
+
+            <p class="small">
+
+                ${t(
+                    "Suche einen Account und klicke ihn an.",
+                    "Search for an account and click it."
+                )}
+
+            </p>
 
         </div>
 
-    `;
+
+        <div class="form-group">
+
+            <label>
+
+                🔎
+                ${t(
+                    "Account suchen",
+                    "Search account"
+                )}
+
+            </label>
+
+
+            <input
+                id="adminSearch"
+                type="text"
+                autocomplete="off"
+                placeholder="${t(
+                    "Username eingeben...",
+                    "Enter username..."
+                )}"
+                oninput="filterAdminUsers()">
+
+        </div>
+
+
+        <div id="adminUserList"></div>
+
+
+        <div id="adminSelected"></div>
+
+    `);
+
+
+    filterAdminUsers();
+
+}
+
+
+// ============================================================
+// ADMIN USER SEARCH
+// ============================================================
+
+function filterAdminUsers() {
+
+    const input =
+        document.getElementById(
+            "adminSearch"
+        );
+
+
+    const list =
+        document.getElementById(
+            "adminUserList"
+        );
 
 
     if (
-        playerKeys.length === 0
+        !input ||
+        !list
     ) {
-
-        html += `
-
-            <p>
-                Keine Accounts vorhanden.
-            </p>
-
-        `;
-
-        render(html);
 
         return;
 
     }
 
 
-    playerKeys.forEach(
-        key => {
-
-            const account =
-                users[key];
-
-
-            const saved =
-                loadPlayer(key);
+    const search =
+        input.value
+            .trim()
+            .toLowerCase();
 
 
-            html += `
+    const matching =
+        Object.keys(
+            users
+        )
+        .filter(
+            key =>
+                users[key]
+                    .username
+                    .toLowerCase()
+                    .includes(
+                        search
+                    )
+        )
+        .sort();
 
-                <div
-                    class="admin-player ${
-                        account.banned
-                            ? "banned"
-                            : ""
-                    }">
 
-                    <h3>
+    if (
+        matching.length ===
+        0
+    ) {
+
+        list.innerHTML = `
+
+            <div
+                class="admin-player">
+
+                🔎
+
+                ${t(
+                    "Kein Account gefunden.",
+                    "No account found."
+                )}
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    list.innerHTML =
+        matching
+        .map(
+            key => {
+
+                const account =
+                    users[key];
+
+
+                const target =
+                    loadPlayer(key);
+
+
+                return `
+
+                    <button
+                        class="admin-user-button ${
+                            account.banned
+                                ? "admin-player banned"
+                                : ""
+                        }"
+                        onclick="
+                            selectAdminUser(
+                                '${key}'
+                            )
+                        ">
 
                         👤
-                        ${esc(
-                            account.username
-                        )}
 
-                    </h3>
-
-
-                    <p>
-
-                        ⭐ Level:
                         <strong>
-                            ${saved.level}
+
+                            ${esc(
+                                account.username
+                            )}
+
+                            ${adminBadge(
+                                account.username
+                            )}
+
                         </strong>
+
 
                         <br>
 
-                        💰 Gold:
-                        <strong>
-                            ${saved.gold}
-                        </strong>
 
-                        <br>
+                        <span class="small">
 
-                        ${
-                            account.banned
-                                ? "🚫 GEBANNT"
-                                : "✅ Aktiv"
-                        }
+                            ⭐ Level:
+                            ${target.level}
 
-                    </p>
+                            &nbsp;&nbsp;
+
+                            💰 Gold:
+                            ${target.gold}
+
+                        </span>
+
+                    </button>
+
+                `;
+
+            }
+        )
+        .join("");
+
+}
 
 
-                    <div class="form-group">
+// ============================================================
+// ADMIN ACCOUNT AUSWÄHLEN
+// ============================================================
 
-                        <label>
-                            💰
+function selectAdminUser(
+    key
+) {
+
+    if (
+        !isAdmin() ||
+        !users[key]
+    ) {
+
+        return;
+
+    }
+
+
+    selectedAdminUser =
+        key;
+
+
+    const account =
+        users[key];
+
+
+    const target =
+        loadPlayer(key);
+
+
+    const container =
+        document.getElementById(
+            "adminSelected"
+        );
+
+
+    if (!container) {
+
+        return;
+
+    }
+
+
+    container.innerHTML = `
+
+        <div class="separator"></div>
+
+
+        <div
+            class="
+                admin-player
+                admin-selected
+                ${
+                    account.banned
+                        ? "banned"
+                        : ""
+                }
+            ">
+
+
+            <h2>
+
+                👤
+
+                ${esc(
+                    account.username
+                )}
+
+                ${adminBadge(
+                    account.username
+                )}
+
+            </h2>
+
+
+            <p>
+
+                ⭐ Level:
+                <strong>
+                    ${target.level}
+                </strong>
+
+                <br>
+
+
+                ⭐ XP:
+                <strong>
+                    ${target.xp}
+                </strong>
+
+                <br>
+
+
+                💰 Gold:
+                <strong>
+                    ${target.gold}
+                </strong>
+
+                <br>
+
+
+                ⚔️
+                ${t(
+                    "Besiegt",
+                    "Defeated"
+                )}:
+
+                <strong>
+                    ${target.defeated}
+                </strong>
+
+                <br>
+
+
+                ${
+                    account.banned
+                        ? "🚫 GEBANNT"
+                        : "✅ AKTIV"
+                }
+
+            </p>
+
+
+            <h3>
+                💰
+                ${t(
+                    "Gold",
+                    "Gold"
+                )}
+            </h3>
+
+
+            <div class="form-group">
+
+                <input
+                    id="adminGoldAmount"
+                    type="number"
+                    min="0"
+                    placeholder="500">
+
+            </div>
+
+
+            <button
+                class="gold-button"
+                onclick="
+                    adminGiveSelectedGold()
+                ">
+
+                💰
+                ${t(
+                    "Gold geben",
+                    "Give gold"
+                )}
+
+            </button>
+
+
+            <button
+                onclick="
+                    adminResetSelectedGold()
+                ">
+
+                🔄
+                ${t(
+                    "Gold auf 0 setzen",
+                    "Reset gold to 0"
+                )}
+
+            </button>
+
+
+            <h3>
+
+                ⭐
+                ${t(
+                    "Level",
+                    "Level"
+                )}
+
+            </h3>
+
+
+            <div class="form-group">
+
+                <input
+                    id="adminLevelAmount"
+                    type="number"
+                    min="1"
+                    max="1000"
+                    placeholder="10">
+
+            </div>
+
+
+            <button
+                onclick="
+                    adminSetSelectedLevel()
+                ">
+
+                ⭐
+                ${t(
+                    "Level setzen",
+                    "Set level"
+                )}
+
+            </button>
+
+
+            <button
+                onclick="
+                    adminResetSelectedLevel()
+                ">
+
+                🔄
+                ${t(
+                    "Level zurücksetzen",
+                    "Reset level"
+                )}
+
+            </button>
+
+
+            <h3>
+
+                🛡️
+                ${t(
+                    "Account",
+                    "Account"
+                )}
+
+            </h3>
+
+
+            ${
+                account.banned
+
+                    ? `
+
+                        <button
+                            class="success-button"
+                            onclick="
+                                adminToggleSelectedBan()
+                            ">
+
+                            ✅
                             ${t(
-                                "Gold hinzufügen",
-                                "Add gold"
+                                "Account entbannen",
+                                "Unban account"
                             )}
-                        </label>
 
-                        <input
-                            type="number"
-                            min="0"
-                            id="gold_${key}"
-                            placeholder="z.B. 500">
+                        </button>
 
-                    </div>
+                    `
 
+                    : `
 
-                    <button
-                        class="gold-button"
-                        onclick="adminGiveGold('${key}')">
+                        <button
+                            class="danger-button"
+                            onclick="
+                                adminToggleSelectedBan()
+                            ">
 
-                        💰
-                        ${t(
-                            "Gold geben",
-                            "Give gold"
-                        )}
-
-                    </button>
-
-
-                    <button
-                        onclick="adminResetGold('${key}')">
-
-                        🔄
-                        ${t(
-                            "Gold auf 0 setzen",
-                            "Reset gold to 0"
-                        )}
-
-                    </button>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            ⭐
+                            🚫
                             ${t(
-                                "Level setzen",
-                                "Set level"
+                                "Account bannen",
+                                "Ban account"
                             )}
-                        </label>
 
-                        <input
-                            type="number"
-                            min="1"
-                            id="level_${key}"
-                            placeholder="z.B. 10">
+                        </button>
 
-                    </div>
+                    `
+            }
 
 
-                    <button
-                        onclick="adminSetLevel('${key}')">
+            <button
+                class="danger-button"
+                onclick="
+                    adminDeleteSelectedUser()
+                ">
 
-                        ⭐
-                        ${t(
-                            "Level setzen",
-                            "Set level"
-                        )}
+                🗑️
+                ${t(
+                    "Account löschen",
+                    "Delete account"
+                )}
 
-                    </button>
-
-
-                    <button
-                        onclick="adminResetLevel('${key}')">
-
-                        🔄
-                        ${t(
-                            "Level zurücksetzen",
-                            "Reset level"
-                        )}
-
-                    </button>
+            </button>
 
 
-                    ${
-                        account.banned
+            ${
+                account.admin
 
-                            ? `
+                    ? `
 
-                                <button
-                                    class="success-button"
-                                    onclick="adminToggleBan('${key}')">
+                        <button disabled>
 
-                                    ✅
-                                    ${t(
-                                        "Account entbannen",
-                                        "Unban account"
-                                    )}
+                            🖳
+                            ${t(
+                                "Account ist bereits Admin",
+                                "Account is already admin"
+                            )}
 
-                                </button>
+                        </button>
 
-                              `
+                    `
 
-                            : `
+                    : `
 
-                                <button
-                                    class="danger-button"
-                                    onclick="adminToggleBan('${key}')">
+                        <button
+                            class="admin-button"
+                            onclick="
+                                adminGiveSelectedAdmin()
+                            ">
 
-                                    🚫
-                                    ${t(
-                                        "Account bannen",
-                                        "Ban account"
-                                    )}
+                            🖳
+                            ${t(
+                                "Admin geben",
+                                "Give admin"
+                            )}
 
-                                </button>
+                        </button>
 
-                              `
-                    }
+                    `
+            }
 
-                </div>
+        </div>
 
-            `;
-
-        }
-    );
-
-
-    render(html);
+    `;
 
 }
 
@@ -5085,18 +6917,21 @@ function openAdminPanel() {
 // ADMIN: GOLD GEBEN
 // ============================================================
 
-function adminGiveGold(
-    key
-) {
+function adminGiveSelectedGold() {
 
-    if (!isAdmin()) {
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
         return;
+
     }
 
 
     const input =
         document.getElementById(
-            `gold_${key}`
+            "adminGoldAmount"
         );
 
 
@@ -5122,37 +6957,46 @@ function adminGiveGold(
 
 
     const target =
-        loadPlayer(key);
+        loadPlayer(
+            selectedAdminUser
+        );
 
 
     target.gold +=
-        Math.floor(amount);
+        Math.floor(
+            amount
+        );
 
 
-    localStorage.setItem(
-        stateKey(key),
-        JSON.stringify(target)
+    saveJSON(
+        stateCookieName(
+            selectedAdminUser
+        ),
+        target
     );
 
 
     if (
-        key ===
+        selectedAdminUser ===
         currentUsername
     ) {
 
         player =
             target;
 
+
         updateTopStats();
 
     }
 
 
-    openAdminPanel();
+    selectAdminUser(
+        selectedAdminUser
+    );
 
 
     message(
-        `✅ ${amount} ${t(
+        `💰 ${amount} ${t(
             "Gold hinzugefügt.",
             "gold added."
         )}`
@@ -5165,42 +7009,53 @@ function adminGiveGold(
 // ADMIN: GOLD RESET
 // ============================================================
 
-function adminResetGold(
-    key
-) {
+function adminResetSelectedGold() {
 
-    if (!isAdmin()) {
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
         return;
+
     }
 
 
     const target =
-        loadPlayer(key);
+        loadPlayer(
+            selectedAdminUser
+        );
 
 
-    target.gold = 0;
+    target.gold =
+        0;
 
 
-    localStorage.setItem(
-        stateKey(key),
-        JSON.stringify(target)
+    saveJSON(
+        stateCookieName(
+            selectedAdminUser
+        ),
+        target
     );
 
 
     if (
-        key ===
+        selectedAdminUser ===
         currentUsername
     ) {
 
         player =
             target;
 
+
         updateTopStats();
 
     }
 
 
-    openAdminPanel();
+    selectAdminUser(
+        selectedAdminUser
+    );
 
 
     message(
@@ -5217,18 +7072,21 @@ function adminResetGold(
 // ADMIN: LEVEL SETZEN
 // ============================================================
 
-function adminSetLevel(
-    key
-) {
+function adminSetSelectedLevel() {
 
-    if (!isAdmin()) {
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
         return;
+
     }
 
 
     const input =
         document.getElementById(
-            `level_${key}`
+            "adminLevelAmount"
         );
 
 
@@ -5255,47 +7113,57 @@ function adminSetLevel(
 
 
     const target =
-        loadPlayer(key);
+        loadPlayer(
+            selectedAdminUser
+        );
 
 
     target.level =
         level;
 
 
-    target.xp = 0;
+    target.xp =
+        0;
 
 
     target.maxHealth =
         100 +
         (
-            level - 1
-        ) * 20;
+            level -
+            1
+        ) *
+        20;
 
 
     target.health =
         target.maxHealth;
 
 
-    localStorage.setItem(
-        stateKey(key),
-        JSON.stringify(target)
+    saveJSON(
+        stateCookieName(
+            selectedAdminUser
+        ),
+        target
     );
 
 
     if (
-        key ===
+        selectedAdminUser ===
         currentUsername
     ) {
 
         player =
             target;
 
+
         updateTopStats();
 
     }
 
 
-    openAdminPanel();
+    selectAdminUser(
+        selectedAdminUser
+    );
 
 
     message(
@@ -5312,48 +7180,65 @@ function adminSetLevel(
 // ADMIN: LEVEL RESET
 // ============================================================
 
-function adminResetLevel(
-    key
-) {
+function adminResetSelectedLevel() {
 
-    if (!isAdmin()) {
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
         return;
+
     }
 
 
     const target =
-        loadPlayer(key);
+        loadPlayer(
+            selectedAdminUser
+        );
 
 
-    target.level = 1;
-
-    target.xp = 0;
-
-    target.maxHealth = 100;
-
-    target.health = 100;
+    target.level =
+        1;
 
 
-    localStorage.setItem(
-        stateKey(key),
-        JSON.stringify(target)
+    target.xp =
+        0;
+
+
+    target.maxHealth =
+        100;
+
+
+    target.health =
+        100;
+
+
+    saveJSON(
+        stateCookieName(
+            selectedAdminUser
+        ),
+        target
     );
 
 
     if (
-        key ===
+        selectedAdminUser ===
         currentUsername
     ) {
 
         player =
             target;
 
+
         updateTopStats();
 
     }
 
 
-    openAdminPanel();
+    selectAdminUser(
+        selectedAdminUser
+    );
 
 
     message(
@@ -5367,20 +7252,23 @@ function adminResetLevel(
 
 
 // ============================================================
-// ADMIN: BANNEN / ENTBANNEN
+// ADMIN: BAN / UNBAN
 // ============================================================
 
-function adminToggleBan(
-    key
-) {
+function adminToggleSelectedBan() {
 
-    if (!isAdmin()) {
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
         return;
+
     }
 
 
     if (
-        key ===
+        selectedAdminUser ===
         currentUsername
     ) {
 
@@ -5394,24 +7282,32 @@ function adminToggleBan(
     }
 
 
-    if (
-        users[key]
-    ) {
-
-        users[key].banned =
-            !users[key].banned;
-
-
-        saveUsers();
-
-    }
+    users[
+        selectedAdminUser
+    ].banned =
+        !users[
+            selectedAdminUser
+        ].banned;
 
 
-    openAdminPanel();
+    saveUser(
+        selectedAdminUser
+    );
+
+
+    selectAdminUser(
+        selectedAdminUser
+    );
+
+
+    filterAdminUsers();
 
 
     message(
-        users[key].banned
+
+        users[
+            selectedAdminUser
+        ].banned
 
             ? `🚫 ${t(
                 "Account gebannt.",
@@ -5422,45 +7318,266 @@ function adminToggleBan(
                 "Account entbannt.",
                 "Account unbanned."
               )}`
+
     );
 
 }
 
 
 // ============================================================
-// START
+// ADMIN: ACCOUNT LÖSCHEN
 // ============================================================
 
-function init() {
+function adminDeleteSelectedUser() {
 
-    const savedUser =
-        localStorage.getItem(
-            KEYS.current
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        selectedAdminUser ===
+        currentUsername
+    ) {
+
+        return message(
+            t(
+                "Du kannst dich hier nicht selbst löschen.",
+                "You cannot delete yourself here."
+            )
+        );
+
+    }
+
+
+    const username =
+        users[
+            selectedAdminUser
+        ]?.username ||
+        selectedAdminUser;
+
+
+    const confirmed =
+        confirm(
+            t(
+                `Soll ${username} wirklich dauerhaft gelöscht werden?`,
+                `Should ${username} really be permanently deleted?`
+            )
         );
 
 
     if (
-        savedUser &&
-        users[savedUser] &&
-        !users[savedUser].banned
+        !confirmed
     ) {
 
-        currentUsername =
-            savedUser;
+        return;
+
+    }
 
 
-        isGuest = false;
+    const key =
+        selectedAdminUser;
+
+
+    delete users[key];
+
+
+    deleteUser(
+        key
+    );
+
+
+    saveUsersObject();
+
+
+    selectedAdminUser =
+        null;
+
+
+    renderAdminPanel();
+
+
+    message(
+        `🗑️ ${t(
+            "Account gelöscht.",
+            "Account deleted."
+        )}`
+    );
+
+}
+
+
+// ============================================================
+// USERS GANZ SPEICHERN
+// ============================================================
+// Die eigentlichen Accounts liegen einzeln in Cookies.
+// Diese Funktion sorgt zusätzlich für die Fallback-Datei.
+// ============================================================
+
+function saveUsersObject() {
+
+    try {
+
+        localStorageSafeSet(
+            "questrpg_users_backup",
+            JSON.stringify(users)
+        );
+
+    } catch {
+
+        // Ignorieren
+
+    }
+
+}
+
+
+// ============================================================
+// ADMIN: ADMIN GEBEN
+// ============================================================
+
+function adminGiveSelectedAdmin() {
+
+    if (
+        !isAdmin() ||
+        !selectedAdminUser
+    ) {
+
+        return;
+
+    }
+
+
+    if (
+        users[
+            selectedAdminUser
+        ].admin
+    ) {
+
+        return message(
+            `🖳 ${t(
+                "Dieser Account ist bereits Admin.",
+                "This account is already an admin."
+            )}`
+        );
+
+    }
+
+
+    const username =
+        users[
+            selectedAdminUser
+        ].username;
+
+
+    const confirmed =
+        confirm(
+            t(
+                `Soll ${username} wirklich Admin werden?`,
+                `Should ${username} really become an admin?`
+            )
+        );
+
+
+    if (
+        !confirmed
+    ) {
+
+        return;
+
+    }
+
+
+    users[
+        selectedAdminUser
+    ].admin =
+        true;
+
+
+    saveUser(
+        selectedAdminUser
+    );
+
+
+    selectAdminUser(
+        selectedAdminUser
+    );
+
+
+    filterAdminUsers();
+
+
+    message(
+        `🖳 ${esc(
+            username
+        )} ${t(
+            "ist jetzt Admin.",
+            "is now an admin."
+        )}`
+    );
+
+}
+
+
+// ============================================================
+// START / AUTOLOGIN
+// ============================================================
+
+function init() {
+
+    // Alte Accounts zuerst übernehmen.
+    migrateLegacyData();
+
+
+    // Users neu aus Cookies lesen,
+    // damit neu hinzugekommene Accounts
+    // sofort enthalten sind.
+    users =
+        loadAllUsers();
+
+
+    // MORITZMAN3 immer Admin.
+    if (
+        users.moritzman3
+    ) {
+
+        users.moritzman3.admin =
+            true;
+
+        users.moritzman3.banned =
+            false;
+
+        saveUser(
+            "moritzman3"
+        );
+
+    }
+
+
+    if (
+        currentUsername &&
+        users[currentUsername] &&
+        !users[currentUsername].banned
+    ) {
+
+        isGuest =
+            false;
 
 
         player =
             loadPlayer(
-                savedUser
+                currentUsername
             );
 
 
         player.name =
             users[
-                savedUser
+                currentUsername
             ].username;
 
 
@@ -5477,15 +7594,28 @@ function init() {
     }
 
 
-    localStorage.removeItem(
-        KEYS.current
+    cookieDelete(
+        STORAGE.current
     );
+
+
+    localStorageSafeDelete(
+        STORAGE.current
+    );
+
+
+    currentUsername =
+        null;
 
 
     showAuth();
 
 }
 
+
+// ============================================================
+// STARTEN
+// ============================================================
 
 document.addEventListener(
     "DOMContentLoaded",
