@@ -1,6 +1,6 @@
 "use strict";
 
-/*
+/*2
     QuestRPG
     --------
     Speicherung:
