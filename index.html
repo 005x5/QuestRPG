@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>⚔️ QuestRPG</title>
+    <title>QuestRPG</title>
 
     <style>
         * {
@@ -14,9 +14,7 @@
         body {
             margin: 0;
             min-height: 100vh;
-
             font-family: Arial, sans-serif;
-
             color: white;
 
             background:
@@ -24,17 +22,12 @@
 
             display: flex;
             justify-content: center;
-
             padding: 25px;
-        }
-
-        body.no-emoji .emoji {
-            display: none;
         }
 
         #game {
             width: 100%;
-            max-width: 950px;
+            max-width: 980px;
         }
 
         header {
@@ -44,41 +37,28 @@
 
         header h1 {
             margin: 5px 0;
-
             color: #ffd95a;
-
             font-size: 44px;
-
-            text-shadow:
-                0 0 20px #ffd95a55;
+            text-shadow: 0 0 20px rgba(255, 217, 90, 0.35);
         }
 
         header p {
             margin-top: 6px;
-
             color: #aab6ce;
         }
 
         #stats {
             display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-
             margin-bottom: 14px;
         }
 
         .stat {
             background: #172033;
-
             border: 1px solid #34425f;
-
             padding: 13px;
-
             border-radius: 12px;
-
             text-align: center;
         }
 
@@ -88,60 +68,50 @@
 
         .bar {
             height: 15px;
-
             background: #080c14;
-
             border-radius: 20px;
-
             overflow: hidden;
-
             margin: 5px 0;
         }
 
         #healthBar {
             height: 100%;
             width: 100%;
-
             background: #e84b4b;
-
-            transition: 0.3s;
+            transition: width 0.3s;
         }
 
         #xpBar {
             height: 100%;
             width: 0%;
-
             background: #e7b83c;
+            transition: width 0.3s;
+        }
 
-            transition: 0.3s;
+        #mineBar {
+            height: 100%;
+            width: 0%;
+            background: #d29a2e;
+            transition: width 0.15s;
         }
 
         .bar-text {
             text-align: center;
-
             font-size: 13px;
-
             color: #c6cede;
         }
 
         #screen {
-            min-height: 540px;
-
+            min-height: 560px;
             background: rgba(12, 17, 28, 0.98);
-
             border: 2px solid #34425f;
-
             border-radius: 18px;
-
             padding: 25px;
-
-            box-shadow:
-                0 0 35px #00000080;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.5);
         }
 
         h2 {
             color: #ffd95a;
-
             margin-top: 0;
         }
 
@@ -151,42 +121,30 @@
 
         button {
             width: 100%;
-
             border: 0;
-
             border-radius: 10px;
-
             padding: 14px;
-
             margin: 6px 0;
 
             background: #263957;
-
             color: white;
 
             font-size: 16px;
-
             cursor: pointer;
-
-            transition:
-                0.15s;
+            transition: 0.15s;
         }
 
         button:hover:not(:disabled) {
             background: #3c5780;
-
-            transform:
-                translateY(-2px);
+            transform: translateY(-2px);
         }
 
         button:active:not(:disabled) {
-            transform:
-                translateY(1px);
+            transform: translateY(1px);
         }
 
         button:disabled {
             cursor: not-allowed;
-
             opacity: 0.45;
         }
 
@@ -214,58 +172,52 @@
             background: #917729;
         }
 
+        .leader-button {
+            background: #6a4b18;
+        }
+
+        .admin-button {
+            background: #563b82;
+        }
+
+        .admin-button:hover:not(:disabled) {
+            background: #704fa8;
+        }
+
         .card-grid {
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-
             margin: 15px 0;
         }
 
         .card {
             background: #192338;
-
             border: 1px solid #34425f;
-
             border-radius: 12px;
-
             padding: 15px;
-
             text-align: center;
         }
 
         .shop-item {
             background: #192338;
-
             border: 1px solid #34425f;
-
             border-radius: 12px;
-
             padding: 15px;
-
             margin: 10px 0;
         }
 
         .shop-item h3 {
             color: #ffd95a;
-
             margin-top: 0;
         }
 
         .monster {
             text-align: center;
-
             background: #251a27;
-
             border: 1px solid #603c56;
-
             border-radius: 15px;
-
             padding: 20px;
-
             margin-bottom: 20px;
         }
 
@@ -275,24 +227,14 @@
 
         .monster-health {
             color: #ff6d6d;
-
             font-weight: bold;
         }
 
         .mission-card {
-            background:
-                linear-gradient(
-                    135deg,
-                    #222b42,
-                    #182035
-                );
-
+            background: linear-gradient(135deg, #222b42, #182035);
             border: 1px solid #566789;
-
             border-radius: 14px;
-
             padding: 17px;
-
             margin: 18px 0;
         }
 
@@ -302,47 +244,32 @@
 
         .mission-text {
             margin: 8px 0;
-
             font-size: 18px;
         }
 
         .setting-row {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             gap: 20px;
-
             background: #192338;
-
             border: 1px solid #34425f;
-
             border-radius: 12px;
-
             padding: 15px;
-
             margin: 10px 0;
         }
 
         .setting-row button {
             width: auto;
-
-            min-width: 130px;
-
+            min-width: 140px;
             margin: 0;
         }
 
         .top-row {
             display: flex;
-
             align-items: center;
-
             justify-content: space-between;
-
             gap: 15px;
-
             margin-bottom: 15px;
         }
 
@@ -352,53 +279,14 @@
 
         .back-button {
             width: auto;
-
             min-width: 120px;
-
             margin: 0;
         }
 
         .icon-button {
             width: auto;
-
             margin: 0;
-
-            padding:
-                11px 15px;
-        }
-
-        .auth-top {
-            display: flex;
-
-            justify-content: flex-end;
-
-            margin-bottom: 10px;
-        }
-
-        .auth-top .icon-button {
-            width: auto;
-        }
-
-        .big {
-            font-size: 62px;
-
-            text-align: center;
-
-            margin: 20px;
-        }
-
-        .small {
-            color: #9daac2;
-
-            font-size: 14px;
-        }
-
-        .separator {
-            border-top:
-                1px solid #34425f;
-
-            margin:
-                20px 0;
+            padding: 11px 15px;
         }
 
         .form-group {
@@ -407,95 +295,129 @@
 
         .form-group label {
             display: block;
-
             margin-bottom: 7px;
-
             color: #cdd6e9;
         }
 
-        .form-group input {
+        .form-group input,
+        .form-group select {
             width: 100%;
-
             padding: 13px;
-
             border-radius: 10px;
-
-            border:
-                1px solid #3b4b6d;
-
+            border: 1px solid #3b4b6d;
             background: #0d1421;
-
             color: white;
-
             font-size: 16px;
-
             outline: none;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             border-color: #ffd95a;
         }
 
         .mine-box {
             text-align: center;
-
             background: #181f31;
-
-            border:
-                1px solid #3c4d70;
-
+            border: 1px solid #3c4d70;
             border-radius: 16px;
-
             padding: 20px;
         }
 
         .mine-button {
             font-size: 21px;
-
-            padding:
-                18px;
+            padding: 18px;
         }
 
-        #mineBar {
-            height: 100%;
+        .big {
+            font-size: 62px;
+            text-align: center;
+            margin: 20px;
+        }
 
-            width: 0%;
+        .small {
+            color: #9daac2;
+            font-size: 14px;
+        }
 
-            background: #c89328;
-
-            transition: 0.15s;
+        .separator {
+            border-top: 1px solid #34425f;
+            margin: 20px 0;
         }
 
         .message {
             min-height: 25px;
-
             margin-top: 12px;
-
             text-align: center;
-
             color: #ffd95a;
-
             font-weight: bold;
         }
 
-        @media (max-width: 700px) {
+        .warning-box {
+            background: #2b1b1e;
+            border: 1px solid #8a444d;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+        }
 
+        .leaderboard {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .leaderboard th,
+        .leaderboard td {
+            border-bottom: 1px solid #34425f;
+            padding: 12px 8px;
+            text-align: left;
+        }
+
+        .leaderboard th {
+            color: #ffd95a;
+        }
+
+        .leaderboard tr.me {
+            background: rgba(255, 217, 90, 0.09);
+        }
+
+        .rank {
+            width: 55px;
+            font-weight: bold;
+        }
+
+        .leaderboard-empty {
+            text-align: center;
+            color: #9daac2;
+            padding: 35px 10px;
+        }
+
+        .admin-player {
+            background: #192338;
+            border: 1px solid #34425f;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+
+        .admin-player.banned {
+            border-color: #a34a54;
+            background: #291a1f;
+        }
+
+        @media (max-width: 700px) {
             #stats {
-                grid-template-columns:
-                    repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .card-grid {
-                grid-template-columns:
-                    1fr;
+                grid-template-columns: 1fr;
             }
 
             .setting-row {
-                flex-direction:
-                    column;
-
-                align-items:
-                    stretch;
+                flex-direction: column;
+                align-items: stretch;
             }
 
             .setting-row button {
@@ -511,8 +433,13 @@
             }
 
             .top-row {
-                align-items:
-                    flex-start;
+                align-items: flex-start;
+            }
+
+            .leaderboard th,
+            .leaderboard td {
+                font-size: 13px;
+                padding: 9px 5px;
             }
         }
     </style>
@@ -524,11 +451,7 @@
 
         <header>
 
-            <h1>
-                <span class="emoji">⚔️</span>
-                QUESTRPG
-                <span class="emoji">⚔️</span>
-            </h1>
+            <h1>⚔️ QuestRPG ⚔️</h1>
 
             <p>
                 Dein eigenes Browser-RPG
@@ -540,105 +463,50 @@
         <section id="stats">
 
             <div class="stat">
-
-                <span class="emoji">👤</span>
-
-                <strong id="name">
-                    Gast
-                </strong>
-
+                👤
+                <strong id="name">Gast</strong>
             </div>
 
-
             <div class="stat">
-
-                <span class="emoji">⭐</span>
-
-                Level
-
-                <strong id="level">
-                    -
-                </strong>
-
+                ⭐ Level
+                <strong id="level">-</strong>
             </div>
 
-
             <div class="stat">
-
-                <span class="emoji">💰</span>
-
-                Gold
-
-                <strong id="gold">
-                    -
-                </strong>
-
+                💰 Gold
+                <strong id="gold">-</strong>
             </div>
 
-
             <div class="stat">
-
-                <span class="emoji">❤️</span>
-
-                Leben
-
+                ❤️ Leben
                 <strong>
-
-                    <span id="health">
-                        -
-                    </span>
-
+                    <span id="health">-</span>
                     /
-
-                    <span id="maxHealth">
-                        -
-                    </span>
-
+                    <span id="maxHealth">-</span>
                 </strong>
-
             </div>
 
         </section>
 
 
         <div class="bar">
-
             <div id="healthBar"></div>
-
         </div>
 
-
         <div class="bar-text">
-
-            <span class="emoji">❤️</span>
-            Leben
-
+            ❤️ Leben
         </div>
 
 
         <div class="bar">
-
             <div id="xpBar"></div>
-
         </div>
 
-
         <div class="bar-text">
-
-            <span class="emoji">⭐</span>
-
-            XP:
-
-            <span id="xp">
-                -
-            </span>
-
+            ⭐ XP:
+            <span id="xp">-</span>
             /
-
-            <span id="xpNeeded">
-                -
-            </span>
-
+            <span id="xpNeeded">-</span>
         </div>
 
 
@@ -650,7 +518,10 @@
     </div>
 
 
-    <script src="script.js"></script>
+    <script
+        src="script.js"
+        defer>
+    </script>
 
 </body>
 </html>
