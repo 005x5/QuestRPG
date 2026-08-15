@@ -15,8 +15,66 @@
             min-height: 100vh;
             font-family: Arial, sans-serif;
             color: white;
-            background: radial-gradient(circle at top, #263b63, #080b13 70%);
-            padding: 25px;
+            background: radial-gradient(circle at top, #263b63, #070b13 72%);
+            padding: 20px;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin: 6px 0;
+            border: 0;
+            border-radius: 11px;
+            background: #294268;
+            color: white;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        button:hover {
+            background: #3d5b87;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 13px;
+            margin: 6px 0;
+            border: 1px solid #405579;
+            border-radius: 10px;
+            background: #0b1422;
+            color: white;
+        }
+
+        .gold-button {
+            background: #80651c;
+        }
+
+        .danger-button {
+            background: #762f3b;
+        }
+
+        .success-button {
+            background: #286343;
+        }
+
+        .purple-button {
+            background: #583778;
+        }
+
+        .orange-button {
+            background: #874c24;
         }
 
         #game {
@@ -27,43 +85,40 @@
 
         header {
             text-align: center;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
         }
 
         header h1 {
             color: #ffd95a;
-            font-size: 44px;
-            margin: 10px 0;
+            font-size: 42px;
+            margin: 10px;
             text-shadow: 0 0 20px #ffd95a55;
         }
 
         header p {
             color: #9daac2;
-            font-size: 18px;
         }
 
         #stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin-bottom: 15px;
         }
 
         .stat {
-            background: #172033;
-            border: 1px solid #34425f;
+            background: #18243a;
+            border: 1px solid #344766;
+            border-radius: 13px;
             padding: 14px;
-            border-radius: 12px;
             text-align: center;
-            font-size: 17px;
         }
 
         .bar {
-            height: 17px;
-            background: #080c14;
+            height: 16px;
+            background: #070c15;
             border-radius: 20px;
             overflow: hidden;
-            margin: 6px 0;
+            margin-top: 12px;
         }
 
         #healthBar {
@@ -82,255 +137,194 @@
 
         .bar-text {
             text-align: center;
-            font-size: 13px;
-            color: #c6cede;
+            color: #c7d0df;
+            margin: 5px;
         }
 
         #screen {
-            min-height: 500px;
-            background: rgba(12, 17, 28, .98);
-            border: 2px solid #34425f;
+            min-height: 520px;
+            margin-top: 15px;
+            padding: 25px;
+            background: rgba(10,16,27,.98);
+            border: 2px solid #344766;
             border-radius: 18px;
-            padding: 22px;
-            box-shadow: 0 0 35px #00000080;
+            box-shadow: 0 0 35px #0008;
         }
 
         h2 {
             color: #ffd95a;
-            margin-top: 0;
         }
 
         h3 {
-            color: #dce5f7;
+            color: #dce6f8;
         }
 
-        button {
-            width: 100%;
-            border: 0;
-            border-radius: 10px;
-            padding: 14px;
-            margin: 6px 0;
-            background: #2a4165;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: .15s;
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
         }
 
-        button:hover {
-            background: #3d5d8d;
-            transform: translateY(-2px);
+        .menu-card {
+            background: #1a2942;
+            border: 1px solid #3b506f;
+            border-radius: 15px;
+            padding: 22px;
+            text-align: center;
         }
 
-        button:active {
-            transform: translateY(1px);
-        }
-
-        .gold-button {
-            background: #765d19;
-        }
-
-        .danger-button {
-            background: #742e39;
-        }
-
-        .success-button {
-            background: #285b42;
-        }
-
-        .purple-button {
-            background: #533578;
+        .menu-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
         }
 
         .card-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin: 10px 0;
+            gap: 12px;
         }
 
-        .big-card {
-            background: #1a263c;
-            border: 1px solid #344b70;
-            border-radius: 14px;
-            padding: 28px 20px;
-            text-align: center;
-        }
-
-        .big-card .icon {
-            font-size: 72px;
-            min-height: 90px;
-        }
-
-        .big-card h3 {
-            font-size: 25px;
-            margin: 10px 0 20px;
-        }
-
-        .big-card button {
-            margin-top: 8px;
-        }
-
-        .shop-tabs {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .shop-tabs button {
-            margin: 0;
-        }
-
-        .item {
-            background: #192338;
-            border: 1px solid #34425f;
-            border-radius: 12px;
+        .card,
+        .shop-item {
+            background: #192840;
+            border: 1px solid #3b506f;
+            border-radius: 13px;
             padding: 17px;
             margin: 10px 0;
         }
 
-        .item h3 {
-            margin-top: 0;
+        .shop-item h3 {
             color: #ffd95a;
+            margin-top: 0;
         }
 
-        .legendary {
-            border: 2px solid #b66cff;
-            box-shadow: 0 0 18px #8f42ff44;
+        .back {
+            width: auto;
+            display: inline-block;
+            padding: 10px 18px;
+            margin-bottom: 15px;
+        }
+
+        .shop-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .shop-tabs button {
+            flex: 1;
+            min-width: 130px;
         }
 
         .monster {
             text-align: center;
-            background: #251a27;
-            border: 1px solid #603c56;
+            background: #281a29;
+            border: 1px solid #69435d;
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 20px;
         }
 
         .monster-emoji {
             font-size: 80px;
         }
 
-        .monster-health {
-            color: #ff6d6d;
-            font-weight: bold;
-            font-size: 20px;
-        }
-
-        .enemy-damage {
-            color: #ff8b8b;
-            margin: 10px 0;
+        .monster-hp {
+            color: #ff6868;
             font-weight: bold;
         }
 
-        .mission {
-            background: #192338;
-            border: 1px solid #34425f;
-            padding: 17px;
-            border-radius: 12px;
-            margin: 10px 0;
+        .boss {
+            border-color: #b63232;
+            box-shadow: 0 0 25px #8b1e1e55;
         }
 
-        .message {
+        .mine-box {
             text-align: center;
-            color: #ffd95a;
-            min-height: 25px;
-            margin-top: 12px;
-            font-weight: bold;
-        }
-
-        .input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 10px;
-            border: 1px solid #34425f;
-            background: #0c111c;
-            color: white;
-            font-size: 16px;
-            margin: 6px 0;
-        }
-
-        .stock-box {
-            background: #18253b;
-            border: 1px solid #405778;
-            border-radius: 14px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .stock-price {
-            font-size: 30px;
-            color: #ffd95a;
-            font-weight: bold;
-        }
-
-        .stock-up {
-            color: #65df8b;
-        }
-
-        .stock-down {
-            color: #ff6666;
-        }
-
-        .popup {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.72);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 1000;
-        }
-
-        .popup.show {
-            display: flex;
-        }
-
-        .popup-box {
-            width: 100%;
-            max-width: 650px;
-            max-height: 90vh;
-            overflow-y: auto;
-            background: #172033;
-            border: 2px solid #34425f;
+            background: #17243a;
+            border: 1px solid #405579;
             border-radius: 18px;
             padding: 25px;
         }
 
-        .close {
-            background: #702d36;
+        #mineButton {
+            font-size: 23px;
+            padding: 25px;
+            background: #7b5e19;
         }
 
-        .back {
-            margin-bottom: 15px;
-        }
-
-        .welcome {
-            text-align: center;
-            font-size: 28px;
+        .click-counter {
+            font-size: 30px;
             color: #ffd95a;
-            margin-bottom: 20px;
+            margin: 15px;
         }
 
-        @media(max-width: 750px) {
+        .message {
+            min-height: 25px;
+            text-align: center;
+            color: #ffd95a;
+            font-weight: bold;
+            margin: 12px;
+        }
+
+        .small {
+            color: #9daac2;
+            font-size: 14px;
+        }
+
+        .big {
+            font-size: 65px;
+            text-align: center;
+            margin: 15px;
+        }
+
+        .auth {
+            max-width: 500px;
+            margin: 50px auto;
+        }
+
+        .auth-box {
+            background: #17243a;
+            border: 1px solid #405579;
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .error {
+            color: #ff7373;
+            text-align: center;
+        }
+
+        .success {
+            color: #68dc91;
+            text-align: center;
+        }
+
+        .rarity {
+            color: #ffd95a;
+            font-weight: bold;
+        }
+
+        .separator {
+            border-top: 1px solid #344766;
+            margin: 20px 0;
+        }
+
+        @media(max-width:750px) {
             #stats {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2,1fr);
             }
 
+            .menu-grid,
             .card-grid {
                 grid-template-columns: 1fr;
             }
 
-            .shop-tabs {
-                grid-template-columns: repeat(2, 1fr);
+            header h1 {
+                font-size: 30px;
             }
 
-            header h1 {
-                font-size: 32px;
+            #screen {
+                padding: 18px;
             }
         }
     </style>
@@ -345,114 +339,57 @@
         <p>QuestRPG by 005x5</p>
     </header>
 
-    <section id="stats">
-        <div class="stat">
-            <span class="emoji">👤</span>
-            <strong id="name">Gast</strong>
+    <div id="authScreen"></div>
+
+    <div id="gameUI" style="display:none;">
+
+        <section id="stats">
+
+            <div class="stat">
+                👤 <strong id="name">Held</strong>
+            </div>
+
+            <div class="stat">
+                ⭐ Level <strong id="level">1</strong>
+            </div>
+
+            <div class="stat">
+                💰 Gold <strong id="gold">50</strong>
+            </div>
+
+            <div class="stat">
+                ❤️ Leben
+                <strong>
+                    <span id="health">100</span>/<span id="maxHealth">100</span>
+                </strong>
+            </div>
+
+        </section>
+
+        <div class="bar">
+            <div id="healthBar"></div>
         </div>
 
-        <div class="stat">
-            <span class="emoji">⭐</span>
-            Level <strong id="level">-</strong>
+        <div class="bar-text">
+            ❤️ Leben
         </div>
 
-        <div class="stat">
-            <span class="emoji">💰</span>
-            Gold <strong id="gold">-</strong>
+        <div class="bar">
+            <div id="xpBar"></div>
         </div>
 
-        <div class="stat">
-            <span class="emoji">❤️</span>
-            Leben <strong id="health">-</strong>/<strong id="maxHealth">-</strong>
-        </div>
-    </section>
-
-    <div class="bar">
-        <div id="healthBar"></div>
-    </div>
-
-    <div class="bar-text">
-        ❤️ Leben
-    </div>
-
-    <div class="bar">
-        <div id="xpBar"></div>
-    </div>
-
-    <div class="bar-text">
-        ⭐ XP:
-        <span id="xp">-</span> /
-        <span id="xpNeeded">-</span>
-    </div>
-
-    <main id="screen"></main>
-
-    <div id="message" class="message"></div>
-</div>
-
-<!-- AKTIEN POPUP -->
-<div id="stockPopup" class="popup">
-    <div class="popup-box">
-        <h2>📈 Aktien</h2>
-
-        <div class="stock-box">
-            <div>Aktueller Preis für 0,5%</div>
-            <div class="stock-price" id="stockPrice">250 Gold</div>
-
-            <div id="stockChange"></div>
-
-            <p>
-                Vorheriger Preis:
-                <strong id="oldStockPrice">250</strong> Gold
-            </p>
-
-            <p>
-                Noch verfügbar:
-                <strong id="stocksAvailable">10</strong> Aktien
-            </p>
-
-            <p>
-                Deine Aktien:
-                <strong id="myStocks">0</strong>
-            </p>
+        <div class="bar-text">
+            ⭐ XP:
+            <span id="xp">0</span> /
+            <span id="xpNeeded">100</span>
         </div>
 
-        <h3>Aktien kaufen</h3>
+        <main id="screen"></main>
 
-        <input
-            id="buyStocksInput"
-            class="input"
-            type="number"
-            min="1"
-            placeholder="Wie viele Aktien?"
-        >
+        <div id="message" class="message"></div>
 
-        <button class="gold-button" onclick="buyStocks()">
-            💰 Aktien kaufen
-        </button>
-
-        <h3>Aktien verkaufen</h3>
-
-        <input
-            id="sellStocksInput"
-            class="input"
-            type="number"
-            min="1"
-            placeholder="Wie viele Aktien?"
-        >
-
-        <button onclick="sellStocks()">
-            💰 Anzahl verkaufen
-        </button>
-
-        <button class="danger-button" onclick="sellAllStocks()">
-            💰 Alle verkaufen
-        </button>
-
-        <button class="close" onclick="closeStocks()">
-            ❌ Schließen
-        </button>
     </div>
+
 </div>
 
 <script src="script.js"></script>
