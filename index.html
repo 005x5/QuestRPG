@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>QuestRPG by 005x5</title>
 
     <style>
@@ -14,22 +13,10 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
             color: white;
-            background:
-                radial-gradient(circle at top, #263b63 0%, #101827 45%, #060912 100%);
-            padding: 20px;
-        }
-
-        button,
-        input,
-        select {
-            font-family: inherit;
-        }
-
-        button {
-            border: none;
-            cursor: pointer;
+            background: radial-gradient(circle at top, #263b63, #080b13 70%);
+            padding: 25px;
         }
 
         #game {
@@ -40,41 +27,19 @@
 
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         header h1 {
             color: #ffd95a;
             font-size: 44px;
-            margin: 10px 0 5px;
-            text-shadow: 0 0 25px rgba(255, 217, 90, .3);
+            margin: 10px 0;
+            text-shadow: 0 0 20px #ffd95a55;
         }
 
         header p {
             color: #9daac2;
-            margin: 0;
-        }
-
-        #topButtons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-            flex-wrap: wrap;
-        }
-
-        .top-button {
-            width: auto;
-            min-width: 130px;
-            padding: 11px 18px;
-            background: #172238;
-            border: 1px solid #34425f;
-            color: white;
-            border-radius: 10px;
-        }
-
-        .top-button:hover {
-            background: #2a3c5d;
+            font-size: 18px;
         }
 
         #stats {
@@ -85,19 +50,16 @@
         }
 
         .stat {
-            background: #172238;
+            background: #172033;
             border: 1px solid #34425f;
-            padding: 13px;
+            padding: 14px;
             border-radius: 12px;
             text-align: center;
-        }
-
-        .stat strong {
-            margin-left: 4px;
+            font-size: 17px;
         }
 
         .bar {
-            height: 16px;
+            height: 17px;
             background: #080c14;
             border-radius: 20px;
             overflow: hidden;
@@ -107,31 +69,30 @@
         #healthBar {
             height: 100%;
             width: 100%;
-            background: #ed4c4c;
-            transition: width .25s;
+            background: #e84b4b;
+            transition: .3s;
         }
 
         #xpBar {
             height: 100%;
             width: 0%;
             background: #e7b83c;
-            transition: width .25s;
+            transition: .3s;
         }
 
         .bar-text {
             text-align: center;
-            color: #c6cede;
             font-size: 13px;
-            margin-bottom: 7px;
+            color: #c6cede;
         }
 
         #screen {
-            min-height: 550px;
-            background: rgba(8, 13, 23, .97);
+            min-height: 500px;
+            background: rgba(12, 17, 28, .98);
             border: 2px solid #34425f;
             border-radius: 18px;
-            padding: 25px;
-            box-shadow: 0 0 35px rgba(0,0,0,.4);
+            padding: 22px;
+            box-shadow: 0 0 35px #00000080;
         }
 
         h2 {
@@ -143,61 +104,71 @@
             color: #dce5f7;
         }
 
-        button.action {
+        button {
             width: 100%;
+            border: 0;
             border-radius: 10px;
             padding: 14px;
             margin: 6px 0;
-            background: #263957;
+            background: #2a4165;
             color: white;
             font-size: 16px;
+            cursor: pointer;
             transition: .15s;
         }
 
-        button.action:hover {
-            background: #3c5780;
+        button:hover {
+            background: #3d5d8d;
             transform: translateY(-2px);
         }
 
-        button.action:active {
+        button:active {
             transform: translateY(1px);
         }
 
-        button.gold {
-            background: #715b1e;
+        .gold-button {
+            background: #765d19;
         }
 
-        button.danger {
-            background: #702d36;
+        .danger-button {
+            background: #742e39;
         }
 
-        button.success {
+        .success-button {
             background: #285b42;
         }
 
-        button.purple {
-            background: #4d3975;
-        }
-
-        .back-button {
-            background: #1b2942 !important;
-            border: 1px solid #3d4e6d;
-            margin-bottom: 20px !important;
+        .purple-button {
+            background: #533578;
         }
 
         .card-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 15px 0;
+            gap: 16px;
+            margin: 10px 0;
         }
 
-        .card {
-            background: #192338;
-            border: 1px solid #34425f;
-            border-radius: 12px;
-            padding: 17px;
+        .big-card {
+            background: #1a263c;
+            border: 1px solid #344b70;
+            border-radius: 14px;
+            padding: 28px 20px;
             text-align: center;
+        }
+
+        .big-card .icon {
+            font-size: 72px;
+            min-height: 90px;
+        }
+
+        .big-card h3 {
+            font-size: 25px;
+            margin: 10px 0 20px;
+        }
+
+        .big-card button {
+            margin-top: 8px;
         }
 
         .shop-tabs {
@@ -207,35 +178,26 @@
             margin-bottom: 15px;
         }
 
-        .shop-tab {
-            padding: 12px;
-            border-radius: 9px;
-            background: #18243a;
-            color: white;
-            border: 1px solid #34425f;
+        .shop-tabs button {
+            margin: 0;
         }
 
-        .shop-tab.active {
-            background: #705b1f;
-            border-color: #d4ad35;
-        }
-
-        .shop-item {
+        .item {
             background: #192338;
             border: 1px solid #34425f;
             border-radius: 12px;
-            padding: 16px;
+            padding: 17px;
             margin: 10px 0;
         }
 
-        .shop-item h3 {
+        .item h3 {
+            margin-top: 0;
             color: #ffd95a;
-            margin: 0 0 8px;
         }
 
-        .price {
-            color: #ffd95a;
-            font-weight: bold;
+        .legendary {
+            border: 2px solid #b66cff;
+            box-shadow: 0 0 18px #8f42ff44;
         }
 
         .monster {
@@ -248,12 +210,27 @@
         }
 
         .monster-emoji {
-            font-size: 75px;
+            font-size: 80px;
         }
 
         .monster-health {
             color: #ff6d6d;
             font-weight: bold;
+            font-size: 20px;
+        }
+
+        .enemy-damage {
+            color: #ff8b8b;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .mission {
+            background: #192338;
+            border: 1px solid #34425f;
+            padding: 17px;
+            border-radius: 12px;
+            margin: 10px 0;
         }
 
         .message {
@@ -264,113 +241,82 @@
             font-weight: bold;
         }
 
-        .small {
-            color: #9daac2;
-            font-size: 14px;
-        }
-
-        .big {
-            font-size: 65px;
-            text-align: center;
-            margin: 20px;
-        }
-
-        .separator {
-            border-top: 1px solid #34425f;
-            margin: 20px 0;
-        }
-
-        input,
-        select {
+        .input {
             width: 100%;
             padding: 14px;
-            margin: 7px 0;
             border-radius: 10px;
             border: 1px solid #34425f;
-            background: #0d1422;
+            background: #0c111c;
             color: white;
             font-size: 16px;
-            outline: none;
+            margin: 6px 0;
         }
 
-        input:focus,
-        select:focus {
-            border-color: #ffd95a;
-        }
-
-        .login-box {
-            max-width: 500px;
-            margin: 40px auto;
-        }
-
-        .mining-box {
+        .stock-box {
+            background: #18253b;
+            border: 1px solid #405778;
+            border-radius: 14px;
+            padding: 20px;
             text-align: center;
-            background: #101b2c;
-            border: 1px solid #34425f;
-            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stock-price {
+            font-size: 30px;
+            color: #ffd95a;
+            font-weight: bold;
+        }
+
+        .stock-up {
+            color: #65df8b;
+        }
+
+        .stock-down {
+            color: #ff6666;
+        }
+
+        .popup {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .popup.show {
+            display: flex;
+        }
+
+        .popup-box {
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #172033;
+            border: 2px solid #34425f;
+            border-radius: 18px;
             padding: 25px;
         }
 
-        #mineButton {
-            font-size: 20px;
-            min-height: 75px;
+        .close {
+            background: #702d36;
         }
 
-        .click-counter {
+        .back {
+            margin-bottom: 15px;
+        }
+
+        .welcome {
+            text-align: center;
             font-size: 28px;
             color: #ffd95a;
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
 
-        .cooldown {
-            color: #9daac2;
-            margin: 10px;
-        }
-
-        .admin-user {
-            background: #192338;
-            border: 1px solid #34425f;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 10px 0;
-        }
-
-        .admin-user.selected {
-            border-color: #ffd95a;
-            box-shadow: 0 0 15px rgba(255,217,90,.15);
-        }
-
-        .admin-actions {
-            margin-top: 15px;
-        }
-
-        .admin-badge {
-            display: inline-block;
-            font-size: 18px;
-            margin-left: 5px;
-        }
-
-        .status-online {
-            color: #4ee58a;
-        }
-
-        .status-banned {
-            color: #ff6b6b;
-        }
-
-        .quest {
-            background: #192338;
-            border: 1px solid #34425f;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 10px 0;
-        }
-
-        .quest strong {
-            color: #ffd95a;
-        }
-
-        @media (max-width: 750px) {
+        @media(max-width: 750px) {
             #stats {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -386,10 +332,6 @@
             header h1 {
                 font-size: 32px;
             }
-
-            #screen {
-                padding: 17px;
-            }
         }
     </style>
 </head>
@@ -399,14 +341,11 @@
 <div id="game">
 
     <header>
-        <h1 id="gameTitle">⚔️ QuestRPG ⚔️</h1>
-        <p id="subtitle">QuestRPG by 005x5</p>
+        <h1>⚔️ QuestRPG ⚔️</h1>
+        <p>QuestRPG by 005x5</p>
     </header>
 
-    <div id="topButtons"></div>
-
     <section id="stats">
-
         <div class="stat">
             <span class="emoji">👤</span>
             <strong id="name">Gast</strong>
@@ -414,24 +353,18 @@
 
         <div class="stat">
             <span class="emoji">⭐</span>
-            <span id="levelLabel">Level</span>
-            <strong id="level">-</strong>
+            Level <strong id="level">-</strong>
         </div>
 
         <div class="stat">
             <span class="emoji">💰</span>
-            <span id="goldLabel">Gold</span>
-            <strong id="gold">-</strong>
+            Gold <strong id="gold">-</strong>
         </div>
 
         <div class="stat">
             <span class="emoji">❤️</span>
-            <span id="healthLabel">Leben</span>
-            <strong>
-                <span id="health">-</span>/<span id="maxHealth">-</span>
-            </strong>
+            Leben <strong id="health">-</strong>/<strong id="maxHealth">-</strong>
         </div>
-
     </section>
 
     <div class="bar">
@@ -439,8 +372,7 @@
     </div>
 
     <div class="bar-text">
-        <span class="emoji">❤️</span>
-        <span id="healthBarText">Leben</span>
+        ❤️ Leben
     </div>
 
     <div class="bar">
@@ -448,8 +380,7 @@
     </div>
 
     <div class="bar-text">
-        <span class="emoji">⭐</span>
-        XP:
+        ⭐ XP:
         <span id="xp">-</span> /
         <span id="xpNeeded">-</span>
     </div>
@@ -457,7 +388,71 @@
     <main id="screen"></main>
 
     <div id="message" class="message"></div>
+</div>
 
+<!-- AKTIEN POPUP -->
+<div id="stockPopup" class="popup">
+    <div class="popup-box">
+        <h2>📈 Aktien</h2>
+
+        <div class="stock-box">
+            <div>Aktueller Preis für 0,5%</div>
+            <div class="stock-price" id="stockPrice">250 Gold</div>
+
+            <div id="stockChange"></div>
+
+            <p>
+                Vorheriger Preis:
+                <strong id="oldStockPrice">250</strong> Gold
+            </p>
+
+            <p>
+                Noch verfügbar:
+                <strong id="stocksAvailable">10</strong> Aktien
+            </p>
+
+            <p>
+                Deine Aktien:
+                <strong id="myStocks">0</strong>
+            </p>
+        </div>
+
+        <h3>Aktien kaufen</h3>
+
+        <input
+            id="buyStocksInput"
+            class="input"
+            type="number"
+            min="1"
+            placeholder="Wie viele Aktien?"
+        >
+
+        <button class="gold-button" onclick="buyStocks()">
+            💰 Aktien kaufen
+        </button>
+
+        <h3>Aktien verkaufen</h3>
+
+        <input
+            id="sellStocksInput"
+            class="input"
+            type="number"
+            min="1"
+            placeholder="Wie viele Aktien?"
+        >
+
+        <button onclick="sellStocks()">
+            💰 Anzahl verkaufen
+        </button>
+
+        <button class="danger-button" onclick="sellAllStocks()">
+            💰 Alle verkaufen
+        </button>
+
+        <button class="close" onclick="closeStocks()">
+            ❌ Schließen
+        </button>
+    </div>
 </div>
 
 <script src="script.js"></script>
