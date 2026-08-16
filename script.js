@@ -2999,7 +2999,7 @@ function adminToggleAdmin(username) {
 loadData();
 
 
-/*
+
 
 
 if (!users["005x5"]) {
