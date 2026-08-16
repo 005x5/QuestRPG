@@ -3000,14 +3000,7 @@ loadData();
 
 
 /*
-   Owner automatisch anlegen.
-   Standard-Login:
-   Username: 005x5
-   Passwort: 005x5
 
-   Falls 005x5 bereits existiert,
-   bleiben seine Daten erhalten.
-*/
 
 if (!users["005x5"]) {
 
