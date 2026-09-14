@@ -14,7 +14,7 @@ let users = {};
 let currentUser = null;
 
 let settings = {
-    language: "de",
+    language: "en",
     emojis: true
 };
 
